@@ -13,6 +13,7 @@ import Admission from "./pages/Admission";
 import Gallery from "./pages/Gallery";
 import NotFound from "./pages/NotFound";
 import AdminAuth from "./pages/AdminAuth";
+import StudentAuth from "./pages/StudentAuth";
 import Dashboard from "./pages/admin/Dashboard";
 import NoticesManagement from "./pages/admin/NoticesManagement";
 import StudentsManagement from "./pages/admin/StudentsManagement";
@@ -39,6 +40,7 @@ const App = () => (
               <Route path="/notices" element={<Notices />} />
               <Route path="/admission" element={<Admission />} />
               <Route path="/gallery" element={<Gallery />} />
+              <Route path="/login" element={<StudentAuth />} />
               <Route path="/admin/login" element={<AdminAuth />} />
               <Route path="/admin" element={<Dashboard />} />
               <Route path="/admin/notices" element={<NoticesManagement />} />
