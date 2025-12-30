@@ -10,12 +10,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Upload, CheckCircle, AlertCircle, User, Mail, Phone, Calendar, BookOpen } from "lucide-react";
+import { Upload, CheckCircle, AlertCircle, User, Mail, Phone, Calendar, BookOpen, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 const Admission = () => {
   const [currentStep, setCurrentStep] = useState(1);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [applicationNumber, setApplicationNumber] = useState("");
   const [formData, setFormData] = useState({
     studentName: "",
     dateOfBirth: "",
@@ -48,10 +51,46 @@ const Admission = () => {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const generateApplicationNumber = () => {
+    const year = new Date().getFullYear();
+    const random = Math.floor(1000 + Math.random() * 9000);
+    return `SDSJSS-${year}-${random}`;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast.success("Application submitted successfully! Your registration number is: SDSJSS-2081-XXXX");
-    setCurrentStep(4);
+    setIsSubmitting(true);
+    
+    const appNumber = generateApplicationNumber();
+    
+    try {
+      const { error } = await supabase
+        .from("admissions")
+        .insert({
+          application_number: appNumber,
+          student_name: formData.studentName,
+          date_of_birth: formData.dateOfBirth,
+          gender: formData.gender,
+          applying_for_class: formData.applyingClass,
+          previous_school: formData.previousSchool || null,
+          guardian_name: formData.parentName,
+          guardian_phone: formData.parentPhone,
+          guardian_email: formData.parentEmail || null,
+          address: formData.address,
+          status: "pending",
+        });
+
+      if (error) throw error;
+      
+      setApplicationNumber(appNumber);
+      toast.success(`Application submitted successfully! Your registration number is: ${appNumber}`);
+      setCurrentStep(4);
+    } catch (error: any) {
+      console.error("Submission error:", error);
+      toast.error(error.message || "Failed to submit application. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const steps = [
@@ -357,7 +396,7 @@ const Admission = () => {
                       Your application has been received. Your registration number is:
                     </p>
                     <div className="bg-primary/10 text-primary font-mono text-xl font-bold py-3 px-6 rounded-lg inline-block mb-6">
-                      SDSJSS-2081-XXXX
+                      {applicationNumber}
                     </div>
                     <p className="text-sm text-muted-foreground mb-8">
                       Please save this number for future reference. You will receive a confirmation email shortly.
@@ -383,7 +422,8 @@ const Admission = () => {
                         Next Step
                       </Button>
                     ) : (
-                      <Button onClick={handleSubmit}>
+                      <Button onClick={handleSubmit} disabled={isSubmitting}>
+                        {isSubmitting && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                         Submit Application
                       </Button>
                     )}
