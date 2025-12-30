@@ -1,31 +1,47 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { Settings as SettingsIcon, School, Bell, Shield, User } from "lucide-react";
+import { School, Bell, Shield, User, Loader2 } from "lucide-react";
+
+interface SchoolSettings {
+  id: string;
+  school_name: string;
+  school_address: string;
+  school_phone: string;
+  school_email: string;
+  school_website: string;
+  principal_name: string;
+  established_year: number;
+}
 
 const Settings = () => {
   const { user, profile } = useAuth();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
+  const [schoolLoading, setSchoolLoading] = useState(false);
+  const [fetchingSchool, setFetchingSchool] = useState(true);
   
   const [profileData, setProfileData] = useState({
     full_name: profile?.full_name || "",
     phone: profile?.phone || "",
   });
 
-  const [schoolSettings, setSchoolSettings] = useState({
-    school_name: "Shree Secondary School",
-    school_address: "Kathmandu, Nepal",
-    school_phone: "+977-1-1234567",
-    school_email: "info@shreeschool.edu.np",
+  const [schoolSettings, setSchoolSettings] = useState<SchoolSettings>({
+    id: "",
+    school_name: "",
+    school_address: "",
+    school_phone: "",
+    school_email: "",
+    school_website: "",
+    principal_name: "",
+    established_year: 2000,
   });
 
   const [notifications, setNotifications] = useState({
@@ -33,6 +49,47 @@ const Settings = () => {
     admission_alerts: true,
     notice_reminders: true,
   });
+
+  useEffect(() => {
+    if (profile) {
+      setProfileData({
+        full_name: profile.full_name || "",
+        phone: profile.phone || "",
+      });
+    }
+  }, [profile]);
+
+  useEffect(() => {
+    fetchSchoolSettings();
+  }, []);
+
+  const fetchSchoolSettings = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("school_settings")
+        .select("*")
+        .limit(1)
+        .single();
+
+      if (error) throw error;
+      if (data) {
+        setSchoolSettings({
+          id: data.id,
+          school_name: data.school_name || "",
+          school_address: data.school_address || "",
+          school_phone: data.school_phone || "",
+          school_email: data.school_email || "",
+          school_website: data.school_website || "",
+          principal_name: data.principal_name || "",
+          established_year: data.established_year || 2000,
+        });
+      }
+    } catch (error: any) {
+      console.error("Error fetching school settings:", error);
+    } finally {
+      setFetchingSchool(false);
+    }
+  };
 
   const handleUpdateProfile = async () => {
     if (!user) return;
@@ -57,6 +114,37 @@ const Settings = () => {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleUpdateSchoolSettings = async () => {
+    if (!schoolSettings.id) return;
+    
+    setSchoolLoading(true);
+    try {
+      const { error } = await supabase
+        .from("school_settings")
+        .update({
+          school_name: schoolSettings.school_name,
+          school_address: schoolSettings.school_address,
+          school_phone: schoolSettings.school_phone,
+          school_email: schoolSettings.school_email,
+          school_website: schoolSettings.school_website,
+          principal_name: schoolSettings.principal_name,
+          established_year: schoolSettings.established_year,
+        })
+        .eq("id", schoolSettings.id);
+
+      if (error) throw error;
+      toast({ title: "School settings updated successfully" });
+    } catch (error: any) {
+      toast({
+        title: "Error updating school settings",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setSchoolLoading(false);
     }
   };
 
@@ -128,26 +216,100 @@ const Settings = () => {
                 School Information
               </CardTitle>
               <CardDescription>
-                Basic school details (read-only)
+                Update basic school details
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label>School Name</Label>
-                <Input value={schoolSettings.school_name} disabled className="bg-muted" />
-              </div>
-              <div className="space-y-2">
-                <Label>Address</Label>
-                <Input value={schoolSettings.school_address} disabled className="bg-muted" />
-              </div>
-              <div className="space-y-2">
-                <Label>Phone</Label>
-                <Input value={schoolSettings.school_phone} disabled className="bg-muted" />
-              </div>
-              <div className="space-y-2">
-                <Label>Email</Label>
-                <Input value={schoolSettings.school_email} disabled className="bg-muted" />
-              </div>
+              {fetchingSchool ? (
+                <div className="flex items-center justify-center py-8">
+                  <Loader2 className="h-6 w-6 animate-spin" />
+                </div>
+              ) : (
+                <>
+                  <div className="space-y-2">
+                    <Label htmlFor="school_name">School Name</Label>
+                    <Input
+                      id="school_name"
+                      value={schoolSettings.school_name}
+                      onChange={(e) =>
+                        setSchoolSettings({ ...schoolSettings, school_name: e.target.value })
+                      }
+                      placeholder="Enter school name"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="school_address">Address</Label>
+                    <Input
+                      id="school_address"
+                      value={schoolSettings.school_address}
+                      onChange={(e) =>
+                        setSchoolSettings({ ...schoolSettings, school_address: e.target.value })
+                      }
+                      placeholder="Enter school address"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="school_phone">Phone</Label>
+                    <Input
+                      id="school_phone"
+                      value={schoolSettings.school_phone}
+                      onChange={(e) =>
+                        setSchoolSettings({ ...schoolSettings, school_phone: e.target.value })
+                      }
+                      placeholder="Enter school phone"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="school_email">Email</Label>
+                    <Input
+                      id="school_email"
+                      type="email"
+                      value={schoolSettings.school_email}
+                      onChange={(e) =>
+                        setSchoolSettings({ ...schoolSettings, school_email: e.target.value })
+                      }
+                      placeholder="Enter school email"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="school_website">Website</Label>
+                    <Input
+                      id="school_website"
+                      value={schoolSettings.school_website}
+                      onChange={(e) =>
+                        setSchoolSettings({ ...schoolSettings, school_website: e.target.value })
+                      }
+                      placeholder="Enter school website"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="principal_name">Principal Name</Label>
+                    <Input
+                      id="principal_name"
+                      value={schoolSettings.principal_name}
+                      onChange={(e) =>
+                        setSchoolSettings({ ...schoolSettings, principal_name: e.target.value })
+                      }
+                      placeholder="Enter principal name"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="established_year">Established Year</Label>
+                    <Input
+                      id="established_year"
+                      type="number"
+                      value={schoolSettings.established_year}
+                      onChange={(e) =>
+                        setSchoolSettings({ ...schoolSettings, established_year: parseInt(e.target.value) || 2000 })
+                      }
+                      placeholder="Enter established year"
+                    />
+                  </div>
+                  <Button onClick={handleUpdateSchoolSettings} disabled={schoolLoading}>
+                    {schoolLoading ? "Saving..." : "Save School Settings"}
+                  </Button>
+                </>
+              )}
             </CardContent>
           </Card>
 
