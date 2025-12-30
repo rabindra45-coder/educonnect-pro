@@ -89,6 +89,8 @@ const AdmissionsManagement = () => {
 
   const updateStatus = async (id: string, status: string) => {
     try {
+      const admission = admissions.find(a => a.id === id);
+      
       const { error } = await supabase
         .from("admissions")
         .update({
@@ -101,10 +103,49 @@ const AdmissionsManagement = () => {
 
       if (error) throw error;
       
-      toast({ 
-        title: `Application ${status}`,
-        description: `The admission application has been ${status}.`
-      });
+      // If approved, create student account and send email
+      if (status === "approved" && admission) {
+        if (!admission.guardian_email) {
+          toast({
+            title: "Warning",
+            description: "No guardian email provided. Student account could not be created.",
+            variant: "destructive",
+          });
+        } else {
+          toast({
+            title: "Creating student account...",
+            description: "Please wait while we set up the student portal access.",
+          });
+          
+          const { data, error: fnError } = await supabase.functions.invoke("create-student-account", {
+            body: {
+              admissionId: id,
+              studentName: admission.student_name,
+              guardianEmail: admission.guardian_email,
+              applyingForClass: admission.applying_for_class,
+            },
+          });
+
+          if (fnError) {
+            console.error("Edge function error:", fnError);
+            toast({
+              title: "Account Creation Failed",
+              description: "Admission approved but student account could not be created. Please create manually.",
+              variant: "destructive",
+            });
+          } else {
+            toast({
+              title: "Student Account Created!",
+              description: `Login credentials have been sent to ${admission.guardian_email}`,
+            });
+          }
+        }
+      } else {
+        toast({ 
+          title: `Application ${status}`,
+          description: `The admission application has been ${status}.`
+        });
+      }
       
       setIsDialogOpen(false);
       setSelectedAdmission(null);
