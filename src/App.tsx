@@ -20,6 +20,7 @@ import TeachersManagement from "./pages/admin/TeachersManagement";
 import AdmissionsManagement from "./pages/admin/AdmissionsManagement";
 import UsersManagement from "./pages/admin/UsersManagement";
 import Settings from "./pages/admin/Settings";
+import StudentDashboard from "./pages/student/StudentDashboard";
 
 const queryClient = new QueryClient();
 
@@ -46,6 +47,7 @@ const App = () => (
               <Route path="/admin/admissions" element={<AdmissionsManagement />} />
               <Route path="/admin/users" element={<UsersManagement />} />
               <Route path="/admin/settings" element={<Settings />} />
+              <Route path="/student" element={<StudentDashboard />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
