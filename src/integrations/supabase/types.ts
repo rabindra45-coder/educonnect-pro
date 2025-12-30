@@ -14,16 +14,286 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      admissions: {
+        Row: {
+          address: string
+          application_number: string
+          applying_for_class: string
+          created_at: string
+          date_of_birth: string
+          documents_url: string | null
+          gender: string
+          guardian_email: string | null
+          guardian_name: string
+          guardian_phone: string
+          id: string
+          notes: string | null
+          previous_school: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string | null
+          student_name: string
+          updated_at: string
+        }
+        Insert: {
+          address: string
+          application_number: string
+          applying_for_class: string
+          created_at?: string
+          date_of_birth: string
+          documents_url?: string | null
+          gender: string
+          guardian_email?: string | null
+          guardian_name: string
+          guardian_phone: string
+          id?: string
+          notes?: string | null
+          previous_school?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string | null
+          student_name: string
+          updated_at?: string
+        }
+        Update: {
+          address?: string
+          application_number?: string
+          applying_for_class?: string
+          created_at?: string
+          date_of_birth?: string
+          documents_url?: string | null
+          gender?: string
+          guardian_email?: string | null
+          guardian_name?: string
+          guardian_phone?: string
+          id?: string
+          notes?: string | null
+          previous_school?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string | null
+          student_name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      notices: {
+        Row: {
+          attachment_url: string | null
+          category: string | null
+          content: string
+          created_at: string
+          created_by: string | null
+          expire_at: string | null
+          id: string
+          is_pinned: boolean | null
+          is_published: boolean | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          attachment_url?: string | null
+          category?: string | null
+          content: string
+          created_at?: string
+          created_by?: string | null
+          expire_at?: string | null
+          id?: string
+          is_pinned?: boolean | null
+          is_published?: boolean | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          attachment_url?: string | null
+          category?: string | null
+          content?: string
+          created_at?: string
+          created_by?: string | null
+          expire_at?: string | null
+          id?: string
+          is_pinned?: boolean | null
+          is_published?: boolean | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          email: string | null
+          full_name: string | null
+          id: string
+          phone: string | null
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      students: {
+        Row: {
+          address: string | null
+          admission_year: number | null
+          class: string
+          created_at: string
+          date_of_birth: string | null
+          full_name: string
+          gender: string | null
+          guardian_email: string | null
+          guardian_name: string | null
+          guardian_phone: string | null
+          id: string
+          photo_url: string | null
+          registration_number: string
+          roll_number: number | null
+          section: string | null
+          status: string | null
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          admission_year?: number | null
+          class: string
+          created_at?: string
+          date_of_birth?: string | null
+          full_name: string
+          gender?: string | null
+          guardian_email?: string | null
+          guardian_name?: string | null
+          guardian_phone?: string | null
+          id?: string
+          photo_url?: string | null
+          registration_number: string
+          roll_number?: number | null
+          section?: string | null
+          status?: string | null
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          admission_year?: number | null
+          class?: string
+          created_at?: string
+          date_of_birth?: string | null
+          full_name?: string
+          gender?: string | null
+          guardian_email?: string | null
+          guardian_name?: string | null
+          guardian_phone?: string | null
+          id?: string
+          photo_url?: string | null
+          registration_number?: string
+          roll_number?: number | null
+          section?: string | null
+          status?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      teachers: {
+        Row: {
+          created_at: string
+          department: string | null
+          email: string | null
+          employee_id: string
+          full_name: string
+          id: string
+          joined_date: string | null
+          phone: string | null
+          photo_url: string | null
+          qualification: string | null
+          status: string | null
+          subject: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          department?: string | null
+          email?: string | null
+          employee_id: string
+          full_name: string
+          id?: string
+          joined_date?: string | null
+          phone?: string | null
+          photo_url?: string | null
+          qualification?: string | null
+          status?: string | null
+          subject?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          department?: string | null
+          email?: string | null
+          employee_id?: string
+          full_name?: string
+          id?: string
+          joined_date?: string | null
+          phone?: string | null
+          photo_url?: string | null
+          qualification?: string | null
+          status?: string | null
+          subject?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_any_admin_role: { Args: { _user_id: string }; Returns: boolean }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "super_admin" | "admin" | "teacher" | "staff"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +420,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["super_admin", "admin", "teacher", "staff"],
+    },
   },
 } as const
