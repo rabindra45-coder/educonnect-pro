@@ -1,9 +1,10 @@
 import { Link, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, Phone, Mail, ChevronDown, GraduationCap } from "lucide-react";
+import { Menu, X, Phone, Mail, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import schoolLogo from "@/assets/logo.png";
 
 const navItems = [
   { name: "Home", path: "/" },
@@ -80,9 +81,11 @@ const Header = () => {
           <div className="flex items-center justify-between h-20">
             {/* Logo */}
             <Link to="/" className="flex items-center gap-3 group">
-              <div className="w-12 h-12 rounded-full bg-gradient-primary flex items-center justify-center shadow-md group-hover:shadow-primary-glow transition-shadow duration-300">
-                <GraduationCap className="w-7 h-7 text-primary-foreground" />
-              </div>
+              <img 
+                src={schoolLogo} 
+                alt="Shree Durga Saraswati Janata Secondary School Logo" 
+                className="w-14 h-14 object-contain group-hover:scale-105 transition-transform duration-300"
+              />
               <div className="hidden sm:block">
                 <h1 className="font-display text-lg font-bold text-foreground leading-tight">
                   Shree Durga Saraswati
