@@ -9,7 +9,8 @@ import {
   LogOut,
   UserCog,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Home
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
@@ -65,6 +66,18 @@ const AdminSidebar = () => {
               <p className="text-xs text-muted-foreground">Admin Panel</p>
             </div>
           )}
+        </Link>
+        {/* Link to main site */}
+        <Link 
+          to="/" 
+          className={cn(
+            "flex items-center gap-2 mt-3 text-xs text-muted-foreground hover:text-primary transition-colors",
+            isCollapsed && "justify-center"
+          )}
+          title="Go to main website"
+        >
+          <Home className="w-4 h-4" />
+          {!isCollapsed && <span>Visit Website</span>}
         </Link>
       </div>
 

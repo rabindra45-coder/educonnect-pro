@@ -1,10 +1,18 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, Phone, Mail, ChevronDown } from "lucide-react";
+import { Menu, X, Phone, Mail, ChevronDown, LogIn, User, LogOut, LayoutDashboard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import schoolLogo from "@/assets/logo.png";
+import { useAuth } from "@/hooks/useAuth";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const navItems = [
   { name: "Home", path: "/" },
@@ -29,6 +37,14 @@ const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, profile, signOut, hasRole, hasAnyAdminRole } = useAuth();
+
+  const getDashboardPath = () => {
+    if (hasRole("student")) return "/student";
+    if (hasAnyAdminRole()) return "/admin";
+    return "/admin/login";
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -142,11 +158,41 @@ const Header = () => {
               ))}
             </nav>
 
-            {/* CTA & Mobile Menu */}
-            <div className="flex items-center gap-4">
+            {/* CTA & User Menu & Mobile Menu */}
+            <div className="flex items-center gap-3">
               <Button variant="gold" size="lg" className="hidden md:flex" asChild>
                 <Link to="/admission">Apply Now</Link>
               </Button>
+
+              {/* User Auth Menu */}
+              {user ? (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="sm" className="gap-2">
+                      <User className="w-4 h-4" />
+                      <span className="hidden sm:inline">{profile?.full_name?.split(" ")[0] || "Account"}</span>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-48">
+                    <DropdownMenuItem onClick={() => navigate(getDashboardPath())}>
+                      <LayoutDashboard className="w-4 h-4 mr-2" />
+                      Dashboard
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={signOut} className="text-destructive focus:text-destructive">
+                      <LogOut className="w-4 h-4 mr-2" />
+                      Sign Out
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ) : (
+                <Button variant="outline" size="sm" asChild>
+                  <Link to="/admin/login" className="gap-2">
+                    <LogIn className="w-4 h-4" />
+                    <span className="hidden sm:inline">Login</span>
+                  </Link>
+                </Button>
+              )}
               
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
