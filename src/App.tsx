@@ -19,6 +19,7 @@ import StudentsManagement from "./pages/admin/StudentsManagement";
 import TeachersManagement from "./pages/admin/TeachersManagement";
 import AdmissionsManagement from "./pages/admin/AdmissionsManagement";
 import UsersManagement from "./pages/admin/UsersManagement";
+import Settings from "./pages/admin/Settings";
 
 const queryClient = new QueryClient();
 
@@ -44,6 +45,7 @@ const App = () => (
               <Route path="/admin/teachers" element={<TeachersManagement />} />
               <Route path="/admin/admissions" element={<AdmissionsManagement />} />
               <Route path="/admin/users" element={<UsersManagement />} />
+              <Route path="/admin/settings" element={<Settings />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
