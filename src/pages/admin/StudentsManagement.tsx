@@ -115,9 +115,9 @@ const StudentsManagement = () => {
         if (error) throw error;
         toast({ title: "Student updated successfully" });
       } else {
-        const { error } = await supabase
+      const { error } = await supabase
           .from("students")
-          .insert([studentData]);
+          .insert([{ ...studentData, registration_number: "TEMP" }]);
 
         if (error) throw error;
         toast({ title: "Student added successfully" });

@@ -102,9 +102,9 @@ const TeachersManagement = () => {
         if (error) throw error;
         toast({ title: "Teacher updated successfully" });
       } else {
-        const { error } = await supabase
+      const { error } = await supabase
           .from("teachers")
-          .insert([formData]);
+          .insert([{ ...formData, employee_id: "TEMP" }]);
 
         if (error) throw error;
         toast({ title: "Teacher added successfully" });
