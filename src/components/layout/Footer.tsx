@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom";
 import { 
-  GraduationCap, 
   Phone, 
   Mail, 
   MapPin, 
@@ -10,6 +9,7 @@ import {
   Youtube,
   ArrowUp
 } from "lucide-react";
+import schoolLogo from "@/assets/logo.png";
 
 const Footer = () => {
   const scrollToTop = () => {
@@ -41,9 +41,11 @@ const Footer = () => {
           {/* School Info */}
           <div className="lg:col-span-1">
             <Link to="/" className="flex items-center gap-3 mb-6">
-              <div className="w-14 h-14 rounded-full bg-secondary flex items-center justify-center">
-                <GraduationCap className="w-8 h-8 text-secondary-foreground" />
-              </div>
+              <img 
+                src={schoolLogo} 
+                alt="Shree Durga Saraswati Janata Secondary School Logo" 
+                className="w-16 h-16 object-contain bg-white rounded-full p-1"
+              />
               <div>
                 <h3 className="font-display text-lg font-bold leading-tight">
                   Shree Durga Saraswati
