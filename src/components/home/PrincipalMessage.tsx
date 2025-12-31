@@ -3,30 +3,29 @@ import { useInView } from "framer-motion";
 import { useRef } from "react";
 import { Quote } from "lucide-react";
 import principalImage from "@/assets/principal.jpg";
-
 const PrincipalMessage = () => {
   const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: "-100px" });
-
-  return (
-    <section className="py-20 bg-background" ref={ref}>
+  const isInView = useInView(ref, {
+    once: true,
+    margin: "-100px"
+  });
+  return <section className="py-20 bg-background" ref={ref}>
       <div className="container mx-auto px-4">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Image Side */}
-          <motion.div
-            className="relative"
-            initial={{ opacity: 0, x: -50 }}
-            animate={isInView ? { opacity: 1, x: 0 } : {}}
-            transition={{ duration: 0.8 }}
-          >
+          <motion.div className="relative" initial={{
+          opacity: 0,
+          x: -50
+        }} animate={isInView ? {
+          opacity: 1,
+          x: 0
+        } : {}} transition={{
+          duration: 0.8
+        }}>
             <div className="relative">
               {/* Main Image */}
               <div className="relative z-10 rounded-2xl overflow-hidden shadow-xl">
-                <img
-                  src={principalImage}
-                  alt="Principal of Shree Durga Saraswati Janata Secondary School"
-                  className="w-full aspect-[4/5] object-cover"
-                />
+                <img src={principalImage} alt="Principal of Shree Durga Saraswati Janata Secondary School" className="w-full aspect-[4/5] object-cover" />
               </div>
               
               {/* Decorative Elements */}
@@ -34,12 +33,14 @@ const PrincipalMessage = () => {
               <div className="absolute -bottom-4 -right-4 w-32 h-32 bg-primary/10 rounded-2xl -z-10"></div>
               
               {/* Experience Badge */}
-              <motion.div
-                className="absolute -bottom-6 -right-6 bg-primary text-primary-foreground p-6 rounded-2xl shadow-xl z-20"
-                initial={{ scale: 0 }}
-                animate={isInView ? { scale: 1 } : {}}
-                transition={{ duration: 0.5, delay: 0.5 }}
-              >
+              <motion.div className="absolute -bottom-6 -right-6 bg-primary text-primary-foreground p-6 rounded-2xl shadow-xl z-20" initial={{
+              scale: 0
+            }} animate={isInView ? {
+              scale: 1
+            } : {}} transition={{
+              duration: 0.5,
+              delay: 0.5
+            }}>
                 <div className="text-center">
                   <div className="font-display text-3xl font-bold">25+</div>
                   <div className="text-sm text-primary-foreground/80">Years in<br />Education</div>
@@ -49,11 +50,16 @@ const PrincipalMessage = () => {
           </motion.div>
 
           {/* Content Side */}
-          <motion.div
-            initial={{ opacity: 0, x: 50 }}
-            animate={isInView ? { opacity: 1, x: 0 } : {}}
-            transition={{ duration: 0.8, delay: 0.2 }}
-          >
+          <motion.div initial={{
+          opacity: 0,
+          x: 50
+        }} animate={isInView ? {
+          opacity: 1,
+          x: 0
+        } : {}} transition={{
+          duration: 0.8,
+          delay: 0.2
+        }}>
             <span className="inline-block px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4">
               From the Principal's Desk
             </span>
@@ -87,16 +93,12 @@ const PrincipalMessage = () => {
             </p>
 
             <div className="border-t border-border pt-6">
-              <h4 className="font-display text-xl font-semibold text-foreground">
-                Mr. Ram Bahadur Sharma
-              </h4>
+              <h4 className="font-display text-xl font-semibold text-foreground">Mr. Ram Balak Sharma</h4>
               <p className="text-muted-foreground">Principal</p>
             </div>
           </motion.div>
         </div>
       </div>
-    </section>
-  );
+    </section>;
 };
-
 export default PrincipalMessage;
