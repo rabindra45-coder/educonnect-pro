@@ -117,7 +117,9 @@ const Footer = () => {
               <li className="flex items-start gap-3">
                 <MapPin className="w-5 h-5 text-secondary flex-shrink-0 mt-0.5" />
                 <span className="text-primary-foreground/80 text-sm">Barahathawa-10,sarlahi,Madhesh Province, Nepal<br />
-                  Barahathawa-10,sarlahi,Madhesh Province, Nepal
+                  
+                  District, Province, Nepal
+                
                 </span>
               </li>
               <li className="flex items-center gap-3">
