@@ -6,46 +6,57 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import schoolLogo from "@/assets/logo.png";
 import { useAuth } from "@/hooks/useAuth";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-
-const navItems = [
-  { name: "Home", path: "/" },
-  { 
-    name: "About", 
-    path: "/about",
-    dropdown: [
-      { name: "School History", path: "/about#history" },
-      { name: "Vision & Mission", path: "/about#vision" },
-      { name: "Leadership", path: "/about#leadership" },
-      { name: "Infrastructure", path: "/about#infrastructure" },
-    ]
-  },
-  { name: "Academics", path: "/academics" },
-  { name: "Notice Board", path: "/notices" },
-  { name: "Gallery", path: "/gallery" },
-  { name: "Contact", path: "/contact" },
-];
-
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+const navItems = [{
+  name: "Home",
+  path: "/"
+}, {
+  name: "About",
+  path: "/about",
+  dropdown: [{
+    name: "School History",
+    path: "/about#history"
+  }, {
+    name: "Vision & Mission",
+    path: "/about#vision"
+  }, {
+    name: "Leadership",
+    path: "/about#leadership"
+  }, {
+    name: "Infrastructure",
+    path: "/about#infrastructure"
+  }]
+}, {
+  name: "Academics",
+  path: "/academics"
+}, {
+  name: "Notice Board",
+  path: "/notices"
+}, {
+  name: "Gallery",
+  path: "/gallery"
+}, {
+  name: "Contact",
+  path: "/contact"
+}];
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, profile, signOut, hasRole, hasAnyAdminRole } = useAuth();
-
+  const {
+    user,
+    profile,
+    signOut,
+    hasRole,
+    hasAnyAdminRole
+  } = useAuth();
   const getDashboardPath = () => {
     if (hasRole("student")) return "/student";
     if (hasAnyAdminRole()) return "/admin";
     return "/admin/login";
   };
-
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
@@ -53,13 +64,10 @@ const Header = () => {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-
   useEffect(() => {
     setIsMobileMenuOpen(false);
   }, [location]);
-
-  return (
-    <>
+  return <>
       {/* Top Bar */}
       <div className="bg-primary text-primary-foreground py-2 hidden md:block">
         <div className="container mx-auto px-4">
@@ -67,7 +75,7 @@ const Header = () => {
             <div className="flex items-center gap-6">
               <a href="tel:+977-XXX-XXXXXXX" className="flex items-center gap-2 hover:text-secondary transition-colors">
                 <Phone className="w-4 h-4" />
-                <span>+977-XXX-XXXXXXX</span>
+                <span>+977-9746834671</span>
               </a>
               <a href="mailto:info@sdsjss.edu.np" className="flex items-center gap-2 hover:text-secondary transition-colors">
                 <Mail className="w-4 h-4" />
@@ -82,26 +90,18 @@ const Header = () => {
       </div>
 
       {/* Main Navigation */}
-      <motion.header
-        className={cn(
-          "sticky top-0 z-50 transition-all duration-300",
-          isScrolled 
-            ? "bg-card/95 backdrop-blur-md shadow-lg" 
-            : "bg-card"
-        )}
-        initial={{ y: -100 }}
-        animate={{ y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
+      <motion.header className={cn("sticky top-0 z-50 transition-all duration-300", isScrolled ? "bg-card/95 backdrop-blur-md shadow-lg" : "bg-card")} initial={{
+      y: -100
+    }} animate={{
+      y: 0
+    }} transition={{
+      duration: 0.5
+    }}>
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-20">
             {/* Logo */}
             <Link to="/" className="flex items-center gap-3 group">
-              <img 
-                src={schoolLogo} 
-                alt="Shree Durga Saraswati Janata Secondary School Logo" 
-                className="w-14 h-14 object-contain group-hover:scale-105 transition-transform duration-300"
-              />
+              <img src={schoolLogo} alt="Shree Durga Saraswati Janata Secondary School Logo" className="w-14 h-14 object-contain group-hover:scale-105 transition-transform duration-300" />
               <div className="hidden sm:block">
                 <h1 className="font-display text-lg font-bold text-foreground leading-tight">
                   Shree Durga Saraswati
@@ -112,50 +112,32 @@ const Header = () => {
 
             {/* Desktop Navigation */}
             <nav className="hidden lg:flex items-center gap-1">
-              {navItems.map((item) => (
-                <div
-                  key={item.name}
-                  className="relative"
-                  onMouseEnter={() => item.dropdown && setActiveDropdown(item.name)}
-                  onMouseLeave={() => setActiveDropdown(null)}
-                >
-                  <Link
-                    to={item.path}
-                    className={cn(
-                      "flex items-center gap-1 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200",
-                      location.pathname === item.path
-                        ? "text-primary bg-primary/10"
-                        : "text-foreground/80 hover:text-primary hover:bg-primary/5"
-                    )}
-                  >
+              {navItems.map(item => <div key={item.name} className="relative" onMouseEnter={() => item.dropdown && setActiveDropdown(item.name)} onMouseLeave={() => setActiveDropdown(null)}>
+                  <Link to={item.path} className={cn("flex items-center gap-1 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200", location.pathname === item.path ? "text-primary bg-primary/10" : "text-foreground/80 hover:text-primary hover:bg-primary/5")}>
                     {item.name}
                     {item.dropdown && <ChevronDown className="w-4 h-4" />}
                   </Link>
                   
                   {/* Dropdown */}
                   <AnimatePresence>
-                    {item.dropdown && activeDropdown === item.name && (
-                      <motion.div
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 10 }}
-                        transition={{ duration: 0.2 }}
-                        className="absolute top-full left-0 mt-1 w-48 bg-card rounded-lg shadow-xl border border-border overflow-hidden"
-                      >
-                        {item.dropdown.map((subItem) => (
-                          <Link
-                            key={subItem.name}
-                            to={subItem.path}
-                            className="block px-4 py-3 text-sm text-foreground/80 hover:text-primary hover:bg-primary/5 transition-colors"
-                          >
+                    {item.dropdown && activeDropdown === item.name && <motion.div initial={{
+                  opacity: 0,
+                  y: 10
+                }} animate={{
+                  opacity: 1,
+                  y: 0
+                }} exit={{
+                  opacity: 0,
+                  y: 10
+                }} transition={{
+                  duration: 0.2
+                }} className="absolute top-full left-0 mt-1 w-48 bg-card rounded-lg shadow-xl border border-border overflow-hidden">
+                        {item.dropdown.map(subItem => <Link key={subItem.name} to={subItem.path} className="block px-4 py-3 text-sm text-foreground/80 hover:text-primary hover:bg-primary/5 transition-colors">
                             {subItem.name}
-                          </Link>
-                        ))}
-                      </motion.div>
-                    )}
+                          </Link>)}
+                      </motion.div>}
                   </AnimatePresence>
-                </div>
-              ))}
+                </div>)}
             </nav>
 
             {/* CTA & User Menu & Mobile Menu */}
@@ -165,8 +147,7 @@ const Header = () => {
               </Button>
 
               {/* User Auth Menu */}
-              {user ? (
-                <DropdownMenu>
+              {user ? <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="outline" size="sm" className="gap-2">
                       <User className="w-4 h-4" />
@@ -184,25 +165,15 @@ const Header = () => {
                       Sign Out
                     </DropdownMenuItem>
                   </DropdownMenuContent>
-                </DropdownMenu>
-              ) : (
-                <Button variant="outline" size="sm" asChild>
+                </DropdownMenu> : <Button variant="outline" size="sm" asChild>
                   <Link to="/login" className="gap-2">
                     <LogIn className="w-4 h-4" />
                     <span className="hidden sm:inline">Student Login</span>
                   </Link>
-                </Button>
-              )}
+                </Button>}
               
-              <button
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="lg:hidden p-2 rounded-lg hover:bg-muted transition-colors"
-              >
-                {isMobileMenuOpen ? (
-                  <X className="w-6 h-6 text-foreground" />
-                ) : (
-                  <Menu className="w-6 h-6 text-foreground" />
-                )}
+              <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="lg:hidden p-2 rounded-lg hover:bg-muted transition-colors">
+                {isMobileMenuOpen ? <X className="w-6 h-6 text-foreground" /> : <Menu className="w-6 h-6 text-foreground" />}
               </button>
             </div>
           </div>
@@ -210,52 +181,34 @@ const Header = () => {
 
         {/* Mobile Navigation */}
         <AnimatePresence>
-          {isMobileMenuOpen && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              className="lg:hidden bg-card border-t border-border"
-            >
+          {isMobileMenuOpen && <motion.div initial={{
+          opacity: 0,
+          height: 0
+        }} animate={{
+          opacity: 1,
+          height: "auto"
+        }} exit={{
+          opacity: 0,
+          height: 0
+        }} className="lg:hidden bg-card border-t border-border">
               <nav className="container mx-auto px-4 py-4">
-                {navItems.map((item) => (
-                  <div key={item.name}>
-                    <Link
-                      to={item.path}
-                      className={cn(
-                        "block py-3 text-base font-medium border-b border-border/50 transition-colors",
-                        location.pathname === item.path
-                          ? "text-primary"
-                          : "text-foreground/80 hover:text-primary"
-                      )}
-                    >
+                {navItems.map(item => <div key={item.name}>
+                    <Link to={item.path} className={cn("block py-3 text-base font-medium border-b border-border/50 transition-colors", location.pathname === item.path ? "text-primary" : "text-foreground/80 hover:text-primary")}>
                       {item.name}
                     </Link>
-                    {item.dropdown && (
-                      <div className="pl-4 py-2 space-y-2">
-                        {item.dropdown.map((subItem) => (
-                          <Link
-                            key={subItem.name}
-                            to={subItem.path}
-                            className="block py-2 text-sm text-muted-foreground hover:text-primary transition-colors"
-                          >
+                    {item.dropdown && <div className="pl-4 py-2 space-y-2">
+                        {item.dropdown.map(subItem => <Link key={subItem.name} to={subItem.path} className="block py-2 text-sm text-muted-foreground hover:text-primary transition-colors">
                             {subItem.name}
-                          </Link>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                ))}
+                          </Link>)}
+                      </div>}
+                  </div>)}
                 <Button variant="gold" size="lg" className="w-full mt-4" asChild>
                   <Link to="/admission">Apply Now</Link>
                 </Button>
               </nav>
-            </motion.div>
-          )}
+            </motion.div>}
         </AnimatePresence>
       </motion.header>
-    </>
-  );
+    </>;
 };
-
 export default Header;
