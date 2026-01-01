@@ -1,12 +1,9 @@
 import { Helmet } from "react-helmet-async";
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import MainLayout from "@/components/layout/MainLayout";
 import { X } from "lucide-react";
-import classroomImg from "@/assets/classroom.jpg";
-import sportsImg from "@/assets/sports.jpg";
-import libraryImg from "@/assets/library.jpg";
-import heroImg from "@/assets/hero-school.jpg";
+import { supabase } from "@/integrations/supabase/client";
 
 const albums = [
   { id: "all", name: "All Photos" },
@@ -16,24 +13,38 @@ const albums = [
   { id: "academics", name: "Academics" },
 ];
 
-const galleryImages = [
-  { id: 1, src: heroImg, title: "School Campus", album: "campus" },
-  { id: 2, src: classroomImg, title: "Modern Classroom", album: "academics" },
-  { id: 3, src: sportsImg, title: "Sports Day", album: "sports" },
-  { id: 4, src: libraryImg, title: "Library", album: "academics" },
-  { id: 5, src: heroImg, title: "Main Building", album: "campus" },
-  { id: 6, src: classroomImg, title: "Science Lab", album: "academics" },
-  { id: 7, src: sportsImg, title: "Football Match", album: "sports" },
-  { id: 8, src: libraryImg, title: "Reading Room", album: "academics" },
-];
+interface GalleryImage {
+  id: string;
+  title: string;
+  album: string;
+  image_url: string;
+}
 
 const Gallery = () => {
   const [selectedAlbum, setSelectedAlbum] = useState("all");
   const [lightboxImage, setLightboxImage] = useState<string | null>(null);
+  const [images, setImages] = useState<GalleryImage[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchImages = async () => {
+      const { data, error } = await supabase
+        .from("gallery_images")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (!error && data) {
+        setImages(data);
+      }
+      setLoading(false);
+    };
+
+    fetchImages();
+  }, []);
 
   const filteredImages = selectedAlbum === "all" 
-    ? galleryImages 
-    : galleryImages.filter(img => img.album === selectedAlbum);
+    ? images 
+    : images.filter(img => img.album === selectedAlbum);
 
   return (
     <>
@@ -92,29 +103,44 @@ const Gallery = () => {
             </motion.div>
 
             {/* Image Grid */}
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {filteredImages.map((image, index) => (
-                <motion.div
-                  key={image.id}
-                  className="relative aspect-square rounded-xl overflow-hidden cursor-pointer group"
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.4, delay: index * 0.05 }}
-                  onClick={() => setLightboxImage(image.src)}
-                >
-                  <img
-                    src={image.src}
-                    alt={image.title}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-foreground/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <div className="absolute bottom-0 left-0 right-0 p-4">
-                      <p className="text-card text-sm font-medium">{image.title}</p>
+            {loading ? (
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {Array.from({ length: 8 }).map((_, index) => (
+                  <div
+                    key={index}
+                    className="aspect-square rounded-xl bg-muted animate-pulse"
+                  ></div>
+                ))}
+              </div>
+            ) : filteredImages.length === 0 ? (
+              <div className="text-center py-12">
+                <p className="text-muted-foreground">No images available in this album.</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {filteredImages.map((image, index) => (
+                  <motion.div
+                    key={image.id}
+                    className="relative aspect-square rounded-xl overflow-hidden cursor-pointer group"
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.4, delay: index * 0.05 }}
+                    onClick={() => setLightboxImage(image.image_url)}
+                  >
+                    <img
+                      src={image.image_url}
+                      alt={image.title}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-foreground/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <div className="absolute bottom-0 left-0 right-0 p-4">
+                        <p className="text-card text-sm font-medium">{image.title}</p>
+                      </div>
                     </div>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
+                  </motion.div>
+                ))}
+              </div>
+            )}
           </div>
         </section>
 
