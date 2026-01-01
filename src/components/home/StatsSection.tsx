@@ -1,32 +1,54 @@
 import { motion } from "framer-motion";
 import { useInView } from "framer-motion";
 import { useRef, useEffect, useState } from "react";
-import { Users, GraduationCap, Award, BookOpen } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { Users, GraduationCap, Award, BookOpen, TrendingUp } from "lucide-react";
+
+interface Stat {
+  id: string;
+  label: string;
+  value: string;
+  icon: string | null;
+  display_order: number;
+}
 
 interface StatItemProps {
   icon: React.ReactNode;
-  value: number;
+  value: string;
   label: string;
-  suffix?: string;
   delay: number;
 }
 
-const StatItem = ({ icon, value, label, suffix = "", delay }: StatItemProps) => {
+const iconMap: Record<string, React.ReactNode> = {
+  users: <Users className="w-8 h-8" />,
+  "graduation-cap": <GraduationCap className="w-8 h-8" />,
+  award: <Award className="w-8 h-8" />,
+  "trending-up": <TrendingUp className="w-8 h-8" />,
+  "book-open": <BookOpen className="w-8 h-8" />,
+};
+
+const StatItem = ({ icon, value, label, delay }: StatItemProps) => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true });
+
+  // Parse numeric value for animation
+  const numericMatch = value.match(/^(\d+)/);
+  const numericValue = numericMatch ? parseInt(numericMatch[1]) : 0;
+  const suffix = value.replace(/^\d+/, "");
+  
   const [count, setCount] = useState(0);
 
   useEffect(() => {
-    if (isInView) {
+    if (isInView && numericValue > 0) {
       const duration = 2000;
       const steps = 60;
-      const increment = value / steps;
+      const increment = numericValue / steps;
       let current = 0;
       
       const timer = setInterval(() => {
         current += increment;
-        if (current >= value) {
-          setCount(value);
+        if (current >= numericValue) {
+          setCount(numericValue);
           clearInterval(timer);
         } else {
           setCount(Math.floor(current));
@@ -35,7 +57,7 @@ const StatItem = ({ icon, value, label, suffix = "", delay }: StatItemProps) => 
 
       return () => clearInterval(timer);
     }
-  }, [isInView, value]);
+  }, [isInView, numericValue]);
 
   return (
     <motion.div
@@ -49,7 +71,7 @@ const StatItem = ({ icon, value, label, suffix = "", delay }: StatItemProps) => 
         {icon}
       </div>
       <div className="font-display text-4xl md:text-5xl font-bold text-foreground mb-2">
-        {count.toLocaleString()}{suffix}
+        {numericValue > 0 ? `${count.toLocaleString()}${suffix}` : value}
       </div>
       <div className="text-muted-foreground font-medium">{label}</div>
     </motion.div>
@@ -57,11 +79,25 @@ const StatItem = ({ icon, value, label, suffix = "", delay }: StatItemProps) => 
 };
 
 const StatsSection = () => {
-  const stats = [
-    { icon: <Users className="w-8 h-8" />, value: 1500, label: "Students Enrolled", suffix: "+" },
-    { icon: <GraduationCap className="w-8 h-8" />, value: 75, label: "Expert Teachers", suffix: "+" },
-    { icon: <Award className="w-8 h-8" />, value: 25, label: "Years of Excellence", suffix: "" },
-    { icon: <BookOpen className="w-8 h-8" />, value: 98, label: "Success Rate", suffix: "%" },
+  const [stats, setStats] = useState<Stat[]>([]);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      const { data } = await supabase
+        .from("stats")
+        .select("*")
+        .eq("is_active", true)
+        .order("display_order");
+      if (data) setStats(data);
+    };
+    fetchStats();
+  }, []);
+
+  const defaultIcons = [
+    <Users className="w-8 h-8" />,
+    <GraduationCap className="w-8 h-8" />,
+    <Award className="w-8 h-8" />,
+    <TrendingUp className="w-8 h-8" />,
   ];
 
   return (
@@ -70,11 +106,10 @@ const StatsSection = () => {
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
           {stats.map((stat, index) => (
             <StatItem
-              key={stat.label}
-              icon={stat.icon}
+              key={stat.id}
+              icon={stat.icon ? iconMap[stat.icon] || defaultIcons[index % 4] : defaultIcons[index % 4]}
               value={stat.value}
               label={stat.label}
-              suffix={stat.suffix}
               delay={index * 0.1}
             />
           ))}

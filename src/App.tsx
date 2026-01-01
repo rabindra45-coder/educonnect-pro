@@ -27,6 +27,7 @@ import TeachersManagement from "./pages/admin/TeachersManagement";
 import AdmissionsManagement from "./pages/admin/AdmissionsManagement";
 import UsersManagement from "./pages/admin/UsersManagement";
 import GalleryManagement from "./pages/admin/GalleryManagement";
+import ContentManagement from "./pages/admin/ContentManagement";
 import Settings from "./pages/admin/Settings";
 import StudentDashboard from "./pages/student/StudentDashboard";
 
@@ -62,6 +63,7 @@ const App = () => (
               <Route path="/admin/admissions" element={<AdmissionsManagement />} />
               <Route path="/admin/users" element={<UsersManagement />} />
               <Route path="/admin/gallery" element={<GalleryManagement />} />
+              <Route path="/admin/content" element={<ContentManagement />} />
               <Route path="/admin/settings" element={<Settings />} />
               <Route path="/student" element={<StudentDashboard />} />
               <Route path="*" element={<NotFound />} />
