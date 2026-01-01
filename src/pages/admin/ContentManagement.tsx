@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import AdminLayout from "@/components/admin/AdminLayout";
@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Plus, Edit, Trash2, Save, GripVertical, Users, Award, Building2, MessageSquare } from "lucide-react";
+import { Plus, Edit, Trash2, Save, GripVertical, Users, Award, Building2, MessageSquare, Upload, X, Loader2 } from "lucide-react";
 
 interface Facility {
   id: string;
@@ -61,6 +61,12 @@ interface AboutContent {
 const ContentManagement = () => {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("facilities");
+  const [uploading, setUploading] = useState(false);
+  
+  // File input refs
+  const facilityFileRef = useRef<HTMLInputElement>(null);
+  const leaderFileRef = useRef<HTMLInputElement>(null);
+  const testimonialFileRef = useRef<HTMLInputElement>(null);
   
   // Facilities state
   const [facilities, setFacilities] = useState<Facility[]>([]);
@@ -130,6 +136,66 @@ const ContentManagement = () => {
   const fetchAboutContent = async () => {
     const { data } = await supabase.from("about_content").select("*");
     if (data) setAboutContent(data);
+  };
+
+  // Image upload helper
+  const uploadImage = async (file: File, folder: string): Promise<string | null> => {
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${folder}/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+    
+    setUploading(true);
+    const { error } = await supabase.storage
+      .from('content-images')
+      .upload(fileName, file);
+    
+    setUploading(false);
+    
+    if (error) {
+      toast({ title: "Upload failed", description: error.message, variant: "destructive" });
+      return null;
+    }
+    
+    const { data: { publicUrl } } = supabase.storage
+      .from('content-images')
+      .getPublicUrl(fileName);
+    
+    return publicUrl;
+  };
+
+  // Handle facility image upload
+  const handleFacilityImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    const url = await uploadImage(file, 'facilities');
+    if (url) {
+      setFacilityForm({ ...facilityForm, image_url: url });
+      toast({ title: "Image uploaded" });
+    }
+  };
+
+  // Handle leader photo upload
+  const handleLeaderPhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    const url = await uploadImage(file, 'leadership');
+    if (url) {
+      setLeaderForm({ ...leaderForm, photo_url: url });
+      toast({ title: "Photo uploaded" });
+    }
+  };
+
+  // Handle testimonial photo upload
+  const handleTestimonialPhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    const url = await uploadImage(file, 'testimonials');
+    if (url) {
+      setTestimonialForm({ ...testimonialForm, photo_url: url });
+      toast({ title: "Photo uploaded" });
+    }
   };
 
   // Facility CRUD
@@ -294,6 +360,74 @@ const ContentManagement = () => {
     fetchAboutContent();
   };
 
+  // Image upload component
+  const ImageUploadField = ({ 
+    label, 
+    imageUrl, 
+    onUpload, 
+    onClear,
+    inputRef
+  }: { 
+    label: string; 
+    imageUrl: string; 
+    onUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    onClear: () => void;
+    inputRef: React.RefObject<HTMLInputElement>;
+  }) => (
+    <div>
+      <Label>{label}</Label>
+      <div className="mt-2">
+        {imageUrl ? (
+          <div className="relative inline-block">
+            <img src={imageUrl} alt="Preview" className="w-32 h-32 object-cover rounded-lg border" />
+            <button
+              type="button"
+              onClick={onClear}
+              className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full p-1 hover:bg-destructive/90"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        ) : (
+          <div
+            onClick={() => inputRef.current?.click()}
+            className="w-32 h-32 border-2 border-dashed border-muted-foreground/25 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-primary/50 transition-colors"
+          >
+            {uploading ? (
+              <Loader2 className="w-8 h-8 text-muted-foreground animate-spin" />
+            ) : (
+              <>
+                <Upload className="w-8 h-8 text-muted-foreground mb-2" />
+                <span className="text-xs text-muted-foreground">Click to upload</span>
+              </>
+            )}
+          </div>
+        )}
+        <input
+          ref={inputRef}
+          type="file"
+          accept="image/*"
+          onChange={onUpload}
+          className="hidden"
+        />
+      </div>
+      <Input 
+        value={imageUrl} 
+        onChange={e => {
+          if (label.includes("Image")) {
+            setFacilityForm({ ...facilityForm, image_url: e.target.value });
+          } else if (label.includes("Photo") && activeTab === "leadership") {
+            setLeaderForm({ ...leaderForm, photo_url: e.target.value });
+          } else if (label.includes("Photo") && activeTab === "testimonials") {
+            setTestimonialForm({ ...testimonialForm, photo_url: e.target.value });
+          }
+        }}
+        placeholder="Or paste URL here..." 
+        className="mt-2"
+      />
+    </div>
+  );
+
   return (
     <AdminLayout>
       <div className="p-6">
@@ -329,7 +463,7 @@ const ContentManagement = () => {
                     <Plus className="w-4 h-4 mr-2" /> Add Facility
                   </Button>
                 </DialogTrigger>
-                <DialogContent>
+                <DialogContent className="max-w-md">
                   <DialogHeader>
                     <DialogTitle>{editingFacility ? "Edit" : "Add"} Facility</DialogTitle>
                   </DialogHeader>
@@ -342,16 +476,19 @@ const ContentManagement = () => {
                       <Label>Description</Label>
                       <Textarea value={facilityForm.description} onChange={e => setFacilityForm({ ...facilityForm, description: e.target.value })} />
                     </div>
-                    <div>
-                      <Label>Image URL</Label>
-                      <Input value={facilityForm.image_url} onChange={e => setFacilityForm({ ...facilityForm, image_url: e.target.value })} placeholder="https://..." />
-                    </div>
+                    <ImageUploadField
+                      label="Facility Image"
+                      imageUrl={facilityForm.image_url}
+                      onUpload={handleFacilityImageUpload}
+                      onClear={() => setFacilityForm({ ...facilityForm, image_url: "" })}
+                      inputRef={facilityFileRef}
+                    />
                     <div className="flex items-center gap-2">
                       <Switch checked={facilityForm.is_active} onCheckedChange={c => setFacilityForm({ ...facilityForm, is_active: c })} />
                       <Label>Active</Label>
                     </div>
-                    <Button onClick={handleSaveFacility} className="w-full">
-                      <Save className="w-4 h-4 mr-2" /> Save
+                    <Button onClick={handleSaveFacility} className="w-full" disabled={uploading}>
+                      {uploading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />} Save
                     </Button>
                   </div>
                 </DialogContent>
@@ -362,7 +499,13 @@ const ContentManagement = () => {
                 <Card key={f.id} className={!f.is_active ? "opacity-50" : ""}>
                   <CardContent className="p-4 flex items-center gap-4">
                     <GripVertical className="w-4 h-4 text-muted-foreground" />
-                    {f.image_url && <img src={f.image_url} alt={f.title} className="w-16 h-16 object-cover rounded" />}
+                    {f.image_url ? (
+                      <img src={f.image_url} alt={f.title} className="w-16 h-16 object-cover rounded" />
+                    ) : (
+                      <div className="w-16 h-16 bg-muted rounded flex items-center justify-center">
+                        <Building2 className="w-6 h-6 text-muted-foreground" />
+                      </div>
+                    )}
                     <div className="flex-1">
                       <h3 className="font-semibold">{f.title}</h3>
                       <p className="text-sm text-muted-foreground line-clamp-1">{f.description}</p>
@@ -447,7 +590,7 @@ const ContentManagement = () => {
                     <Plus className="w-4 h-4 mr-2" /> Add Leader
                   </Button>
                 </DialogTrigger>
-                <DialogContent>
+                <DialogContent className="max-w-md">
                   <DialogHeader>
                     <DialogTitle>{editingLeader ? "Edit" : "Add"} Leader</DialogTitle>
                   </DialogHeader>
@@ -464,16 +607,19 @@ const ContentManagement = () => {
                       <Label>Experience</Label>
                       <Input value={leaderForm.experience} onChange={e => setLeaderForm({ ...leaderForm, experience: e.target.value })} placeholder="e.g., 25+ years" />
                     </div>
-                    <div>
-                      <Label>Photo URL</Label>
-                      <Input value={leaderForm.photo_url} onChange={e => setLeaderForm({ ...leaderForm, photo_url: e.target.value })} placeholder="https://..." />
-                    </div>
+                    <ImageUploadField
+                      label="Photo"
+                      imageUrl={leaderForm.photo_url}
+                      onUpload={handleLeaderPhotoUpload}
+                      onClear={() => setLeaderForm({ ...leaderForm, photo_url: "" })}
+                      inputRef={leaderFileRef}
+                    />
                     <div className="flex items-center gap-2">
                       <Switch checked={leaderForm.is_active} onCheckedChange={c => setLeaderForm({ ...leaderForm, is_active: c })} />
                       <Label>Active</Label>
                     </div>
-                    <Button onClick={handleSaveLeader} className="w-full">
-                      <Save className="w-4 h-4 mr-2" /> Save
+                    <Button onClick={handleSaveLeader} className="w-full" disabled={uploading}>
+                      {uploading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />} Save
                     </Button>
                   </div>
                 </DialogContent>
@@ -521,7 +667,7 @@ const ContentManagement = () => {
                     <Plus className="w-4 h-4 mr-2" /> Add Testimonial
                   </Button>
                 </DialogTrigger>
-                <DialogContent>
+                <DialogContent className="max-w-md">
                   <DialogHeader>
                     <DialogTitle>{editingTestimonial ? "Edit" : "Add"} Testimonial</DialogTitle>
                   </DialogHeader>
@@ -538,10 +684,13 @@ const ContentManagement = () => {
                       <Label>Content</Label>
                       <Textarea value={testimonialForm.content} onChange={e => setTestimonialForm({ ...testimonialForm, content: e.target.value })} />
                     </div>
-                    <div>
-                      <Label>Photo URL</Label>
-                      <Input value={testimonialForm.photo_url} onChange={e => setTestimonialForm({ ...testimonialForm, photo_url: e.target.value })} placeholder="https://..." />
-                    </div>
+                    <ImageUploadField
+                      label="Photo"
+                      imageUrl={testimonialForm.photo_url}
+                      onUpload={handleTestimonialPhotoUpload}
+                      onClear={() => setTestimonialForm({ ...testimonialForm, photo_url: "" })}
+                      inputRef={testimonialFileRef}
+                    />
                     <div>
                       <Label>Rating (1-5)</Label>
                       <Input type="number" min={1} max={5} value={testimonialForm.rating} onChange={e => setTestimonialForm({ ...testimonialForm, rating: parseInt(e.target.value) || 5 })} />
@@ -550,8 +699,8 @@ const ContentManagement = () => {
                       <Switch checked={testimonialForm.is_active} onCheckedChange={c => setTestimonialForm({ ...testimonialForm, is_active: c })} />
                       <Label>Active</Label>
                     </div>
-                    <Button onClick={handleSaveTestimonial} className="w-full">
-                      <Save className="w-4 h-4 mr-2" /> Save
+                    <Button onClick={handleSaveTestimonial} className="w-full" disabled={uploading}>
+                      {uploading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />} Save
                     </Button>
                   </div>
                 </DialogContent>
