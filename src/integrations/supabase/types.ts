@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      academic_calendar: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          end_date: string | null
+          event_date: string
+          event_type: string
+          id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          end_date?: string | null
+          event_date: string
+          event_type?: string
+          id?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          end_date?: string | null
+          event_date?: string
+          event_type?: string
+          id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       activity_logs: {
         Row: {
           action: string
@@ -106,6 +142,75 @@ export type Database = {
           reviewed_by?: string | null
           status?: string | null
           student_name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      exam_results: {
+        Row: {
+          academic_year: string
+          class: string
+          created_at: string
+          created_by: string | null
+          exam_type: string
+          id: string
+          is_published: boolean | null
+          result_url: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          academic_year: string
+          class: string
+          created_at?: string
+          created_by?: string | null
+          exam_type: string
+          id?: string
+          is_published?: boolean | null
+          result_url?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          academic_year?: string
+          class?: string
+          created_at?: string
+          created_by?: string | null
+          exam_type?: string
+          id?: string
+          is_published?: boolean | null
+          result_url?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      gallery_images: {
+        Row: {
+          album: string
+          created_at: string
+          created_by: string | null
+          id: string
+          image_url: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          album?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          image_url: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          album?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          image_url?: string
+          title?: string
           updated_at?: string
         }
         Relationships: []
