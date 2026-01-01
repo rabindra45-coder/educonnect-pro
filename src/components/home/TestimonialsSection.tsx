@@ -1,38 +1,46 @@
 import { motion } from "framer-motion";
 import { useInView } from "framer-motion";
-import { useRef } from "react";
+import { useRef, useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { Star, Quote } from "lucide-react";
 
-const testimonials = [
-  {
-    id: 1,
-    name: "Sita Sharma",
-    role: "Parent",
-    content: "My children have thrived at this school. The teachers are dedicated and the learning environment is excellent. I'm grateful for the holistic education they receive here.",
-    rating: 5,
-    avatar: "SS",
-  },
-  {
-    id: 2,
-    name: "Rajesh Thapa",
-    role: "Alumni (Batch 2075)",
-    content: "The values and education I received at SDSJSS have been the foundation of my success. The school prepared me well for higher studies and life challenges.",
-    rating: 5,
-    avatar: "RT",
-  },
-  {
-    id: 3,
-    name: "Kamala Devi",
-    role: "Parent",
-    content: "The school's focus on both academics and extracurricular activities has helped my daughter become a confident and well-rounded individual. Highly recommended!",
-    rating: 5,
-    avatar: "KD",
-  },
-];
+interface Testimonial {
+  id: string;
+  name: string;
+  role: string;
+  content: string;
+  photo_url: string | null;
+  rating: number;
+  display_order: number;
+}
 
 const TestimonialsSection = () => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
+
+  useEffect(() => {
+    const fetchTestimonials = async () => {
+      const { data } = await supabase
+        .from("testimonials")
+        .select("*")
+        .eq("is_active", true)
+        .order("display_order");
+      if (data) setTestimonials(data);
+    };
+    fetchTestimonials();
+  }, []);
+
+  const getInitials = (name: string) => {
+    return name
+      .split(" ")
+      .map(n => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2);
+  };
+
+  if (testimonials.length === 0) return null;
 
   return (
     <section className="py-20 bg-primary relative overflow-hidden" ref={ref}>
@@ -89,9 +97,17 @@ const TestimonialsSection = () => {
 
               {/* Author */}
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-full bg-secondary flex items-center justify-center text-secondary-foreground font-semibold">
-                  {testimonial.avatar}
-                </div>
+                {testimonial.photo_url ? (
+                  <img
+                    src={testimonial.photo_url}
+                    alt={testimonial.name}
+                    className="w-12 h-12 rounded-full object-cover"
+                  />
+                ) : (
+                  <div className="w-12 h-12 rounded-full bg-secondary flex items-center justify-center text-secondary-foreground font-semibold">
+                    {getInitials(testimonial.name)}
+                  </div>
+                )}
                 <div>
                   <h4 className="font-semibold text-primary-foreground">
                     {testimonial.name}

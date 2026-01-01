@@ -1,31 +1,37 @@
 import { motion } from "framer-motion";
 import { useInView } from "framer-motion";
-import { useRef } from "react";
+import { useRef, useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import classroomImg from "@/assets/classroom.jpg";
 import sportsImg from "@/assets/sports.jpg";
 import libraryImg from "@/assets/library.jpg";
 
-const facilities = [
-  {
-    title: "Modern Classrooms",
-    description: "Spacious, well-lit classrooms equipped with modern teaching aids for effective learning.",
-    image: classroomImg,
-  },
-  {
-    title: "Sports Facilities",
-    description: "Large playground and sports equipment for football, volleyball, and other activities.",
-    image: sportsImg,
-  },
-  {
-    title: "Library & Resources",
-    description: "Well-stocked library with thousands of books, journals, and digital resources.",
-    image: libraryImg,
-  },
-];
+interface Facility {
+  id: string;
+  title: string;
+  description: string;
+  image_url: string | null;
+  display_order: number;
+}
+
+const defaultImages = [classroomImg, sportsImg, libraryImg];
 
 const FacilitiesSection = () => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
+  const [facilities, setFacilities] = useState<Facility[]>([]);
+
+  useEffect(() => {
+    const fetchFacilities = async () => {
+      const { data } = await supabase
+        .from("facilities")
+        .select("*")
+        .eq("is_active", true)
+        .order("display_order");
+      if (data) setFacilities(data);
+    };
+    fetchFacilities();
+  }, []);
 
   return (
     <section className="py-20 bg-background" ref={ref}>
@@ -52,7 +58,7 @@ const FacilitiesSection = () => {
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
           {facilities.map((facility, index) => (
             <motion.div
-              key={facility.title}
+              key={facility.id}
               className="group relative rounded-2xl overflow-hidden shadow-card hover:shadow-card-hover transition-all duration-500"
               initial={{ opacity: 0, y: 30 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
@@ -61,7 +67,7 @@ const FacilitiesSection = () => {
               {/* Image */}
               <div className="relative h-72 overflow-hidden">
                 <img
-                  src={facility.image}
+                  src={facility.image_url || defaultImages[index % defaultImages.length]}
                   alt={facility.title}
                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                 />

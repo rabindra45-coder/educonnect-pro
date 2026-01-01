@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      about_content: {
+        Row: {
+          content: string | null
+          id: string
+          metadata: Json | null
+          section_key: string
+          title: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          content?: string | null
+          id?: string
+          metadata?: Json | null
+          section_key: string
+          title?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          content?: string | null
+          id?: string
+          metadata?: Json | null
+          section_key?: string
+          title?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       academic_calendar: {
         Row: {
           created_at: string
@@ -185,6 +215,42 @@ export type Database = {
         }
         Relationships: []
       }
+      facilities: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string
+          display_order: number | null
+          id: string
+          image_url: string | null
+          is_active: boolean | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description: string
+          display_order?: number | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string
+          display_order?: number | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       gallery_images: {
         Row: {
           album: string
@@ -211,6 +277,42 @@ export type Database = {
           id?: string
           image_url?: string
           title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      leadership: {
+        Row: {
+          created_at: string
+          display_order: number | null
+          experience: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          photo_url: string | null
+          role: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          display_order?: number | null
+          experience?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          photo_url?: string | null
+          role: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          display_order?: number | null
+          experience?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          photo_url?: string | null
+          role?: string
           updated_at?: string
         }
         Relationships: []
@@ -332,6 +434,36 @@ export type Database = {
         }
         Relationships: []
       }
+      stats: {
+        Row: {
+          display_order: number | null
+          icon: string | null
+          id: string
+          is_active: boolean | null
+          label: string
+          updated_at: string
+          value: string
+        }
+        Insert: {
+          display_order?: number | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          label: string
+          updated_at?: string
+          value: string
+        }
+        Update: {
+          display_order?: number | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          label?: string
+          updated_at?: string
+          value?: string
+        }
+        Relationships: []
+      }
       students: {
         Row: {
           address: string | null
@@ -436,6 +568,45 @@ export type Database = {
           qualification?: string | null
           status?: string | null
           subject?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      testimonials: {
+        Row: {
+          content: string
+          created_at: string
+          display_order: number | null
+          id: string
+          is_active: boolean | null
+          name: string
+          photo_url: string | null
+          rating: number | null
+          role: string
+          updated_at: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          display_order?: number | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          photo_url?: string | null
+          rating?: number | null
+          role: string
+          updated_at?: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          display_order?: number | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          photo_url?: string | null
+          rating?: number | null
+          role?: string
           updated_at?: string
         }
         Relationships: []

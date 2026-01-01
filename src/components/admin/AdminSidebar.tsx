@@ -10,7 +10,9 @@ import {
   UserCog,
   ChevronLeft,
   ChevronRight,
-  Home
+  Home,
+  Image,
+  Layers
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
@@ -26,6 +28,8 @@ const AdminSidebar = () => {
   const navItems = [
     { name: "Dashboard", path: "/admin", icon: LayoutDashboard },
     { name: "Notices", path: "/admin/notices", icon: Megaphone },
+    { name: "Content", path: "/admin/content", icon: Layers },
+    { name: "Gallery", path: "/admin/gallery", icon: Image },
     { name: "Students", path: "/admin/students", icon: GraduationCap },
     { name: "Teachers", path: "/admin/teachers", icon: Users },
     { name: "Admissions", path: "/admin/admissions", icon: FileText },
