@@ -3,21 +3,32 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { 
   User, 
-  Calendar, 
-  BookOpen, 
   Bell,
   GraduationCap,
   Home,
   LogOut,
-  Clock
+  Clock,
+  Key,
+  Eye,
+  EyeOff
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Loader2 } from "lucide-react";
 import schoolLogo from "@/assets/logo.png";
 import { Link } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
 
 interface StudentInfo {
   id: string;
@@ -42,17 +53,32 @@ interface ActivityLog {
   details: any;
 }
 
+const DEFAULT_PASSWORD = "12345678";
+
 const StudentDashboard = () => {
   const { user, profile, isLoading: authLoading, signOut, hasRole } = useAuth();
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [studentInfo, setStudentInfo] = useState<StudentInfo | null>(null);
   const [activities, setActivities] = useState<ActivityLog[]>([]);
   const [notices, setNotices] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [showPasswordDialog, setShowPasswordDialog] = useState(false);
+  const [passwordData, setPasswordData] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
+  const [showPasswords, setShowPasswords] = useState({
+    current: false,
+    new: false,
+    confirm: false,
+  });
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !user) {
-      navigate("/admin/login");
+      navigate("/login");
     }
   }, [user, authLoading, navigate]);
 
@@ -61,20 +87,27 @@ const StudentDashboard = () => {
       fetchStudentData();
       fetchActivities();
       fetchNotices();
+      checkIfPasswordChangeRequired();
     } else if (user && !hasRole("student")) {
-      // If user has admin roles, redirect to admin
       navigate("/admin");
     }
   }, [user, hasRole]);
 
+  const checkIfPasswordChangeRequired = () => {
+    // Check if this is likely a first login with default password
+    const mustChangePassword = user?.user_metadata?.must_change_password;
+    if (mustChangePassword) {
+      setShowPasswordDialog(true);
+    }
+  };
+
   const fetchStudentData = async () => {
     try {
-      // Find student by matching guardian email or look up by user email
       const { data, error } = await supabase
         .from("students")
         .select("*")
         .eq("guardian_email", profile?.email)
-        .single();
+        .maybeSingle();
 
       if (data) {
         setStudentInfo(data);
@@ -116,6 +149,62 @@ const StudentDashboard = () => {
     }
   };
 
+  const handlePasswordChange = async () => {
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      toast({
+        title: "Error",
+        description: "New passwords do not match",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (passwordData.newPassword.length < 6) {
+      toast({
+        title: "Error",
+        description: "Password must be at least 6 characters",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (passwordData.newPassword === DEFAULT_PASSWORD) {
+      toast({
+        title: "Error",
+        description: "Please choose a different password than the default",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsChangingPassword(true);
+
+    try {
+      const { error } = await supabase.auth.updateUser({
+        password: passwordData.newPassword,
+        data: { must_change_password: false },
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Your password has been changed successfully",
+      });
+
+      setShowPasswordDialog(false);
+      setPasswordData({ currentPassword: "", newPassword: "", confirmPassword: "" });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsChangingPassword(false);
+    }
+  };
+
   if (authLoading || isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -130,6 +219,88 @@ const StudentDashboard = () => {
 
   return (
     <div className="min-h-screen bg-muted/30">
+      {/* Password Change Dialog */}
+      <Dialog open={showPasswordDialog} onOpenChange={(open) => {
+        // Only allow closing if not a required change
+        if (!user?.user_metadata?.must_change_password || !open) {
+          setShowPasswordDialog(open);
+        }
+      }}>
+        <DialogContent className="sm:max-w-md" onPointerDownOutside={(e) => {
+          if (user?.user_metadata?.must_change_password) {
+            e.preventDefault();
+          }
+        }}>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Key className="w-5 h-5" />
+              Change Your Password
+            </DialogTitle>
+            <DialogDescription>
+              {user?.user_metadata?.must_change_password 
+                ? "For security, you must change your default password before continuing."
+                : "Update your password to keep your account secure."
+              }
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 mt-4">
+            <div className="space-y-2">
+              <Label htmlFor="newPassword">New Password</Label>
+              <div className="relative">
+                <Input
+                  id="newPassword"
+                  type={showPasswords.new ? "text" : "password"}
+                  value={passwordData.newPassword}
+                  onChange={(e) => setPasswordData(prev => ({ ...prev, newPassword: e.target.value }))}
+                  placeholder="Enter new password"
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="absolute right-0 top-0 h-full"
+                  onClick={() => setShowPasswords(prev => ({ ...prev, new: !prev.new }))}
+                >
+                  {showPasswords.new ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </Button>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="confirmPassword">Confirm New Password</Label>
+              <div className="relative">
+                <Input
+                  id="confirmPassword"
+                  type={showPasswords.confirm ? "text" : "password"}
+                  value={passwordData.confirmPassword}
+                  onChange={(e) => setPasswordData(prev => ({ ...prev, confirmPassword: e.target.value }))}
+                  placeholder="Confirm new password"
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="absolute right-0 top-0 h-full"
+                  onClick={() => setShowPasswords(prev => ({ ...prev, confirm: !prev.confirm }))}
+                >
+                  {showPasswords.confirm ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </Button>
+              </div>
+            </div>
+            <div className="flex justify-end gap-2 pt-4">
+              {!user?.user_metadata?.must_change_password && (
+                <Button variant="outline" onClick={() => setShowPasswordDialog(false)}>
+                  Cancel
+                </Button>
+              )}
+              <Button onClick={handlePasswordChange} disabled={isChangingPassword}>
+                {isChangingPassword && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                Change Password
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       {/* Header */}
       <header className="bg-card border-b border-border sticky top-0 z-50">
         <div className="container mx-auto px-4">
@@ -141,7 +312,11 @@ const StudentDashboard = () => {
                 <p className="text-xs text-muted-foreground">SDSJSS</p>
               </div>
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <Button variant="ghost" size="sm" onClick={() => setShowPasswordDialog(true)}>
+                <Key className="w-4 h-4 mr-2" />
+                Change Password
+              </Button>
               <Button variant="ghost" size="sm" asChild>
                 <Link to="/">
                   <Home className="w-4 h-4 mr-2" />
