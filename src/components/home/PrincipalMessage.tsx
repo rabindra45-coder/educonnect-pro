@@ -9,11 +9,11 @@ const PrincipalMessage = () => {
     once: true,
     margin: "-100px"
   });
-  return <section className="py-20 bg-background" ref={ref}>
+  return <section className="py-12 sm:py-16 md:py-20 bg-background" ref={ref}>
       <div className="container mx-auto px-4">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
+        <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
           {/* Image Side */}
-          <motion.div className="relative" initial={{
+          <motion.div className="relative order-2 lg:order-1" initial={{
           opacity: 0,
           x: -50
         }} animate={isInView ? {
@@ -22,18 +22,18 @@ const PrincipalMessage = () => {
         } : {}} transition={{
           duration: 0.8
         }}>
-            <div className="relative">
+            <div className="relative max-w-sm mx-auto lg:max-w-none">
               {/* Main Image */}
-              <div className="relative z-10 rounded-2xl overflow-hidden shadow-xl">
+              <div className="relative z-10 rounded-xl sm:rounded-2xl overflow-hidden shadow-xl">
                 <img src={principalImage} alt="Principal of Shree Durga Saraswati Janata Secondary School" className="w-full aspect-[4/5] object-cover" />
               </div>
               
-              {/* Decorative Elements */}
-              <div className="absolute -top-4 -left-4 w-24 h-24 bg-secondary/20 rounded-2xl -z-10"></div>
-              <div className="absolute -bottom-4 -right-4 w-32 h-32 bg-primary/10 rounded-2xl -z-10"></div>
+              {/* Decorative Elements - Hidden on mobile */}
+              <div className="hidden sm:block absolute -top-4 -left-4 w-20 sm:w-24 h-20 sm:h-24 bg-secondary/20 rounded-xl sm:rounded-2xl -z-10"></div>
+              <div className="hidden sm:block absolute -bottom-4 -right-4 w-24 sm:w-32 h-24 sm:h-32 bg-primary/10 rounded-xl sm:rounded-2xl -z-10"></div>
               
               {/* Experience Badge */}
-              <motion.div className="absolute -bottom-6 -right-6 bg-primary text-primary-foreground p-6 rounded-2xl shadow-xl z-20" initial={{
+              <motion.div className="absolute -bottom-3 -right-3 sm:-bottom-6 sm:-right-6 bg-primary text-primary-foreground p-3 sm:p-6 rounded-xl sm:rounded-2xl shadow-xl z-20" initial={{
               scale: 0
             }} animate={isInView ? {
               scale: 1
@@ -42,15 +42,15 @@ const PrincipalMessage = () => {
               delay: 0.5
             }}>
                 <div className="text-center">
-                  <div className="font-display text-3xl font-bold">25+</div>
-                  <div className="text-sm text-primary-foreground/80">Years in<br />Education</div>
+                  <div className="font-display text-xl sm:text-3xl font-bold">25+</div>
+                  <div className="text-[10px] sm:text-sm text-primary-foreground/80">Years in<br />Education</div>
                 </div>
               </motion.div>
             </div>
           </motion.div>
 
           {/* Content Side */}
-          <motion.div initial={{
+          <motion.div className="order-1 lg:order-2" initial={{
           opacity: 0,
           x: 50
         }} animate={isInView ? {
@@ -60,18 +60,18 @@ const PrincipalMessage = () => {
           duration: 0.8,
           delay: 0.2
         }}>
-            <span className="inline-block px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4">
+            <span className="inline-block px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-primary/10 text-primary text-xs sm:text-sm font-medium mb-3 sm:mb-4">
               From the Principal's Desk
             </span>
             
-            <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-6">
+            <h2 className="font-display text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-4 sm:mb-6">
               A Message from Our{" "}
               <span className="text-primary">Principal</span>
             </h2>
 
-            <div className="relative mb-6">
-              <Quote className="absolute -top-2 -left-2 w-10 h-10 text-secondary/30" />
-              <p className="text-muted-foreground leading-relaxed pl-8 text-lg italic">
+            <div className="relative mb-4 sm:mb-6">
+              <Quote className="absolute -top-2 -left-2 w-6 h-6 sm:w-10 sm:h-10 text-secondary/30" />
+              <p className="text-muted-foreground leading-relaxed pl-6 sm:pl-8 text-sm sm:text-lg italic">
                 Education is not just about academic excellence; it's about nurturing 
                 well-rounded individuals who will contribute positively to society. 
                 At Shree Durga Saraswati Janata Secondary School, we believe in 
@@ -80,21 +80,21 @@ const PrincipalMessage = () => {
               </p>
             </div>
 
-            <p className="text-muted-foreground leading-relaxed mb-6">
+            <p className="text-muted-foreground leading-relaxed mb-4 sm:mb-6 text-sm sm:text-base">
               Our dedicated team of educators works tirelessly to create an environment 
               where every student can discover their potential and pursue their dreams. 
               We combine traditional values with modern teaching methodologies to prepare 
               our students for the challenges of tomorrow.
             </p>
 
-            <p className="text-muted-foreground leading-relaxed mb-8">
+            <p className="text-muted-foreground leading-relaxed mb-6 sm:mb-8 text-sm sm:text-base">
               I invite you to join our school family and be part of this beautiful 
               journey of learning and growth.
             </p>
 
-            <div className="border-t border-border pt-6">
-              <h4 className="font-display text-xl font-semibold text-foreground">Mr. Ram Balak Sharma</h4>
-              <p className="text-muted-foreground">Principal</p>
+            <div className="border-t border-border pt-4 sm:pt-6">
+              <h4 className="font-display text-lg sm:text-xl font-semibold text-foreground">Mr. Ram Balak Sharma</h4>
+              <p className="text-muted-foreground text-sm sm:text-base">Principal</p>
             </div>
           </motion.div>
         </div>
