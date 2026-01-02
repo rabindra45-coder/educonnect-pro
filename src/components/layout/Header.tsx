@@ -98,15 +98,15 @@ const Header = () => {
       duration: 0.5
     }}>
         <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between h-20">
+          <div className="flex items-center justify-between h-16 sm:h-20">
             {/* Logo */}
-            <Link to="/" className="flex items-center gap-3 group">
-              <img src={schoolLogo} alt="Shree Durga Saraswati Janata Secondary School Logo" className="w-14 h-14 object-contain group-hover:scale-105 transition-transform duration-300" />
-              <div className="hidden sm:block">
-                <h1 className="font-display text-lg font-bold text-foreground leading-tight">
+            <Link to="/" className="flex items-center gap-2 sm:gap-3 group flex-shrink-0 max-w-[70%] sm:max-w-none">
+              <img src={schoolLogo} alt="Shree Durga Saraswati Janata Secondary School Logo" className="w-10 h-10 sm:w-14 sm:h-14 object-contain group-hover:scale-105 transition-transform duration-300 flex-shrink-0" />
+              <div>
+                <h1 className="font-display text-xs sm:text-lg font-bold text-foreground leading-tight line-clamp-2 sm:line-clamp-none">
                   Shree Durga Saraswati
                 </h1>
-                <p className="text-xs text-muted-foreground">Janata Secondary School</p>
+                <p className="text-[10px] sm:text-xs text-muted-foreground">Janata Secondary School</p>
               </div>
             </Link>
 
@@ -141,17 +141,17 @@ const Header = () => {
             </nav>
 
             {/* CTA & User Menu & Mobile Menu */}
-            <div className="flex items-center gap-3">
-              <Button variant="gold" size="lg" className="hidden md:flex" asChild>
+            <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+              <Button variant="gold" size="sm" className="hidden md:flex text-xs sm:text-sm" asChild>
                 <Link to="/admission">Apply Now</Link>
               </Button>
 
               {/* User Auth Menu */}
               {user ? <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="outline" size="sm" className="gap-2">
-                      <User className="w-4 h-4" />
-                      <span className="hidden sm:inline">{profile?.full_name?.split(" ")[0] || "Account"}</span>
+                    <Button variant="outline" size="sm" className="gap-1 sm:gap-2 h-8 sm:h-9 px-2 sm:px-3">
+                      <User className="w-3 h-3 sm:w-4 sm:h-4" />
+                      <span className="hidden sm:inline text-xs sm:text-sm">{profile?.full_name?.split(" ")[0] || "Account"}</span>
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-48">
@@ -165,15 +165,15 @@ const Header = () => {
                       Sign Out
                     </DropdownMenuItem>
                   </DropdownMenuContent>
-                </DropdownMenu> : <Button variant="outline" size="sm" asChild>
-                  <Link to="/login" className="gap-2">
-                    <LogIn className="w-4 h-4" />
-                    <span className="hidden sm:inline">Student Login</span>
+                </DropdownMenu> : <Button variant="outline" size="sm" className="h-8 sm:h-9 px-2 sm:px-3" asChild>
+                  <Link to="/login" className="gap-1 sm:gap-2">
+                    <LogIn className="w-3 h-3 sm:w-4 sm:h-4" />
+                    <span className="hidden sm:inline text-xs sm:text-sm">Student Login</span>
                   </Link>
                 </Button>}
               
-              <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="lg:hidden p-2 rounded-lg hover:bg-muted transition-colors">
-                {isMobileMenuOpen ? <X className="w-6 h-6 text-foreground" /> : <Menu className="w-6 h-6 text-foreground" />}
+              <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="lg:hidden p-1.5 sm:p-2 rounded-lg hover:bg-muted transition-colors">
+                {isMobileMenuOpen ? <X className="w-5 h-5 sm:w-6 sm:h-6 text-foreground" /> : <Menu className="w-5 h-5 sm:w-6 sm:h-6 text-foreground" />}
               </button>
             </div>
           </div>
