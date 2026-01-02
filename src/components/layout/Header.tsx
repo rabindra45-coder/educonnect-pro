@@ -67,13 +67,50 @@ const Header = () => {
   useEffect(() => {
     setIsMobileMenuOpen(false);
   }, [location]);
+  const [showMobileTopBar, setShowMobileTopBar] = useState(true);
+  
   return <>
-      {/* Top Bar */}
+      {/* Mobile Top Bar */}
+      <AnimatePresence>
+        {showMobileTopBar && (
+          <motion.div 
+            className="bg-primary text-primary-foreground py-2 md:hidden"
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <div className="container mx-auto px-4">
+              <div className="flex items-center justify-between text-xs">
+                <div className="flex items-center gap-3">
+                  <a href="tel:+977-9746834671" className="flex items-center gap-1.5 hover:text-secondary transition-colors">
+                    <Phone className="w-3 h-3" />
+                    <span>9746834671</span>
+                  </a>
+                  <a href="mailto:info@sdsjss.edu.np" className="flex items-center gap-1.5 hover:text-secondary transition-colors">
+                    <Mail className="w-3 h-3" />
+                    <span>info@sdsjss.edu.np</span>
+                  </a>
+                </div>
+                <button 
+                  onClick={() => setShowMobileTopBar(false)}
+                  className="p-0.5 hover:bg-primary-foreground/20 rounded"
+                  aria-label="Close top bar"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Desktop Top Bar */}
       <div className="bg-primary text-primary-foreground py-2 hidden md:block">
         <div className="container mx-auto px-4">
           <div className="flex justify-between items-center text-sm">
             <div className="flex items-center gap-6">
-              <a href="tel:+977-XXX-XXXXXXX" className="flex items-center gap-2 hover:text-secondary transition-colors">
+              <a href="tel:+977-9746834671" className="flex items-center gap-2 hover:text-secondary transition-colors">
                 <Phone className="w-4 h-4" />
                 <span>+977-9746834671</span>
               </a>

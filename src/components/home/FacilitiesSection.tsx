@@ -34,38 +34,38 @@ const FacilitiesSection = () => {
   }, []);
 
   return (
-    <section className="py-20 bg-background" ref={ref}>
+    <section className="py-12 sm:py-16 md:py-20 bg-background" ref={ref}>
       <div className="container mx-auto px-4">
         {/* Header */}
         <motion.div
-          className="text-center mb-12"
+          className="text-center mb-8 sm:mb-12"
           initial={{ opacity: 0, y: 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6 }}
         >
-          <span className="inline-block px-4 py-2 rounded-full bg-accent/10 text-accent text-sm font-medium mb-4">
+          <span className="inline-block px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-accent/10 text-accent text-xs sm:text-sm font-medium mb-3 sm:mb-4">
             Our Facilities
           </span>
-          <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-4">
+          <h2 className="font-display text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-3 sm:mb-4">
             World-Class <span className="text-primary">Infrastructure</span>
           </h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-muted-foreground max-w-2xl mx-auto text-sm sm:text-base">
             We provide state-of-the-art facilities to ensure our students have the best learning environment.
           </p>
         </motion.div>
 
         {/* Facilities Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
           {facilities.map((facility, index) => (
             <motion.div
               key={facility.id}
-              className="group relative rounded-2xl overflow-hidden shadow-card hover:shadow-card-hover transition-all duration-500"
+              className="group relative rounded-xl sm:rounded-2xl overflow-hidden shadow-card hover:shadow-card-hover transition-all duration-500"
               initial={{ opacity: 0, y: 30 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.6, delay: index * 0.15 }}
             >
               {/* Image */}
-              <div className="relative h-72 overflow-hidden">
+              <div className="relative h-52 sm:h-64 md:h-72 overflow-hidden">
                 <img
                   src={facility.image_url || defaultImages[index % defaultImages.length]}
                   alt={facility.title}
@@ -75,11 +75,11 @@ const FacilitiesSection = () => {
               </div>
 
               {/* Content */}
-              <div className="absolute bottom-0 left-0 right-0 p-6">
-                <h3 className="font-display text-xl font-semibold text-card mb-2">
+              <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6">
+                <h3 className="font-display text-lg sm:text-xl font-semibold text-card mb-1 sm:mb-2">
                   {facility.title}
                 </h3>
-                <p className="text-card/80 text-sm leading-relaxed">
+                <p className="text-card/80 text-xs sm:text-sm leading-relaxed line-clamp-2">
                   {facility.description}
                 </p>
               </div>
