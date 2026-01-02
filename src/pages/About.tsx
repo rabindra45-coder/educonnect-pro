@@ -1,11 +1,27 @@
 import { Helmet } from "react-helmet-async";
 import { motion } from "framer-motion";
 import { useInView } from "framer-motion";
-import { useRef } from "react";
+import { useRef, useEffect, useState } from "react";
 import MainLayout from "@/components/layout/MainLayout";
-import { Target, Eye, Heart, BookOpen, Users, Award, Building2, Shield } from "lucide-react";
-import principalImage from "@/assets/principal.jpg";
+import { Target, Eye, Heart, BookOpen, Users, Award, Building2, Shield, Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 import heroImage from "@/assets/hero-school.jpg";
+
+interface AboutContent {
+  id: string;
+  section_key: string;
+  title: string | null;
+  content: string | null;
+}
+
+interface Leader {
+  id: string;
+  name: string;
+  role: string;
+  experience: string | null;
+  photo_url: string | null;
+  display_order: number;
+}
 
 const About = () => {
   const historyRef = useRef(null);
@@ -16,6 +32,35 @@ const About = () => {
   const visionInView = useInView(visionRef, { once: true, margin: "-100px" });
   const leadershipInView = useInView(leadershipRef, { once: true, margin: "-100px" });
 
+  const [aboutContent, setAboutContent] = useState<AboutContent[]>([]);
+  const [leaders, setLeaders] = useState<Leader[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const [aboutRes, leadersRes] = await Promise.all([
+        supabase.from("about_content").select("*"),
+        supabase.from("leadership").select("*").eq("is_active", true).order("display_order")
+      ]);
+
+      if (aboutRes.data) setAboutContent(aboutRes.data);
+      if (leadersRes.data) setLeaders(leadersRes.data);
+      setLoading(false);
+    };
+
+    fetchData();
+  }, []);
+
+  const getContent = (sectionKey: string) => {
+    const section = aboutContent.find(a => a.section_key === sectionKey);
+    return section?.content || "";
+  };
+
+  const getTitle = (sectionKey: string) => {
+    const section = aboutContent.find(a => a.section_key === sectionKey);
+    return section?.title || "";
+  };
+
   const values = [
     { icon: <BookOpen className="w-6 h-6" />, title: "Academic Excellence", description: "Commitment to the highest standards of education and learning outcomes." },
     { icon: <Heart className="w-6 h-6" />, title: "Moral Values", description: "Instilling strong ethical principles and character development." },
@@ -23,11 +68,27 @@ const About = () => {
     { icon: <Shield className="w-6 h-6" />, title: "Safe Environment", description: "Ensuring physical and emotional safety for all our students." },
   ];
 
-  const leaders = [
-    { name: "Mr. Ram Bahadur Sharma", role: "Principal", experience: "25+ years", image: principalImage },
-    { name: "Mrs. Sita Kumari Thapa", role: "Vice Principal", experience: "20+ years", image: principalImage },
-    { name: "Mr. Hari Prasad Gautam", role: "Head Teacher", experience: "18+ years", image: principalImage },
-  ];
+  // Default content if not in database
+  const historyContent = getContent("history") || `Shree Durga Saraswati Janata Secondary School was established with a vision 
+to provide quality education to the children of our community. What started as a 
+small school with just a handful of students has grown into one of the most 
+respected educational institutions in the region.
+
+Over the years, we have produced countless successful alumni who have gone on to 
+excel in various fields including medicine, engineering, civil services, and business. 
+Our commitment to academic excellence, combined with a focus on character development, 
+has made us the preferred choice for parents seeking holistic education for their children.
+
+Today, we continue to uphold the founding principles while embracing modern teaching 
+methodologies and technologies to prepare our students for the challenges of the 21st century.`;
+
+  const visionContent = getContent("vision") || `To be a leading educational institution that nurtures young minds to become 
+responsible global citizens, equipped with knowledge, skills, and values to 
+contribute positively to society and lead fulfilling lives.`;
+
+  const missionContent = getContent("mission") || `To provide quality education that fosters academic excellence, creativity, 
+critical thinking, and moral values. We are committed to creating a nurturing 
+environment where every student can discover and develop their unique potential.`;
 
   return (
     <>
@@ -79,23 +140,8 @@ const About = () => {
                 <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-6">
                   A Legacy of <span className="text-primary">Excellence</span>
                 </h2>
-                <div className="space-y-4 text-muted-foreground leading-relaxed">
-                  <p>
-                    Shree Durga Saraswati Janata Secondary School was established in 20XX with a vision 
-                    to provide quality education to the children of our community. What started as a 
-                    small school with just a handful of students has grown into one of the most 
-                    respected educational institutions in the region.
-                  </p>
-                  <p>
-                    Over the years, we have produced countless successful alumni who have gone on to 
-                    excel in various fields including medicine, engineering, civil services, and business. 
-                    Our commitment to academic excellence, combined with a focus on character development, 
-                    has made us the preferred choice for parents seeking holistic education for their children.
-                  </p>
-                  <p>
-                    Today, we continue to uphold the founding principles while embracing modern teaching 
-                    methodologies and technologies to prepare our students for the challenges of the 21st century.
-                  </p>
+                <div className="space-y-4 text-muted-foreground leading-relaxed whitespace-pre-line">
+                  {historyContent}
                 </div>
               </motion.div>
 
@@ -148,10 +194,8 @@ const About = () => {
                   <Eye className="w-7 h-7" />
                 </div>
                 <h3 className="font-display text-2xl font-bold text-foreground mb-4">Our Vision</h3>
-                <p className="text-muted-foreground leading-relaxed">
-                  To be a leading educational institution that nurtures young minds to become 
-                  responsible global citizens, equipped with knowledge, skills, and values to 
-                  contribute positively to society and lead fulfilling lives.
+                <p className="text-muted-foreground leading-relaxed whitespace-pre-line">
+                  {visionContent}
                 </p>
               </motion.div>
 
@@ -165,10 +209,8 @@ const About = () => {
                   <Target className="w-7 h-7" />
                 </div>
                 <h3 className="font-display text-2xl font-bold text-foreground mb-4">Our Mission</h3>
-                <p className="text-muted-foreground leading-relaxed">
-                  To provide quality education that fosters academic excellence, creativity, 
-                  critical thinking, and moral values. We are committed to creating a nurturing 
-                  environment where every student can discover and develop their unique potential.
+                <p className="text-muted-foreground leading-relaxed whitespace-pre-line">
+                  {missionContent}
                 </p>
               </motion.div>
             </div>
@@ -223,32 +265,48 @@ const About = () => {
               </p>
             </motion.div>
 
-            <div className="grid md:grid-cols-3 gap-8">
-              {leaders.map((leader, index) => (
-                <motion.div
-                  key={leader.name}
-                  className="bg-card rounded-2xl overflow-hidden shadow-card hover:shadow-card-hover transition-all duration-300 group"
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={leadershipInView ? { opacity: 1, y: 0 } : {}}
-                  transition={{ duration: 0.6, delay: index * 0.1 }}
-                >
-                  <div className="relative h-64 overflow-hidden">
-                    <img
-                      src={leader.image}
-                      alt={leader.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-                  </div>
-                  <div className="p-6 text-center">
-                    <h3 className="font-display text-xl font-semibold text-foreground mb-1">
-                      {leader.name}
-                    </h3>
-                    <p className="text-primary font-medium mb-2">{leader.role}</p>
-                    <p className="text-sm text-muted-foreground">{leader.experience} Experience</p>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
+            {loading ? (
+              <div className="flex justify-center py-12">
+                <Loader2 className="w-8 h-8 animate-spin text-primary" />
+              </div>
+            ) : leaders.length === 0 ? (
+              <p className="text-center text-muted-foreground py-12">Leadership information coming soon.</p>
+            ) : (
+              <div className="grid md:grid-cols-3 gap-8">
+                {leaders.map((leader, index) => (
+                  <motion.div
+                    key={leader.id}
+                    className="bg-card rounded-2xl overflow-hidden shadow-card hover:shadow-card-hover transition-all duration-300 group"
+                    initial={{ opacity: 0, y: 30 }}
+                    animate={leadershipInView ? { opacity: 1, y: 0 } : {}}
+                    transition={{ duration: 0.6, delay: index * 0.1 }}
+                  >
+                    <div className="relative h-64 overflow-hidden bg-gradient-to-br from-primary/20 to-secondary/20">
+                      {leader.photo_url ? (
+                        <img
+                          src={leader.photo_url}
+                          alt={leader.name}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <Users className="w-20 h-20 text-muted-foreground/30" />
+                        </div>
+                      )}
+                    </div>
+                    <div className="p-6 text-center">
+                      <h3 className="font-display text-xl font-semibold text-foreground mb-1">
+                        {leader.name}
+                      </h3>
+                      <p className="text-primary font-medium mb-2">{leader.role}</p>
+                      {leader.experience && (
+                        <p className="text-sm text-muted-foreground">{leader.experience} Experience</p>
+                      )}
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            )}
           </div>
         </section>
 

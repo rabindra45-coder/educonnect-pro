@@ -5,10 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { School, Bell, Shield, User, Loader2 } from "lucide-react";
+import { School, Bell, Shield, User, Loader2, MessageSquare } from "lucide-react";
 
 interface SchoolSettings {
   id: string;
@@ -18,6 +19,7 @@ interface SchoolSettings {
   school_email: string;
   school_website: string;
   principal_name: string;
+  principal_message: string;
   established_year: number;
 }
 
@@ -41,6 +43,7 @@ const Settings = () => {
     school_email: "",
     school_website: "",
     principal_name: "",
+    principal_message: "",
     established_year: 2000,
   });
 
@@ -81,6 +84,7 @@ const Settings = () => {
           school_email: data.school_email || "",
           school_website: data.school_website || "",
           principal_name: data.principal_name || "",
+          principal_message: data.principal_message || "",
           established_year: data.established_year || 2000,
         });
       }
@@ -131,6 +135,7 @@ const Settings = () => {
           school_email: schoolSettings.school_email,
           school_website: schoolSettings.school_website,
           principal_name: schoolSettings.principal_name,
+          principal_message: schoolSettings.principal_message,
           established_year: schoolSettings.established_year,
         })
         .eq("id", schoolSettings.id);
@@ -307,6 +312,47 @@ const Settings = () => {
                   </div>
                   <Button onClick={handleUpdateSchoolSettings} disabled={schoolLoading}>
                     {schoolLoading ? "Saving..." : "Save School Settings"}
+                  </Button>
+                </>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Principal Message */}
+          <Card className="md:col-span-2">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <MessageSquare className="h-5 w-5" />
+                Principal's Message
+              </CardTitle>
+              <CardDescription>
+                Update the message displayed on the homepage from the principal
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {fetchingSchool ? (
+                <div className="flex items-center justify-center py-8">
+                  <Loader2 className="h-6 w-6 animate-spin" />
+                </div>
+              ) : (
+                <>
+                  <div className="space-y-2">
+                    <Label htmlFor="principal_message">Message</Label>
+                    <Textarea
+                      id="principal_message"
+                      rows={8}
+                      value={schoolSettings.principal_message}
+                      onChange={(e) =>
+                        setSchoolSettings({ ...schoolSettings, principal_message: e.target.value })
+                      }
+                      placeholder="Enter the principal's message that will be displayed on the homepage..."
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Tip: Use blank lines to separate paragraphs. The first paragraph will be shown as a quote.
+                    </p>
+                  </div>
+                  <Button onClick={handleUpdateSchoolSettings} disabled={schoolLoading}>
+                    {schoolLoading ? "Saving..." : "Save Message"}
                   </Button>
                 </>
               )}
