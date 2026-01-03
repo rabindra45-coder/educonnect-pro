@@ -18,15 +18,27 @@ const TestimonialsSection = () => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchTestimonials = async () => {
-      const { data } = await supabase
-        .from("testimonials")
-        .select("*")
-        .eq("is_active", true)
-        .order("display_order");
-      if (data) setTestimonials(data);
+      try {
+        const { data, error } = await supabase
+          .from("testimonials")
+          .select("*")
+          .eq("is_active", true)
+          .order("display_order");
+        
+        if (error) {
+          console.error("Error fetching testimonials:", error);
+        } else if (data) {
+          setTestimonials(data);
+        }
+      } catch (err) {
+        console.error("Failed to fetch testimonials:", err);
+      } finally {
+        setIsLoading(false);
+      }
     };
     fetchTestimonials();
   }, []);
@@ -40,7 +52,8 @@ const TestimonialsSection = () => {
       .slice(0, 2);
   };
 
-  if (testimonials.length === 0) return null;
+  // Don't render section if no testimonials after loading
+  if (!isLoading && testimonials.length === 0) return null;
 
   return (
     <section className="py-12 sm:py-16 md:py-20 bg-primary relative overflow-hidden" ref={ref}>
