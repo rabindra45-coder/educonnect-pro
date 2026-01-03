@@ -93,19 +93,20 @@ const HeroSection = () => {
     <section className="relative min-h-[70vh] sm:min-h-[85vh] lg:min-h-[90vh] flex items-center overflow-hidden">
       {/* Background Image with Slider */}
       <div className="absolute inset-0">
-        <AnimatePresence mode="wait">
+      <AnimatePresence mode="wait">
           <motion.img
             key={currentSlide}
             src={currentBackground}
             alt="Hero background"
-            className="w-full h-full object-cover"
-            initial={{ opacity: 0, scale: 1.1 }}
+            className="w-full h-full object-cover object-center"
+            style={{ objectPosition: 'center 30%' }}
+            initial={{ opacity: 0, scale: 1.05 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.7 }}
           />
         </AnimatePresence>
-        <div className="absolute inset-0 bg-gradient-hero"></div>
+        <div className="absolute inset-0 bg-black/30"></div>
       </div>
 
       {/* Breaking News Ticker */}
@@ -195,8 +196,8 @@ const HeroSection = () => {
                   </Button>
                 ) : (
                   <Button variant="hero" size="lg" className="text-sm sm:text-base" asChild>
-                    <Link to="/admission">
-                      Apply for Admission
+                    <Link to="/gallery">
+                      Hiking events
                       <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
                     </Link>
                   </Button>
