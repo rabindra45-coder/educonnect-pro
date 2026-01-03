@@ -18,6 +18,7 @@ interface SchoolSettings {
   school_phone: string;
   school_email: string;
   school_website: string;
+  logo_url: string;
   principal_name: string;
   principal_message: string;
   principal_photo_url: string;
@@ -44,6 +45,7 @@ const Settings = () => {
     school_phone: "",
     school_email: "",
     school_website: "",
+    logo_url: "",
     principal_name: "",
     principal_message: "",
     principal_photo_url: "",
@@ -58,7 +60,9 @@ const Settings = () => {
   });
 
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
   const photoInputRef = useRef<HTMLInputElement>(null);
+  const logoInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (profile) {
@@ -90,6 +94,7 @@ const Settings = () => {
           school_phone: data.school_phone || "",
           school_email: data.school_email || "",
           school_website: data.school_website || "",
+          logo_url: data.logo_url || "",
           principal_name: data.principal_name || "",
           principal_message: data.principal_message || "",
           principal_photo_url: (data as any).principal_photo_url || "",
@@ -143,6 +148,7 @@ const Settings = () => {
           school_phone: schoolSettings.school_phone,
           school_email: schoolSettings.school_email,
           school_website: schoolSettings.school_website,
+          logo_url: schoolSettings.logo_url,
           principal_name: schoolSettings.principal_name,
           principal_message: schoolSettings.principal_message,
           principal_photo_url: schoolSettings.principal_photo_url,
@@ -242,6 +248,94 @@ const Settings = () => {
                 </div>
               ) : (
                 <>
+                  {/* School Logo Upload */}
+                  <div className="space-y-3">
+                    <Label>School Logo</Label>
+                    <div className="flex items-center gap-4">
+                      <div className="relative">
+                        {schoolSettings.logo_url ? (
+                          <div className="relative group">
+                            <img
+                              src={schoolSettings.logo_url}
+                              alt="School Logo"
+                              className="w-16 h-16 object-contain rounded-lg border bg-white p-1"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => setSchoolSettings({ ...schoolSettings, logo_url: "" })}
+                              className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                            >
+                              <X className="h-3 w-3" />
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="w-16 h-16 bg-muted rounded-lg border-2 border-dashed flex items-center justify-center">
+                            <School className="h-6 w-6 text-muted-foreground" />
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex-1">
+                        <input
+                          type="file"
+                          ref={logoInputRef}
+                          accept="image/*"
+                          className="hidden"
+                          onChange={async (e) => {
+                            const file = e.target.files?.[0];
+                            if (!file) return;
+
+                            setUploadingLogo(true);
+                            try {
+                              const fileExt = file.name.split('.').pop();
+                              const fileName = `school-logo-${Date.now()}.${fileExt}`;
+                              const filePath = `logos/${fileName}`;
+
+                              const { error: uploadError } = await supabase.storage
+                                .from('content-images')
+                                .upload(filePath, file);
+
+                              if (uploadError) throw uploadError;
+
+                              const { data: { publicUrl } } = supabase.storage
+                                .from('content-images')
+                                .getPublicUrl(filePath);
+
+                              setSchoolSettings({ ...schoolSettings, logo_url: publicUrl });
+                              toast({ title: "Logo uploaded successfully" });
+                            } catch (error: any) {
+                              toast({
+                                title: "Error uploading logo",
+                                description: error.message,
+                                variant: "destructive",
+                              });
+                            } finally {
+                              setUploadingLogo(false);
+                            }
+                          }}
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => logoInputRef.current?.click()}
+                          disabled={uploadingLogo}
+                        >
+                          {uploadingLogo ? (
+                            <>
+                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                              Uploading...
+                            </>
+                          ) : (
+                            <>
+                              <Upload className="mr-2 h-4 w-4" />
+                              Upload Logo
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+
                   <div className="space-y-2">
                     <Label htmlFor="school_name">School Name</Label>
                     <Input

@@ -1,7 +1,27 @@
 import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
 import { Phone, Mail, MapPin, Clock, Facebook, Twitter, Youtube, ArrowUp } from "lucide-react";
-import schoolLogo from "@/assets/logo.png";
+import defaultLogo from "@/assets/logo.png";
+import { supabase } from "@/integrations/supabase/client";
+
 const Footer = () => {
+  const [schoolLogo, setSchoolLogo] = useState(defaultLogo);
+
+  useEffect(() => {
+    const fetchLogo = async () => {
+      const { data } = await supabase
+        .from("school_settings")
+        .select("logo_url")
+        .limit(1)
+        .single();
+      
+      if (data?.logo_url) {
+        setSchoolLogo(data.logo_url);
+      }
+    };
+    fetchLogo();
+  }, []);
+
   const scrollToTop = () => {
     window.scrollTo({
       top: 0,
