@@ -397,6 +397,7 @@ export type Database = {
           logo_url: string | null
           principal_message: string | null
           principal_name: string | null
+          principal_photo_url: string | null
           school_address: string | null
           school_email: string | null
           school_name: string
@@ -411,6 +412,7 @@ export type Database = {
           logo_url?: string | null
           principal_message?: string | null
           principal_name?: string | null
+          principal_photo_url?: string | null
           school_address?: string | null
           school_email?: string | null
           school_name?: string
@@ -425,6 +427,7 @@ export type Database = {
           logo_url?: string | null
           principal_message?: string | null
           principal_name?: string | null
+          principal_photo_url?: string | null
           school_address?: string | null
           school_email?: string | null
           school_name?: string

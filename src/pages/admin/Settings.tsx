@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { School, Bell, Shield, User, Loader2, MessageSquare } from "lucide-react";
+import { School, Bell, Shield, User, Loader2, MessageSquare, Upload, X, Camera } from "lucide-react";
 
 interface SchoolSettings {
   id: string;
@@ -20,6 +20,7 @@ interface SchoolSettings {
   school_website: string;
   principal_name: string;
   principal_message: string;
+  principal_photo_url: string;
   established_year: number;
 }
 
@@ -44,6 +45,7 @@ const Settings = () => {
     school_website: "",
     principal_name: "",
     principal_message: "",
+    principal_photo_url: "",
     established_year: 2000,
   });
 
@@ -52,6 +54,9 @@ const Settings = () => {
     admission_alerts: true,
     notice_reminders: true,
   });
+
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const photoInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (profile) {
@@ -85,6 +90,7 @@ const Settings = () => {
           school_website: data.school_website || "",
           principal_name: data.principal_name || "",
           principal_message: data.principal_message || "",
+          principal_photo_url: (data as any).principal_photo_url || "",
           established_year: data.established_year || 2000,
         });
       }
@@ -136,8 +142,9 @@ const Settings = () => {
           school_website: schoolSettings.school_website,
           principal_name: schoolSettings.principal_name,
           principal_message: schoolSettings.principal_message,
+          principal_photo_url: schoolSettings.principal_photo_url,
           established_year: schoolSettings.established_year,
-        })
+        } as any)
         .eq("id", schoolSettings.id);
 
       if (error) throw error;
@@ -318,24 +325,115 @@ const Settings = () => {
             </CardContent>
           </Card>
 
-          {/* Principal Message */}
+          {/* Principal Section */}
           <Card className="md:col-span-2">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <MessageSquare className="h-5 w-5" />
-                Principal's Message
+                Principal's Section
               </CardTitle>
               <CardDescription>
-                Update the message displayed on the homepage from the principal
+                Update the principal's photo and message displayed on the homepage
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-6">
               {fetchingSchool ? (
                 <div className="flex items-center justify-center py-8">
                   <Loader2 className="h-6 w-6 animate-spin" />
                 </div>
               ) : (
                 <>
+                  {/* Principal Photo Upload */}
+                  <div className="space-y-3">
+                    <Label>Principal Photo</Label>
+                    <div className="flex items-start gap-6">
+                      <div className="relative">
+                        {schoolSettings.principal_photo_url ? (
+                          <div className="relative group">
+                            <img
+                              src={schoolSettings.principal_photo_url}
+                              alt="Principal"
+                              className="w-32 h-40 object-cover rounded-lg border"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => setSchoolSettings({ ...schoolSettings, principal_photo_url: "" })}
+                              className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                            >
+                              <X className="h-4 w-4" />
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="w-32 h-40 bg-muted rounded-lg border-2 border-dashed flex items-center justify-center">
+                            <Camera className="h-8 w-8 text-muted-foreground" />
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex-1 space-y-2">
+                        <input
+                          type="file"
+                          ref={photoInputRef}
+                          accept="image/*"
+                          className="hidden"
+                          onChange={async (e) => {
+                            const file = e.target.files?.[0];
+                            if (!file) return;
+
+                            setUploadingPhoto(true);
+                            try {
+                              const fileExt = file.name.split('.').pop();
+                              const fileName = `principal-photo-${Date.now()}.${fileExt}`;
+                              const filePath = `principal/${fileName}`;
+
+                              const { error: uploadError } = await supabase.storage
+                                .from('content-images')
+                                .upload(filePath, file);
+
+                              if (uploadError) throw uploadError;
+
+                              const { data: { publicUrl } } = supabase.storage
+                                .from('content-images')
+                                .getPublicUrl(filePath);
+
+                              setSchoolSettings({ ...schoolSettings, principal_photo_url: publicUrl });
+                              toast({ title: "Photo uploaded successfully" });
+                            } catch (error: any) {
+                              toast({
+                                title: "Error uploading photo",
+                                description: error.message,
+                                variant: "destructive",
+                              });
+                            } finally {
+                              setUploadingPhoto(false);
+                            }
+                          }}
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => photoInputRef.current?.click()}
+                          disabled={uploadingPhoto}
+                        >
+                          {uploadingPhoto ? (
+                            <>
+                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                              Uploading...
+                            </>
+                          ) : (
+                            <>
+                              <Upload className="mr-2 h-4 w-4" />
+                              Upload Photo
+                            </>
+                          )}
+                        </Button>
+                        <p className="text-xs text-muted-foreground">
+                          Recommended: Portrait photo (4:5 aspect ratio)
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Principal Message */}
                   <div className="space-y-2">
                     <Label htmlFor="principal_message">Message</Label>
                     <Textarea
@@ -352,7 +450,7 @@ const Settings = () => {
                     </p>
                   </div>
                   <Button onClick={handleUpdateSchoolSettings} disabled={schoolLoading}>
-                    {schoolLoading ? "Saving..." : "Save Message"}
+                    {schoolLoading ? "Saving..." : "Save Principal Section"}
                   </Button>
                 </>
               )}

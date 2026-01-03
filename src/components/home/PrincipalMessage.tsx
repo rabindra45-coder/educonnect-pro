@@ -2,12 +2,13 @@ import { motion } from "framer-motion";
 import { useInView } from "framer-motion";
 import { useRef, useEffect, useState } from "react";
 import { Quote, Loader2 } from "lucide-react";
-import principalImage from "@/assets/principal.jpg";
+import defaultPrincipalImage from "@/assets/principal.jpg";
 import { supabase } from "@/integrations/supabase/client";
 
 interface SchoolSettings {
   principal_name: string | null;
   principal_message: string | null;
+  principal_photo_url: string | null;
 }
 
 const PrincipalMessage = () => {
@@ -24,11 +25,11 @@ const PrincipalMessage = () => {
     const fetchSettings = async () => {
       const { data } = await supabase
         .from("school_settings")
-        .select("principal_name, principal_message")
+        .select("principal_name, principal_message, principal_photo_url")
         .limit(1)
         .single();
 
-      if (data) setSettings(data);
+      if (data) setSettings(data as any);
       setLoading(false);
     };
 
@@ -36,6 +37,7 @@ const PrincipalMessage = () => {
   }, []);
 
   const principalName = settings?.principal_name || "Mr. Ram Balak Sharma";
+  const principalPhoto = settings?.principal_photo_url || defaultPrincipalImage;
   const principalMessage = settings?.principal_message || `Education is not just about academic excellence; it's about nurturing 
 well-rounded individuals who will contribute positively to society. 
 At Shree Durga Saraswati Janata Secondary School, we believe in 
@@ -69,7 +71,7 @@ journey of learning and growth.`;
               {/* Main Image */}
               <div className="relative z-10 rounded-xl sm:rounded-2xl overflow-hidden shadow-xl">
                 <img 
-                  src={principalImage} 
+                  src={principalPhoto} 
                   alt={`Principal of Shree Durga Saraswati Janata Secondary School - ${principalName}`} 
                   className="w-full aspect-[4/5] object-cover" 
                 />
