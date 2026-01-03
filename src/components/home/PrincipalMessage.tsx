@@ -9,6 +9,7 @@ interface SchoolSettings {
   principal_name: string | null;
   principal_message: string | null;
   principal_photo_url: string | null;
+  principal_years_experience: number | null;
 }
 
 const PrincipalMessage = () => {
@@ -25,7 +26,7 @@ const PrincipalMessage = () => {
     const fetchSettings = async () => {
       const { data } = await supabase
         .from("school_settings")
-        .select("principal_name, principal_message, principal_photo_url")
+        .select("principal_name, principal_message, principal_photo_url, principal_years_experience")
         .limit(1)
         .single();
 
@@ -38,7 +39,8 @@ const PrincipalMessage = () => {
 
   const principalName = settings?.principal_name || "Mr. Ram Balak Sharma";
   const principalPhoto = settings?.principal_photo_url || defaultPrincipalImage;
-  const principalMessage = settings?.principal_message || `Education is not just about academic excellence; it's about nurturing 
+  const yearsExperience = settings?.principal_years_experience || 25;
+  const principalMessage = settings?.principal_message || `Education is not just about academic excellence; it's about nurturing
 well-rounded individuals who will contribute positively to society. 
 At Shree Durga Saraswati Janata Secondary School, we believe in 
 holistic development that encompasses intellectual growth, moral values, 
@@ -88,8 +90,8 @@ journey of learning and growth.`;
                 animate={isInView ? { scale: 1 } : {}} 
                 transition={{ duration: 0.5, delay: 0.5 }}
               >
-                <div className="text-center">
-                  <div className="font-display text-xl sm:text-3xl font-bold">25+</div>
+              <div className="text-center">
+                  <div className="font-display text-xl sm:text-3xl font-bold">{yearsExperience}+</div>
                   <div className="text-[10px] sm:text-sm text-primary-foreground/80">Years in<br />Education</div>
                 </div>
               </motion.div>

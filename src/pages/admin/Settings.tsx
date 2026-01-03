@@ -21,6 +21,7 @@ interface SchoolSettings {
   principal_name: string;
   principal_message: string;
   principal_photo_url: string;
+  principal_years_experience: number;
   established_year: number;
 }
 
@@ -46,6 +47,7 @@ const Settings = () => {
     principal_name: "",
     principal_message: "",
     principal_photo_url: "",
+    principal_years_experience: 25,
     established_year: 2000,
   });
 
@@ -91,6 +93,7 @@ const Settings = () => {
           principal_name: data.principal_name || "",
           principal_message: data.principal_message || "",
           principal_photo_url: (data as any).principal_photo_url || "",
+          principal_years_experience: (data as any).principal_years_experience || 25,
           established_year: data.established_year || 2000,
         });
       }
@@ -143,6 +146,7 @@ const Settings = () => {
           principal_name: schoolSettings.principal_name,
           principal_message: schoolSettings.principal_message,
           principal_photo_url: schoolSettings.principal_photo_url,
+          principal_years_experience: schoolSettings.principal_years_experience,
           established_year: schoolSettings.established_year,
         } as any)
         .eq("id", schoolSettings.id);
@@ -431,6 +435,23 @@ const Settings = () => {
                         </p>
                       </div>
                     </div>
+                  </div>
+
+                  {/* Years Experience */}
+                  <div className="space-y-2">
+                    <Label htmlFor="principal_years_experience">Years in Education</Label>
+                    <Input
+                      id="principal_years_experience"
+                      type="number"
+                      value={schoolSettings.principal_years_experience}
+                      onChange={(e) =>
+                        setSchoolSettings({ ...schoolSettings, principal_years_experience: parseInt(e.target.value) || 0 })
+                      }
+                      placeholder="Enter years of experience"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      This value appears on the experience badge in the Principal's Message section.
+                    </p>
                   </div>
 
                   {/* Principal Message */}
