@@ -4,8 +4,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, Phone, Mail, ChevronDown, LogIn, User, LogOut, LayoutDashboard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import schoolLogo from "@/assets/logo.png";
+import defaultLogo from "@/assets/logo.png";
 import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 const navItems = [{
   name: "Home",
@@ -43,6 +44,7 @@ const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+  const [schoolLogo, setSchoolLogo] = useState(defaultLogo);
   const location = useLocation();
   const navigate = useNavigate();
   const {
@@ -52,6 +54,21 @@ const Header = () => {
     hasRole,
     hasAnyAdminRole
   } = useAuth();
+
+  useEffect(() => {
+    const fetchLogo = async () => {
+      const { data } = await supabase
+        .from("school_settings")
+        .select("logo_url")
+        .limit(1)
+        .single();
+      
+      if (data?.logo_url) {
+        setSchoolLogo(data.logo_url);
+      }
+    };
+    fetchLogo();
+  }, []);
   const getDashboardPath = () => {
     if (hasRole("student")) return "/student";
     if (hasAnyAdminRole()) return "/admin";
