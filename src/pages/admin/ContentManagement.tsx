@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Plus, Edit, Trash2, Save, GripVertical, Users, Award, Building2, MessageSquare, Upload, X, Loader2 } from "lucide-react";
+import { Plus, Edit, Trash2, Save, GripVertical, Users, Award, Building2, MessageSquare, Upload, X, Loader2, Image } from "lucide-react";
 
 interface Facility {
   id: string;
@@ -58,15 +58,27 @@ interface AboutContent {
   content: string | null;
 }
 
+interface HeroSlide {
+  id: string;
+  title: string | null;
+  subtitle: string | null;
+  image_url: string;
+  link_url: string | null;
+  link_text: string | null;
+  display_order: number;
+  is_active: boolean;
+}
+
 const ContentManagement = () => {
   const { toast } = useToast();
-  const [activeTab, setActiveTab] = useState("facilities");
+  const [activeTab, setActiveTab] = useState("hero");
   const [uploading, setUploading] = useState(false);
   
   // File input refs
   const facilityFileRef = useRef<HTMLInputElement>(null);
   const leaderFileRef = useRef<HTMLInputElement>(null);
   const testimonialFileRef = useRef<HTMLInputElement>(null);
+  const heroSlideFileRef = useRef<HTMLInputElement>(null);
   
   // Facilities state
   const [facilities, setFacilities] = useState<Facility[]>([]);
@@ -95,6 +107,19 @@ const ContentManagement = () => {
   // About content state
   const [aboutContent, setAboutContent] = useState<AboutContent[]>([]);
 
+  // Hero slides state
+  const [heroSlides, setHeroSlides] = useState<HeroSlide[]>([]);
+  const [heroSlideDialog, setHeroSlideDialog] = useState(false);
+  const [editingHeroSlide, setEditingHeroSlide] = useState<HeroSlide | null>(null);
+  const [heroSlideForm, setHeroSlideForm] = useState({ 
+    title: "", 
+    subtitle: "", 
+    image_url: "", 
+    link_url: "", 
+    link_text: "", 
+    is_active: true 
+  });
+
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -108,7 +133,8 @@ const ContentManagement = () => {
       fetchLeadership(),
       fetchTestimonials(),
       fetchStats(),
-      fetchAboutContent()
+      fetchAboutContent(),
+      fetchHeroSlides()
     ]);
     setLoading(false);
   };
@@ -136,6 +162,66 @@ const ContentManagement = () => {
   const fetchAboutContent = async () => {
     const { data } = await supabase.from("about_content").select("*");
     if (data) setAboutContent(data);
+  };
+
+  const fetchHeroSlides = async () => {
+    const { data } = await supabase.from("hero_slides").select("*").order("display_order");
+    if (data) setHeroSlides(data);
+  };
+
+  // Handle hero slide image upload
+  const handleHeroSlideImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    const url = await uploadImage(file, 'hero-slides');
+    if (url) {
+      setHeroSlideForm({ ...heroSlideForm, image_url: url });
+      toast({ title: "Image uploaded" });
+    }
+  };
+
+  // Hero Slide CRUD
+  const handleSaveHeroSlide = async () => {
+    if (!heroSlideForm.image_url) {
+      toast({ title: "Error", description: "Image is required", variant: "destructive" });
+      return;
+    }
+    
+    if (editingHeroSlide) {
+      await supabase.from("hero_slides").update({
+        title: heroSlideForm.title || null,
+        subtitle: heroSlideForm.subtitle || null,
+        image_url: heroSlideForm.image_url,
+        link_url: heroSlideForm.link_url || null,
+        link_text: heroSlideForm.link_text || null,
+        is_active: heroSlideForm.is_active
+      }).eq("id", editingHeroSlide.id);
+      toast({ title: "Success", description: "Slide updated" });
+    } else {
+      const maxOrder = Math.max(...heroSlides.map(s => s.display_order), 0);
+      await supabase.from("hero_slides").insert({
+        title: heroSlideForm.title || null,
+        subtitle: heroSlideForm.subtitle || null,
+        image_url: heroSlideForm.image_url,
+        link_url: heroSlideForm.link_url || null,
+        link_text: heroSlideForm.link_text || null,
+        is_active: heroSlideForm.is_active,
+        display_order: maxOrder + 1
+      });
+      toast({ title: "Success", description: "Slide added" });
+    }
+    setHeroSlideDialog(false);
+    setEditingHeroSlide(null);
+    setHeroSlideForm({ title: "", subtitle: "", image_url: "", link_url: "", link_text: "", is_active: true });
+    fetchHeroSlides();
+  };
+
+  const handleDeleteHeroSlide = async (id: string) => {
+    if (!confirm("Delete this slide?")) return;
+    await supabase.from("hero_slides").delete().eq("id", id);
+    toast({ title: "Deleted", description: "Slide removed" });
+    fetchHeroSlides();
   };
 
   // Image upload helper
@@ -437,7 +523,10 @@ const ContentManagement = () => {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="mb-6">
+          <TabsList className="mb-6 flex-wrap">
+            <TabsTrigger value="hero" className="flex items-center gap-2">
+              <Image className="w-4 h-4" /> Hero Slides
+            </TabsTrigger>
             <TabsTrigger value="facilities" className="flex items-center gap-2">
               <Building2 className="w-4 h-4" /> Facilities
             </TabsTrigger>
@@ -452,6 +541,162 @@ const ContentManagement = () => {
             </TabsTrigger>
             <TabsTrigger value="about">About Page</TabsTrigger>
           </TabsList>
+
+          {/* Hero Slides Tab */}
+          <TabsContent value="hero">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg font-semibold">Hero Slider Images</h2>
+              <Dialog open={heroSlideDialog} onOpenChange={setHeroSlideDialog}>
+                <DialogTrigger asChild>
+                  <Button onClick={() => { setEditingHeroSlide(null); setHeroSlideForm({ title: "", subtitle: "", image_url: "", link_url: "", link_text: "", is_active: true }); }}>
+                    <Plus className="w-4 h-4 mr-2" /> Add Slide
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-md">
+                  <DialogHeader>
+                    <DialogTitle>{editingHeroSlide ? "Edit" : "Add"} Hero Slide</DialogTitle>
+                  </DialogHeader>
+                  <div className="space-y-4 max-h-[70vh] overflow-y-auto">
+                    <div>
+                      <Label>Slide Image *</Label>
+                      <div className="mt-2">
+                        {heroSlideForm.image_url ? (
+                          <div className="relative inline-block">
+                            <img src={heroSlideForm.image_url} alt="Preview" className="w-full h-40 object-cover rounded-lg border" />
+                            <button
+                              type="button"
+                              onClick={() => setHeroSlideForm({ ...heroSlideForm, image_url: "" })}
+                              className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full p-1 hover:bg-destructive/90"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
+                          </div>
+                        ) : (
+                          <div
+                            onClick={() => heroSlideFileRef.current?.click()}
+                            className="w-full h-40 border-2 border-dashed border-muted-foreground/25 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-primary/50 transition-colors"
+                          >
+                            {uploading ? (
+                              <Loader2 className="w-8 h-8 text-muted-foreground animate-spin" />
+                            ) : (
+                              <>
+                                <Upload className="w-8 h-8 text-muted-foreground mb-2" />
+                                <span className="text-sm text-muted-foreground">Click to upload image</span>
+                              </>
+                            )}
+                          </div>
+                        )}
+                        <input
+                          ref={heroSlideFileRef}
+                          type="file"
+                          accept="image/*"
+                          onChange={handleHeroSlideImageUpload}
+                          className="hidden"
+                        />
+                      </div>
+                      <Input 
+                        value={heroSlideForm.image_url} 
+                        onChange={e => setHeroSlideForm({ ...heroSlideForm, image_url: e.target.value })}
+                        placeholder="Or paste image URL here..." 
+                        className="mt-2"
+                      />
+                    </div>
+                    <div>
+                      <Label>Title (optional)</Label>
+                      <Input 
+                        value={heroSlideForm.title} 
+                        onChange={e => setHeroSlideForm({ ...heroSlideForm, title: e.target.value })} 
+                        placeholder="e.g., Welcome to Our School"
+                      />
+                    </div>
+                    <div>
+                      <Label>Subtitle/Badge (optional)</Label>
+                      <Input 
+                        value={heroSlideForm.subtitle} 
+                        onChange={e => setHeroSlideForm({ ...heroSlideForm, subtitle: e.target.value })} 
+                        placeholder="e.g., 🎓 Excellence Since 2000"
+                      />
+                    </div>
+                    <div>
+                      <Label>Button Link URL (optional)</Label>
+                      <Input 
+                        value={heroSlideForm.link_url} 
+                        onChange={e => setHeroSlideForm({ ...heroSlideForm, link_url: e.target.value })} 
+                        placeholder="e.g., /admission"
+                      />
+                    </div>
+                    <div>
+                      <Label>Button Text (optional)</Label>
+                      <Input 
+                        value={heroSlideForm.link_text} 
+                        onChange={e => setHeroSlideForm({ ...heroSlideForm, link_text: e.target.value })} 
+                        placeholder="e.g., Apply Now"
+                      />
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Switch checked={heroSlideForm.is_active} onCheckedChange={c => setHeroSlideForm({ ...heroSlideForm, is_active: c })} />
+                      <Label>Active</Label>
+                    </div>
+                    <Button onClick={handleSaveHeroSlide} className="w-full" disabled={uploading}>
+                      {uploading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />} Save Slide
+                    </Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
+            </div>
+            <div className="grid gap-4">
+              {heroSlides.length === 0 ? (
+                <Card>
+                  <CardContent className="p-8 text-center text-muted-foreground">
+                    <Image className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                    <p>No hero slides yet. Add slides to create a homepage slider.</p>
+                  </CardContent>
+                </Card>
+              ) : (
+                heroSlides.map((slide, index) => (
+                  <Card key={slide.id} className={!slide.is_active ? "opacity-50" : ""}>
+                    <CardContent className="p-4 flex items-center gap-4">
+                      <div className="text-center min-w-[40px]">
+                        <span className="text-2xl font-bold text-muted-foreground">{index + 1}</span>
+                      </div>
+                      <img src={slide.image_url} alt={slide.title || "Slide"} className="w-32 h-20 object-cover rounded" />
+                      <div className="flex-1">
+                        <h3 className="font-semibold">{slide.title || "(No title)"}</h3>
+                        <p className="text-sm text-muted-foreground">{slide.subtitle || "(No subtitle)"}</p>
+                        {slide.link_url && (
+                          <p className="text-xs text-primary mt-1">Link: {slide.link_url}</p>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {slide.is_active ? (
+                          <span className="text-xs px-2 py-1 bg-green-500/10 text-green-600 rounded">Active</span>
+                        ) : (
+                          <span className="text-xs px-2 py-1 bg-gray-500/10 text-gray-600 rounded">Inactive</span>
+                        )}
+                      </div>
+                      <Button variant="ghost" size="icon" onClick={() => { 
+                        setEditingHeroSlide(slide); 
+                        setHeroSlideForm({ 
+                          title: slide.title || "", 
+                          subtitle: slide.subtitle || "", 
+                          image_url: slide.image_url, 
+                          link_url: slide.link_url || "", 
+                          link_text: slide.link_text || "", 
+                          is_active: slide.is_active 
+                        }); 
+                        setHeroSlideDialog(true); 
+                      }}>
+                        <Edit className="w-4 h-4" />
+                      </Button>
+                      <Button variant="ghost" size="icon" onClick={() => handleDeleteHeroSlide(slide.id)}>
+                        <Trash2 className="w-4 h-4 text-destructive" />
+                      </Button>
+                    </CardContent>
+                  </Card>
+                ))
+              )}
+            </div>
+          </TabsContent>
 
           {/* Facilities Tab */}
           <TabsContent value="facilities">
