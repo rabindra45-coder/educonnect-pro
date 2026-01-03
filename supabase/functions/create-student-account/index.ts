@@ -1,6 +1,5 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
-import { Resend } from "https://esm.sh/resend@2.0.0";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -31,8 +30,7 @@ const handler = async (req: Request): Promise<Response> => {
 
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const resendApiKey = Deno.env.get("RESEND_API_KEY");
+    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
@@ -157,90 +155,62 @@ const handler = async (req: Request): Promise<Response> => {
       console.log("Student added to students table successfully");
     }
 
-    // Send welcome email with login credentials
-    if (resendApiKey) {
-      const resend = new Resend(resendApiKey);
+    // Store notification in database for the student to see when they login
+    // Create a notice specifically for this student
+    try {
+      const { data: schoolSettings } = await supabase
+        .from("school_settings")
+        .select("school_name")
+        .single();
       
-      try {
-        const { data: schoolSettings } = await supabase
-          .from("school_settings")
-          .select("school_name")
-          .single();
-        
-        const schoolName = schoolSettings?.school_name || "Shree Durga Saraswati Janata Secondary School";
-        
-        await resend.emails.send({
-          from: `${schoolName} <onboarding@resend.dev>`,
-          to: [guardianEmail],
-          subject: "🎉 Admission Approved - Welcome to Our School!",
-          html: `
-            <!DOCTYPE html>
-            <html>
-            <head>
-              <meta charset="utf-8">
-              <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            </head>
-            <body style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-              <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
-                <h1 style="color: white; margin: 0; font-size: 28px;">🎉 Congratulations!</h1>
-                <p style="color: rgba(255,255,255,0.9); margin-top: 10px; font-size: 16px;">Admission Approved</p>
-              </div>
-              
-              <div style="background: #f9fafb; padding: 30px; border: 1px solid #e5e7eb; border-top: none;">
-                <p style="font-size: 16px; margin-bottom: 20px;">Dear <strong>${guardianName}</strong>,</p>
-                
-                <p style="font-size: 16px; margin-bottom: 20px;">
-                  We are delighted to inform you that the admission application for <strong>${studentName}</strong> 
-                  has been <span style="color: #10b981; font-weight: bold;">approved</span>!
-                </p>
-                
-                <div style="background: white; border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px; margin: 20px 0;">
-                  <h3 style="color: #374151; margin-top: 0; border-bottom: 2px solid #667eea; padding-bottom: 10px;">📋 Admission Details</h3>
-                  <table style="width: 100%; font-size: 14px;">
-                    <tr><td style="padding: 8px 0; color: #6b7280;">Student Name:</td><td style="padding: 8px 0; font-weight: 600;">${studentName}</td></tr>
-                    <tr><td style="padding: 8px 0; color: #6b7280;">Class:</td><td style="padding: 8px 0; font-weight: 600;">${applyingForClass}</td></tr>
-                    <tr><td style="padding: 8px 0; color: #6b7280;">Registration No:</td><td style="padding: 8px 0; font-weight: 600;">${registrationNumber}</td></tr>
-                    <tr><td style="padding: 8px 0; color: #6b7280;">Application No:</td><td style="padding: 8px 0; font-weight: 600;">${applicationNumber}</td></tr>
-                  </table>
-                </div>
-                
-                <div style="background: #fef3c7; border: 1px solid #f59e0b; border-radius: 8px; padding: 20px; margin: 20px 0;">
-                  <h3 style="color: #92400e; margin-top: 0;">🔐 Student Portal Login Credentials</h3>
-                  <table style="width: 100%; font-size: 14px;">
-                    <tr><td style="padding: 8px 0; color: #78350f;">Email:</td><td style="padding: 8px 0; font-weight: 600; color: #92400e;">${guardianEmail}</td></tr>
-                    <tr><td style="padding: 8px 0; color: #78350f;">Password:</td><td style="padding: 8px 0; font-weight: 600; color: #92400e;">${DEFAULT_PASSWORD}</td></tr>
-                  </table>
-                  <p style="font-size: 12px; color: #92400e; margin-bottom: 0; margin-top: 15px;">
-                    ⚠️ <strong>Important:</strong> Please change your password after your first login for security purposes.
-                  </p>
-                </div>
-                
-                <p style="font-size: 14px; color: #6b7280; margin-top: 25px;">
-                  If you have any questions, please don't hesitate to contact us.
-                </p>
-                
-                <p style="font-size: 14px; margin-top: 25px;">
-                  Best regards,<br>
-                  <strong>${schoolName}</strong>
-                </p>
-              </div>
-              
-              <div style="background: #374151; padding: 20px; text-align: center; border-radius: 0 0 10px 10px;">
-                <p style="color: #9ca3af; font-size: 12px; margin: 0;">
-                  This is an automated message. Please do not reply to this email.
-                </p>
-              </div>
-            </body>
-            </html>
+      const schoolName = schoolSettings?.school_name || "Shree Durga Saraswati Janata Secondary School";
+      
+      // Create a welcome notice
+      const { error: noticeError } = await supabase
+        .from("notices")
+        .insert({
+          title: `🎉 Welcome ${studentName} - Admission Approved!`,
+          content: `
+Dear ${guardianName},
+
+Congratulations! The admission application for ${studentName} has been approved.
+
+**Admission Details:**
+- Student Name: ${studentName}
+- Class: ${applyingForClass}
+- Registration Number: ${registrationNumber}
+- Application Number: ${applicationNumber}
+
+**Login Credentials:**
+- Email: ${guardianEmail}
+- Password: ${DEFAULT_PASSWORD}
+
+⚠️ Important: Please change your password after your first login for security purposes.
+
+Welcome to ${schoolName}!
           `,
+          category: "Admission",
+          is_published: true,
+          is_pinned: false,
         });
-        
-        console.log("Welcome email sent successfully to:", guardianEmail);
-      } catch (emailError) {
-        console.error("Error sending welcome email:", emailError);
+
+      if (noticeError) {
+        console.error("Error creating welcome notice:", noticeError);
+      } else {
+        console.log("Welcome notice created successfully");
       }
-    } else {
-      console.log("RESEND_API_KEY not configured, skipping email");
+
+      // Also log the credentials for admin to share manually if needed
+      console.log("===========================================");
+      console.log("STUDENT ACCOUNT CREATED - SHARE THESE DETAILS:");
+      console.log(`Student: ${studentName}`);
+      console.log(`Email: ${guardianEmail}`);
+      console.log(`Password: ${DEFAULT_PASSWORD}`);
+      console.log(`Registration: ${registrationNumber}`);
+      console.log("===========================================");
+      
+    } catch (noticeError) {
+      console.error("Error creating notice:", noticeError);
     }
 
     return new Response(
