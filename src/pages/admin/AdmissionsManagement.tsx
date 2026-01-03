@@ -122,7 +122,13 @@ const AdmissionsManagement = () => {
               admissionId: id,
               studentName: admission.student_name,
               guardianEmail: admission.guardian_email,
+              guardianName: admission.guardian_name,
+              guardianPhone: admission.guardian_phone,
               applyingForClass: admission.applying_for_class,
+              dateOfBirth: admission.date_of_birth,
+              gender: admission.gender,
+              address: admission.address,
+              applicationNumber: admission.application_number,
             },
           });
 
