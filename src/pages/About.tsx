@@ -162,7 +162,7 @@ environment where every student can discover and develop their unique potential.
               delay: 0.2
             }}>
                 <div className="relative rounded-2xl overflow-hidden shadow-xl">
-                  <img alt="School Campus" className="w-full aspect-video object-cover" src="/lovable-uploads/60cb4f72-bd3f-4adc-a435-fa690f978c01.jpg" />
+                  <img alt="School Campus" className="w-full aspect-video object-cover" src="/lovable-uploads/ff8b0fb8-4c90-4134-9f5c-92d22e7939a9.jpg" />
                 </div>
                 <div className="absolute -bottom-6 -left-6 bg-secondary text-secondary-foreground p-6 rounded-2xl shadow-xl">
                   <div className="text-center">
