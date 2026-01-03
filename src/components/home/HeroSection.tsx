@@ -2,9 +2,33 @@ import { motion } from "framer-motion";
 import { ChevronRight, Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import heroImage from "@/assets/hero-school.jpg";
-const notices = ["Admission Open for Academic Year 2081/82 - Apply Now!", "Annual Sports Week starts from Poush 15 - All students must participate", "Parent-Teacher Meeting scheduled for Poush 20, 2081", "Winter vacation from Magh 1 to Magh 15, 2081"];
+
 const HeroSection = () => {
+  const [notices, setNotices] = useState<string[]>([]);
+
+  useEffect(() => {
+    const fetchNotices = async () => {
+      const { data } = await supabase
+        .from("notices")
+        .select("title")
+        .eq("is_published", true)
+        .order("is_pinned", { ascending: false })
+        .order("created_at", { ascending: false })
+        .limit(5);
+
+      if (data && data.length > 0) {
+        setNotices(data.map(n => n.title));
+      } else {
+        setNotices(["Welcome to Shree Durga Saraswati Janata Secondary School"]);
+      }
+    };
+
+    fetchNotices();
+  }, []);
+
   return <section className="relative min-h-[70vh] sm:min-h-[85vh] lg:min-h-[90vh] flex items-center overflow-hidden">
       {/* Background Image */}
       <div className="absolute inset-0">
