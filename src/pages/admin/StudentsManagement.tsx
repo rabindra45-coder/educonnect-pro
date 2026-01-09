@@ -6,7 +6,9 @@ import {
   Edit, 
   Trash2, 
   GraduationCap,
-  Download
+  Download,
+  Mail,
+  Send
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -34,6 +36,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import AdminLayout from "@/components/admin/AdminLayout";
@@ -49,6 +52,7 @@ interface Student {
   roll_number: number | null;
   guardian_name: string | null;
   guardian_phone: string | null;
+  guardian_email: string | null;
   status: string;
   created_at: string;
 }
@@ -61,6 +65,11 @@ const StudentsManagement = () => {
   const [classFilter, setClassFilter] = useState("all");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingStudent, setEditingStudent] = useState<Student | null>(null);
+  const [isEmailDialogOpen, setIsEmailDialogOpen] = useState(false);
+  const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
+  const [emailSubject, setEmailSubject] = useState("");
+  const [emailMessage, setEmailMessage] = useState("");
+  const [isSendingEmail, setIsSendingEmail] = useState(false);
   const [formData, setFormData] = useState({
     full_name: "",
     date_of_birth: "",
@@ -196,6 +205,55 @@ const StudentsManagement = () => {
     const matchesClass = classFilter === "all" || student.class === classFilter;
     return matchesSearch && matchesClass;
   });
+
+  const openEmailDialog = (student: Student) => {
+    setSelectedStudent(student);
+    setEmailSubject("");
+    setEmailMessage("");
+    setIsEmailDialogOpen(true);
+  };
+
+  const sendEmail = async () => {
+    if (!selectedStudent?.guardian_email) {
+      toast({
+        title: "No Email",
+        description: "This student doesn't have a guardian email address.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSendingEmail(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("send-email", {
+        body: {
+          to: selectedStudent.guardian_email,
+          subject: emailSubject,
+          message: emailMessage,
+          recipientName: selectedStudent.guardian_name || selectedStudent.full_name,
+        },
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Email Sent",
+        description: `Email sent successfully to ${selectedStudent.guardian_email}`,
+      });
+      setIsEmailDialogOpen(false);
+      setEmailSubject("");
+      setEmailMessage("");
+    } catch (error: any) {
+      console.error("Error sending email:", error);
+      toast({
+        title: "Failed to Send",
+        description: error.message || "Could not send email. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSendingEmail(false);
+    }
+  };
 
   const classes = ["Nursery", "LKG", "UKG", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"];
 
@@ -448,6 +506,15 @@ const StudentsManagement = () => {
                         <Button
                           variant="ghost"
                           size="icon"
+                          onClick={() => openEmailDialog(student)}
+                          disabled={!student.guardian_email}
+                          title={student.guardian_email ? "Send Email" : "No email address"}
+                        >
+                          <Mail className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
                           onClick={() => openEditDialog(student)}
                         >
                           <Edit className="w-4 h-4" />
@@ -468,6 +535,68 @@ const StudentsManagement = () => {
             )}
           </CardContent>
         </Card>
+
+        {/* Email Dialog */}
+        <Dialog open={isEmailDialogOpen} onOpenChange={setIsEmailDialogOpen}>
+          <DialogContent className="max-w-lg">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <Mail className="w-5 h-5" />
+                Send Email to Student/Guardian
+              </DialogTitle>
+            </DialogHeader>
+            {selectedStudent && (
+              <div className="space-y-4">
+                <div className="bg-muted/50 p-3 rounded-lg text-sm">
+                  <p className="font-medium">{selectedStudent.full_name}</p>
+                  <p className="text-muted-foreground">
+                    {selectedStudent.guardian_name && `Guardian: ${selectedStudent.guardian_name}`}
+                  </p>
+                  <p className="text-muted-foreground">{selectedStudent.guardian_email}</p>
+                </div>
+                <div>
+                  <Label htmlFor="emailSubject">Subject *</Label>
+                  <Input
+                    id="emailSubject"
+                    value={emailSubject}
+                    onChange={(e) => setEmailSubject(e.target.value)}
+                    placeholder="Enter email subject..."
+                    className="mt-1"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="emailMessage">Message *</Label>
+                  <Textarea
+                    id="emailMessage"
+                    value={emailMessage}
+                    onChange={(e) => setEmailMessage(e.target.value)}
+                    placeholder="Write your message here..."
+                    rows={6}
+                    className="mt-1"
+                  />
+                </div>
+                <div className="flex justify-end gap-2">
+                  <Button variant="outline" onClick={() => setIsEmailDialogOpen(false)}>
+                    Cancel
+                  </Button>
+                  <Button 
+                    onClick={sendEmail} 
+                    disabled={!emailSubject || !emailMessage || isSendingEmail}
+                  >
+                    {isSendingEmail ? (
+                      <>Sending...</>
+                    ) : (
+                      <>
+                        <Send className="w-4 h-4 mr-2" />
+                        Send Email
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
       </div>
     </AdminLayout>
   );
