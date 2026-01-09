@@ -103,6 +103,14 @@ const StudentDashboard = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [showPasswordDialog, setShowPasswordDialog] = useState(false);
   const [showEditProfileDialog, setShowEditProfileDialog] = useState(false);
+  const [editProfileData, setEditProfileData] = useState({
+    guardian_name: "",
+    guardian_phone: "",
+    guardian_email: "",
+    address: "",
+  });
+  const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
+  const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
   const [passwordData, setPasswordData] = useState({
     currentPassword: "",
     newPassword: "",
@@ -237,6 +245,117 @@ const StudentDashboard = () => {
       fetchExamResults();
     }
   }, [studentInfo?.class]);
+
+  const openEditProfileDialog = () => {
+    if (studentInfo) {
+      setEditProfileData({
+        guardian_name: studentInfo.guardian_name || "",
+        guardian_phone: studentInfo.guardian_phone || "",
+        guardian_email: studentInfo.guardian_email || "",
+        address: studentInfo.address || "",
+      });
+      setShowEditProfileDialog(true);
+    }
+  };
+
+  const handlePhotoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file || !studentInfo) return;
+
+    if (!file.type.startsWith("image/")) {
+      toast({
+        title: "Error",
+        description: "Please select an image file",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        title: "Error",
+        description: "Image size must be less than 5MB",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsUploadingPhoto(true);
+    try {
+      const fileExt = file.name.split(".").pop();
+      const fileName = `student-${studentInfo.id}-${Date.now()}.${fileExt}`;
+      const filePath = `students/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("content-images")
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from("content-images")
+        .getPublicUrl(filePath);
+
+      const { error: updateError } = await supabase
+        .from("students")
+        .update({ photo_url: publicUrl })
+        .eq("id", studentInfo.id);
+
+      if (updateError) throw updateError;
+
+      setStudentInfo({ ...studentInfo, photo_url: publicUrl });
+      toast({
+        title: "Success",
+        description: "Profile photo updated successfully",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to upload photo",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploadingPhoto(false);
+    }
+  };
+
+  const handleProfileUpdate = async () => {
+    if (!studentInfo) return;
+
+    setIsUpdatingProfile(true);
+    try {
+      const { error } = await supabase
+        .from("students")
+        .update({
+          guardian_name: editProfileData.guardian_name,
+          guardian_phone: editProfileData.guardian_phone,
+          guardian_email: editProfileData.guardian_email,
+          address: editProfileData.address,
+        })
+        .eq("id", studentInfo.id);
+
+      if (error) throw error;
+
+      setStudentInfo({
+        ...studentInfo,
+        ...editProfileData,
+      });
+
+      toast({
+        title: "Success",
+        description: "Profile updated successfully",
+      });
+      setShowEditProfileDialog(false);
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update profile",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUpdatingProfile(false);
+    }
+  };
 
   const handlePasswordChange = async () => {
     if (passwordData.newPassword !== passwordData.confirmPassword) {
@@ -426,6 +545,106 @@ const StudentDashboard = () => {
         </DialogContent>
       </Dialog>
 
+      {/* Edit Profile Dialog */}
+      <Dialog open={showEditProfileDialog} onOpenChange={setShowEditProfileDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Edit className="w-5 h-5" />
+              Edit Profile
+            </DialogTitle>
+            <DialogDescription>
+              Update your profile photo and contact details.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 mt-4">
+            {/* Photo Upload */}
+            <div className="flex flex-col items-center gap-4">
+              <div className="relative">
+                <Avatar className="w-24 h-24">
+                  <AvatarImage src={studentInfo?.photo_url || ""} />
+                  <AvatarFallback className="bg-primary/10 text-primary text-2xl">
+                    {studentInfo?.full_name ? getInitials(studentInfo.full_name) : "ST"}
+                  </AvatarFallback>
+                </Avatar>
+                <label
+                  htmlFor="photo-upload"
+                  className="absolute bottom-0 right-0 p-2 bg-primary text-primary-foreground rounded-full cursor-pointer hover:bg-primary/90 transition-colors"
+                >
+                  {isUploadingPhoto ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Camera className="w-4 h-4" />
+                  )}
+                </label>
+                <input
+                  id="photo-upload"
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handlePhotoUpload}
+                  disabled={isUploadingPhoto}
+                />
+              </div>
+              <p className="text-sm text-muted-foreground">Click the camera icon to upload a photo</p>
+            </div>
+
+            <Separator />
+
+            {/* Contact Details */}
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="guardian_name">Guardian Name</Label>
+                <Input
+                  id="guardian_name"
+                  value={editProfileData.guardian_name}
+                  onChange={(e) => setEditProfileData(prev => ({ ...prev, guardian_name: e.target.value }))}
+                  placeholder="Guardian's full name"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="guardian_phone">Guardian Phone</Label>
+                <Input
+                  id="guardian_phone"
+                  value={editProfileData.guardian_phone}
+                  onChange={(e) => setEditProfileData(prev => ({ ...prev, guardian_phone: e.target.value }))}
+                  placeholder="Contact phone number"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="guardian_email">Guardian Email</Label>
+                <Input
+                  id="guardian_email"
+                  type="email"
+                  value={editProfileData.guardian_email}
+                  onChange={(e) => setEditProfileData(prev => ({ ...prev, guardian_email: e.target.value }))}
+                  placeholder="Contact email address"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="address">Address</Label>
+                <Input
+                  id="address"
+                  value={editProfileData.address}
+                  onChange={(e) => setEditProfileData(prev => ({ ...prev, address: e.target.value }))}
+                  placeholder="Home address"
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-2 pt-4">
+              <Button variant="outline" onClick={() => setShowEditProfileDialog(false)}>
+                Cancel
+              </Button>
+              <Button onClick={handleProfileUpdate} disabled={isUpdatingProfile}>
+                {isUpdatingProfile && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                Save Changes
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       {/* Header */}
       <header className="bg-card border-b border-border sticky top-0 z-50">
         <div className="container mx-auto px-4">
@@ -579,11 +798,17 @@ const StudentDashboard = () => {
                 >
                   <Card>
                     <CardHeader>
-                      <CardTitle className="flex items-center justify-between">
+                    <CardTitle className="flex items-center justify-between">
                         <span className="flex items-center gap-2">
                           <User className="w-5 h-5" />
                           My Profile
                         </span>
+                        {studentInfo && (
+                          <Button variant="ghost" size="sm" onClick={openEditProfileDialog}>
+                            <Edit className="w-4 h-4 mr-1" />
+                            Edit
+                          </Button>
+                        )}
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
