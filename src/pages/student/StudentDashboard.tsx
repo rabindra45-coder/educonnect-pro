@@ -1170,7 +1170,7 @@ const StudentDashboard = () => {
                     <FileText className="w-5 h-5" />
                     Exam Results
                   </CardTitle>
-                  <CardDescription>View your published exam results</CardDescription>
+                  <CardDescription>View and download your published exam results</CardDescription>
                 </CardHeader>
                 <CardContent>
                   {examResults.length === 0 ? (
@@ -1181,25 +1181,50 @@ const StudentDashboard = () => {
                   ) : (
                     <div className="space-y-4">
                       {examResults.map((result) => (
-                        <div key={result.id} className="flex items-center justify-between p-4 rounded-lg border bg-card">
-                          <div>
-                            <h3 className="font-semibold">{result.title}</h3>
-                            <div className="flex items-center gap-2 mt-1">
+                        <div key={result.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-lg border bg-card hover:shadow-md transition-shadow">
+                          <div className="flex-1">
+                            <h3 className="font-semibold text-lg">{result.title}</h3>
+                            <div className="flex flex-wrap items-center gap-2 mt-2">
                               <Badge variant="outline">{result.exam_type}</Badge>
+                              <Badge variant="secondary">{result.class}</Badge>
                               <span className="text-sm text-muted-foreground">
                                 {result.academic_year}
                               </span>
                             </div>
+                            <p className="text-xs text-muted-foreground mt-2">
+                              Published on {formatDate(result.created_at)}
+                            </p>
                           </div>
                           {result.result_url ? (
-                            <Button variant="outline" size="sm" asChild>
-                              <a href={result.result_url} target="_blank" rel="noopener noreferrer">
+                            <div className="flex items-center gap-2">
+                              <Button variant="outline" size="sm" asChild>
+                                <a href={result.result_url} target="_blank" rel="noopener noreferrer">
+                                  <Eye className="w-4 h-4 mr-2" />
+                                  View
+                                </a>
+                              </Button>
+                              <Button 
+                                size="sm" 
+                                onClick={() => {
+                                  const link = document.createElement('a');
+                                  link.href = result.result_url!;
+                                  link.download = `${result.title.replace(/\s+/g, '_')}_${result.academic_year}.pdf`;
+                                  link.target = '_blank';
+                                  document.body.appendChild(link);
+                                  link.click();
+                                  document.body.removeChild(link);
+                                  toast({
+                                    title: "Download Started",
+                                    description: `Downloading ${result.title}`,
+                                  });
+                                }}
+                              >
                                 <FileText className="w-4 h-4 mr-2" />
-                                View Result
-                              </a>
-                            </Button>
+                                Download PDF
+                              </Button>
+                            </div>
                           ) : (
-                            <Badge variant="secondary">Coming Soon</Badge>
+                            <Badge variant="secondary" className="self-start sm:self-center">Coming Soon</Badge>
                           )}
                         </div>
                       ))}
