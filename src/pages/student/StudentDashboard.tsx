@@ -1,48 +1,25 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { 
-  User, 
-  Bell,
-  GraduationCap,
-  Home,
-  LogOut,
-  Clock,
-  Key,
-  Eye,
-  EyeOff,
-  Calendar,
-  BookOpen,
-  FileText,
-  Phone,
-  Mail,
-  MapPin,
-  Award,
-  Users,
-  Edit,
-  Camera
-} from "lucide-react";
+import { User, Bell, Calendar, FileText, Eye, Loader2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Separator } from "@/components/ui/separator";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { Loader2 } from "lucide-react";
-import schoolLogo from "@/assets/logo.png";
-import { Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+
+// Components
+import StudentHeader from "@/components/student/StudentHeader";
+import WelcomeBanner from "@/components/student/WelcomeBanner";
+import QuickStats from "@/components/student/QuickStats";
+import ProfileCard from "@/components/student/ProfileCard";
+import NoticesCard from "@/components/student/NoticesCard";
+import UpcomingEventsCard from "@/components/student/UpcomingEventsCard";
+import ActivityLogCard from "@/components/student/ActivityLogCard";
+import EditProfileDialog from "@/components/student/EditProfileDialog";
+import PasswordChangeDialog from "@/components/student/PasswordChangeDialog";
 
 interface StudentInfo {
   id: string;
@@ -160,15 +137,12 @@ const StudentDashboard = () => {
 
   const fetchStudentData = async () => {
     try {
-      const { data, error } = await supabase
+      const { data } = await supabase
         .from("students")
         .select("*")
         .eq("guardian_email", profile?.email)
         .maybeSingle();
-
-      if (data) {
-        setStudentInfo(data);
-      }
+      if (data) setStudentInfo(data);
     } catch (error) {
       console.error("Error fetching student data:", error);
     }
@@ -182,7 +156,6 @@ const StudentDashboard = () => {
         .eq("user_id", user?.id)
         .order("created_at", { ascending: false })
         .limit(10);
-
       setActivities(data || []);
     } catch (error) {
       console.error("Error fetching activities:", error);
@@ -198,7 +171,6 @@ const StudentDashboard = () => {
         .order("is_pinned", { ascending: false })
         .order("created_at", { ascending: false })
         .limit(10);
-
       setNotices(data || []);
     } catch (error) {
       console.error("Error fetching notices:", error);
@@ -208,7 +180,6 @@ const StudentDashboard = () => {
   const fetchExamResults = async () => {
     try {
       if (!studentInfo?.class) return;
-      
       const { data } = await supabase
         .from("exam_results")
         .select("*")
@@ -216,7 +187,6 @@ const StudentDashboard = () => {
         .eq("class", studentInfo.class)
         .order("created_at", { ascending: false })
         .limit(5);
-
       setExamResults(data || []);
     } catch (error) {
       console.error("Error fetching exam results:", error);
@@ -225,25 +195,21 @@ const StudentDashboard = () => {
 
   const fetchUpcomingEvents = async () => {
     try {
-      const today = new Date().toISOString().split('T')[0];
+      const today = new Date().toISOString().split("T")[0];
       const { data } = await supabase
         .from("academic_calendar")
         .select("*")
         .gte("event_date", today)
         .order("event_date", { ascending: true })
-        .limit(5);
-
+        .limit(10);
       setUpcomingEvents(data || []);
     } catch (error) {
       console.error("Error fetching events:", error);
     }
   };
 
-  // Refetch exam results when studentInfo is loaded
   useEffect(() => {
-    if (studentInfo?.class) {
-      fetchExamResults();
-    }
+    if (studentInfo?.class) fetchExamResults();
   }, [studentInfo?.class]);
 
   const openEditProfileDialog = () => {
@@ -263,20 +229,11 @@ const StudentDashboard = () => {
     if (!file || !studentInfo) return;
 
     if (!file.type.startsWith("image/")) {
-      toast({
-        title: "Error",
-        description: "Please select an image file",
-        variant: "destructive",
-      });
+      toast({ title: "Error", description: "Please select an image file", variant: "destructive" });
       return;
     }
-
     if (file.size > 5 * 1024 * 1024) {
-      toast({
-        title: "Error",
-        description: "Image size must be less than 5MB",
-        variant: "destructive",
-      });
+      toast({ title: "Error", description: "Image size must be less than 5MB", variant: "destructive" });
       return;
     }
 
@@ -286,34 +243,18 @@ const StudentDashboard = () => {
       const fileName = `student-${studentInfo.id}-${Date.now()}.${fileExt}`;
       const filePath = `students/${fileName}`;
 
-      const { error: uploadError } = await supabase.storage
-        .from("content-images")
-        .upload(filePath, file);
-
+      const { error: uploadError } = await supabase.storage.from("content-images").upload(filePath, file);
       if (uploadError) throw uploadError;
 
-      const { data: { publicUrl } } = supabase.storage
-        .from("content-images")
-        .getPublicUrl(filePath);
+      const { data: { publicUrl } } = supabase.storage.from("content-images").getPublicUrl(filePath);
 
-      const { error: updateError } = await supabase
-        .from("students")
-        .update({ photo_url: publicUrl })
-        .eq("id", studentInfo.id);
-
+      const { error: updateError } = await supabase.from("students").update({ photo_url: publicUrl }).eq("id", studentInfo.id);
       if (updateError) throw updateError;
 
       setStudentInfo({ ...studentInfo, photo_url: publicUrl });
-      toast({
-        title: "Success",
-        description: "Profile photo updated successfully",
-      });
+      toast({ title: "Success", description: "Profile photo updated successfully" });
     } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to upload photo",
-        variant: "destructive",
-      });
+      toast({ title: "Error", description: error.message || "Failed to upload photo", variant: "destructive" });
     } finally {
       setIsUploadingPhoto(false);
     }
@@ -321,37 +262,18 @@ const StudentDashboard = () => {
 
   const handleProfileUpdate = async () => {
     if (!studentInfo) return;
-
     setIsUpdatingProfile(true);
     try {
       const { error } = await supabase
         .from("students")
-        .update({
-          guardian_name: editProfileData.guardian_name,
-          guardian_phone: editProfileData.guardian_phone,
-          guardian_email: editProfileData.guardian_email,
-          address: editProfileData.address,
-        })
+        .update(editProfileData)
         .eq("id", studentInfo.id);
-
       if (error) throw error;
-
-      setStudentInfo({
-        ...studentInfo,
-        ...editProfileData,
-      });
-
-      toast({
-        title: "Success",
-        description: "Profile updated successfully",
-      });
+      setStudentInfo({ ...studentInfo, ...editProfileData });
+      toast({ title: "Success", description: "Profile updated successfully" });
       setShowEditProfileDialog(false);
     } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to update profile",
-        variant: "destructive",
-      });
+      toast({ title: "Error", description: error.message || "Failed to update profile", variant: "destructive" });
     } finally {
       setIsUpdatingProfile(false);
     }
@@ -359,95 +281,37 @@ const StudentDashboard = () => {
 
   const handlePasswordChange = async () => {
     if (passwordData.newPassword !== passwordData.confirmPassword) {
-      toast({
-        title: "Error",
-        description: "New passwords do not match",
-        variant: "destructive",
-      });
+      toast({ title: "Error", description: "Passwords do not match", variant: "destructive" });
       return;
     }
-
     if (passwordData.newPassword.length < 6) {
-      toast({
-        title: "Error",
-        description: "Password must be at least 6 characters",
-        variant: "destructive",
-      });
+      toast({ title: "Error", description: "Password must be at least 6 characters", variant: "destructive" });
       return;
     }
-
     if (passwordData.newPassword === DEFAULT_PASSWORD) {
-      toast({
-        title: "Error",
-        description: "Please choose a different password than the default",
-        variant: "destructive",
-      });
+      toast({ title: "Error", description: "Please choose a different password", variant: "destructive" });
       return;
     }
 
     setIsChangingPassword(true);
-
     try {
       const { error } = await supabase.auth.updateUser({
         password: passwordData.newPassword,
         data: { must_change_password: false },
       });
-
       if (error) throw error;
-
-      toast({
-        title: "Success",
-        description: "Your password has been changed successfully",
-      });
-
+      toast({ title: "Success", description: "Password changed successfully" });
       setShowPasswordDialog(false);
       setPasswordData({ currentPassword: "", newPassword: "", confirmPassword: "" });
     } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
+      toast({ title: "Error", description: error.message, variant: "destructive" });
     } finally {
       setIsChangingPassword(false);
     }
   };
 
-  const getInitials = (name: string) => {
-    return name
-      .split(" ")
-      .map((n) => n[0])
-      .join("")
-      .toUpperCase()
-      .slice(0, 2);
-  };
-
-  const calculateAge = (dob: string) => {
-    const birthDate = new Date(dob);
-    const today = new Date();
-    let age = today.getFullYear() - birthDate.getFullYear();
-    const monthDiff = today.getMonth() - birthDate.getMonth();
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-      age--;
-    }
-    return age;
-  };
-
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  };
-
-  const getEventTypeColor = (type: string) => {
-    switch (type) {
-      case "exam": return "bg-red-500/10 text-red-600 border-red-200";
-      case "holiday": return "bg-green-500/10 text-green-600 border-green-200";
-      case "event": return "bg-blue-500/10 text-blue-600 border-blue-200";
-      default: return "bg-gray-500/10 text-gray-600 border-gray-200";
-    }
+    return new Date(dateString).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
   };
 
   if (authLoading || isLoading) {
@@ -458,783 +322,176 @@ const StudentDashboard = () => {
     );
   }
 
-  if (!user) {
-    return null;
-  }
+  if (!user) return null;
 
   return (
-    <div className="min-h-screen bg-muted/30">
-      {/* Password Change Dialog */}
-      <Dialog open={showPasswordDialog} onOpenChange={(open) => {
-        if (!user?.user_metadata?.must_change_password || !open) {
-          setShowPasswordDialog(open);
-        }
-      }}>
-        <DialogContent className="sm:max-w-md" onPointerDownOutside={(e) => {
-          if (user?.user_metadata?.must_change_password) {
-            e.preventDefault();
-          }
-        }}>
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Key className="w-5 h-5" />
-              Change Your Password
-            </DialogTitle>
-            <DialogDescription>
-              {user?.user_metadata?.must_change_password 
-                ? "For security, you must change your default password before continuing."
-                : "Update your password to keep your account secure."
-              }
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 mt-4">
-            <div className="space-y-2">
-              <Label htmlFor="newPassword">New Password</Label>
-              <div className="relative">
-                <Input
-                  id="newPassword"
-                  type={showPasswords.new ? "text" : "password"}
-                  value={passwordData.newPassword}
-                  onChange={(e) => setPasswordData(prev => ({ ...prev, newPassword: e.target.value }))}
-                  placeholder="Enter new password"
+    <div className="min-h-screen bg-gradient-subtle">
+      <PasswordChangeDialog
+        open={showPasswordDialog}
+        onOpenChange={setShowPasswordDialog}
+        mustChangePassword={!!user?.user_metadata?.must_change_password}
+        passwordData={passwordData}
+        setPasswordData={setPasswordData}
+        showPasswords={showPasswords}
+        setShowPasswords={setShowPasswords}
+        isChangingPassword={isChangingPassword}
+        onPasswordChange={handlePasswordChange}
+      />
+
+      <EditProfileDialog
+        open={showEditProfileDialog}
+        onOpenChange={setShowEditProfileDialog}
+        photoUrl={studentInfo?.photo_url || null}
+        fullName={studentInfo?.full_name || "Student"}
+        editProfileData={editProfileData}
+        setEditProfileData={setEditProfileData}
+        isUploadingPhoto={isUploadingPhoto}
+        isUpdatingProfile={isUpdatingProfile}
+        onPhotoUpload={handlePhotoUpload}
+        onProfileUpdate={handleProfileUpdate}
+      />
+
+      <StudentHeader
+        studentName={studentInfo?.full_name || "Student"}
+        photoUrl={studentInfo?.photo_url || null}
+        onPasswordChange={() => setShowPasswordDialog(true)}
+        onSignOut={signOut}
+      />
+
+      <main className="container mx-auto px-4 py-6 sm:py-8 space-y-6">
+        <WelcomeBanner
+          studentName={studentInfo?.full_name || "Student"}
+          registrationNumber={studentInfo?.registration_number || ""}
+          className={studentInfo?.class || ""}
+          section={studentInfo?.section || null}
+          status={studentInfo?.status || null}
+          photoUrl={studentInfo?.photo_url || null}
+        />
+
+        <QuickStats
+          currentClass={studentInfo?.class || "-"}
+          rollNumber={studentInfo?.roll_number || null}
+          upcomingEvents={upcomingEvents.length}
+          notices={notices.length}
+          examResults={examResults.length}
+          recentActivities={activities.length}
+        />
+
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+          <TabsList className="grid w-full grid-cols-4 lg:w-auto lg:inline-flex bg-card border">
+            <TabsTrigger value="overview" className="gap-2"><User className="w-4 h-4 hidden sm:inline" />Overview</TabsTrigger>
+            <TabsTrigger value="notices" className="gap-2"><Bell className="w-4 h-4 hidden sm:inline" />Notices</TabsTrigger>
+            <TabsTrigger value="calendar" className="gap-2"><Calendar className="w-4 h-4 hidden sm:inline" />Calendar</TabsTrigger>
+            <TabsTrigger value="results" className="gap-2"><FileText className="w-4 h-4 hidden sm:inline" />Results</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="overview" className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {studentInfo && (
+                <ProfileCard
+                  studentInfo={studentInfo}
+                  isUploadingPhoto={isUploadingPhoto}
+                  onPhotoUpload={handlePhotoUpload}
+                  onEditProfile={openEditProfileDialog}
                 />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  className="absolute right-0 top-0 h-full"
-                  onClick={() => setShowPasswords(prev => ({ ...prev, new: !prev.new }))}
-                >
-                  {showPasswords.new ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </Button>
-              </div>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Confirm New Password</Label>
-              <div className="relative">
-                <Input
-                  id="confirmPassword"
-                  type={showPasswords.confirm ? "text" : "password"}
-                  value={passwordData.confirmPassword}
-                  onChange={(e) => setPasswordData(prev => ({ ...prev, confirmPassword: e.target.value }))}
-                  placeholder="Confirm new password"
-                />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  className="absolute right-0 top-0 h-full"
-                  onClick={() => setShowPasswords(prev => ({ ...prev, confirm: !prev.confirm }))}
-                >
-                  {showPasswords.confirm ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </Button>
-              </div>
-            </div>
-            <div className="flex justify-end gap-2 pt-4">
-              {!user?.user_metadata?.must_change_password && (
-                <Button variant="outline" onClick={() => setShowPasswordDialog(false)}>
-                  Cancel
-                </Button>
               )}
-              <Button onClick={handlePasswordChange} disabled={isChangingPassword}>
-                {isChangingPassword && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-                Change Password
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* Edit Profile Dialog */}
-      <Dialog open={showEditProfileDialog} onOpenChange={setShowEditProfileDialog}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Edit className="w-5 h-5" />
-              Edit Profile
-            </DialogTitle>
-            <DialogDescription>
-              Update your profile photo and contact details.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 mt-4">
-            {/* Photo Upload */}
-            <div className="flex flex-col items-center gap-4">
-              <div className="relative">
-                <Avatar className="w-24 h-24">
-                  <AvatarImage src={studentInfo?.photo_url || ""} />
-                  <AvatarFallback className="bg-primary/10 text-primary text-2xl">
-                    {studentInfo?.full_name ? getInitials(studentInfo.full_name) : "ST"}
-                  </AvatarFallback>
-                </Avatar>
-                <label
-                  htmlFor="photo-upload"
-                  className="absolute bottom-0 right-0 p-2 bg-primary text-primary-foreground rounded-full cursor-pointer hover:bg-primary/90 transition-colors"
-                >
-                  {isUploadingPhoto ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : (
-                    <Camera className="w-4 h-4" />
-                  )}
-                </label>
-                <input
-                  id="photo-upload"
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={handlePhotoUpload}
-                  disabled={isUploadingPhoto}
-                />
-              </div>
-              <p className="text-sm text-muted-foreground">Click the camera icon to upload a photo</p>
-            </div>
-
-            <Separator />
-
-            {/* Contact Details */}
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="guardian_name">Guardian Name</Label>
-                <Input
-                  id="guardian_name"
-                  value={editProfileData.guardian_name}
-                  onChange={(e) => setEditProfileData(prev => ({ ...prev, guardian_name: e.target.value }))}
-                  placeholder="Guardian's full name"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="guardian_phone">Guardian Phone</Label>
-                <Input
-                  id="guardian_phone"
-                  value={editProfileData.guardian_phone}
-                  onChange={(e) => setEditProfileData(prev => ({ ...prev, guardian_phone: e.target.value }))}
-                  placeholder="Contact phone number"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="guardian_email">Guardian Email</Label>
-                <Input
-                  id="guardian_email"
-                  type="email"
-                  value={editProfileData.guardian_email}
-                  onChange={(e) => setEditProfileData(prev => ({ ...prev, guardian_email: e.target.value }))}
-                  placeholder="Contact email address"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="address">Address</Label>
-                <Input
-                  id="address"
-                  value={editProfileData.address}
-                  onChange={(e) => setEditProfileData(prev => ({ ...prev, address: e.target.value }))}
-                  placeholder="Home address"
-                />
-              </div>
-            </div>
-
-            <div className="flex justify-end gap-2 pt-4">
-              <Button variant="outline" onClick={() => setShowEditProfileDialog(false)}>
-                Cancel
-              </Button>
-              <Button onClick={handleProfileUpdate} disabled={isUpdatingProfile}>
-                {isUpdatingProfile && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-                Save Changes
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* Header */}
-      <header className="bg-card border-b border-border sticky top-0 z-50">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-3">
-              <img src={schoolLogo} alt="Logo" className="w-10 h-10 object-contain" />
-              <div>
-                <h1 className="font-display text-sm font-bold text-foreground">Student Portal</h1>
-                <p className="text-xs text-muted-foreground">SDSJSS</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <Button variant="ghost" size="sm" onClick={() => setShowPasswordDialog(true)}>
-                <Key className="w-4 h-4 mr-2" />
-                <span className="hidden sm:inline">Change Password</span>
-              </Button>
-              <Button variant="ghost" size="sm" asChild>
-                <Link to="/">
-                  <Home className="w-4 h-4 mr-2" />
-                  <span className="hidden sm:inline">Main Site</span>
-                </Link>
-              </Button>
-              <Button variant="ghost" size="sm" onClick={signOut}>
-                <LogOut className="w-4 h-4 mr-2" />
-                <span className="hidden sm:inline">Sign Out</span>
-              </Button>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      <main className="container mx-auto px-4 py-6 sm:py-8">
-        <div className="space-y-6">
-          {/* Welcome Banner */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-gradient-to-r from-primary to-primary/80 rounded-xl p-6 text-primary-foreground"
-          >
-            <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-              <Avatar className="w-16 h-16 border-2 border-primary-foreground/20">
-                <AvatarImage src={studentInfo?.photo_url || ""} />
-                <AvatarFallback className="bg-primary-foreground/20 text-primary-foreground text-lg">
-                  {studentInfo?.full_name ? getInitials(studentInfo.full_name) : "ST"}
-                </AvatarFallback>
-              </Avatar>
-              <div className="flex-1">
-                <h1 className="text-2xl sm:text-3xl font-display font-bold">
-                  Welcome back, {studentInfo?.full_name?.split(" ")[0] || "Student"}!
-                </h1>
-                <p className="text-primary-foreground/80 mt-1">
-                  {studentInfo?.registration_number && (
-                    <span>Reg. No: {studentInfo.registration_number} • </span>
-                  )}
-                  Class: {studentInfo?.class || "N/A"} {studentInfo?.section && `(${studentInfo.section})`}
-                </p>
-              </div>
-              <div className="flex gap-2">
-                <Badge variant="secondary" className="bg-primary-foreground/20 text-primary-foreground border-0">
-                  {studentInfo?.status === "active" ? "Active" : studentInfo?.status || "Active"}
-                </Badge>
-              </div>
-            </div>
-          </motion.div>
-
-          {/* Quick Stats */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-            >
-              <Card className="text-center">
-                <CardContent className="pt-6">
-                  <GraduationCap className="w-8 h-8 mx-auto text-primary mb-2" />
-                  <p className="text-2xl font-bold">{studentInfo?.class || "-"}</p>
-                  <p className="text-xs text-muted-foreground">Current Class</p>
-                </CardContent>
-              </Card>
-            </motion.div>
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.15 }}
-            >
-              <Card className="text-center">
-                <CardContent className="pt-6">
-                  <Award className="w-8 h-8 mx-auto text-secondary mb-2" />
-                  <p className="text-2xl font-bold">{studentInfo?.roll_number || "-"}</p>
-                  <p className="text-xs text-muted-foreground">Roll Number</p>
-                </CardContent>
-              </Card>
-            </motion.div>
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-            >
-              <Card className="text-center">
-                <CardContent className="pt-6">
-                  <Calendar className="w-8 h-8 mx-auto text-green-600 mb-2" />
-                  <p className="text-2xl font-bold">{upcomingEvents.length}</p>
-                  <p className="text-xs text-muted-foreground">Upcoming Events</p>
-                </CardContent>
-              </Card>
-            </motion.div>
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.25 }}
-            >
-              <Card className="text-center">
-                <CardContent className="pt-6">
-                  <Bell className="w-8 h-8 mx-auto text-orange-500 mb-2" />
-                  <p className="text-2xl font-bold">{notices.length}</p>
-                  <p className="text-xs text-muted-foreground">New Notices</p>
-                </CardContent>
-              </Card>
-            </motion.div>
-          </div>
-
-          {/* Tabs Navigation */}
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-            <TabsList className="grid w-full grid-cols-4 lg:w-auto lg:inline-flex">
-              <TabsTrigger value="overview" className="gap-2">
-                <User className="w-4 h-4 hidden sm:inline" />
-                Overview
-              </TabsTrigger>
-              <TabsTrigger value="notices" className="gap-2">
-                <Bell className="w-4 h-4 hidden sm:inline" />
-                Notices
-              </TabsTrigger>
-              <TabsTrigger value="calendar" className="gap-2">
-                <Calendar className="w-4 h-4 hidden sm:inline" />
-                Calendar
-              </TabsTrigger>
-              <TabsTrigger value="results" className="gap-2">
-                <FileText className="w-4 h-4 hidden sm:inline" />
-                Results
-              </TabsTrigger>
-            </TabsList>
-
-            {/* Overview Tab */}
-            <TabsContent value="overview" className="space-y-6">
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* Student Profile Card */}
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="lg:col-span-1"
-                >
-                  <Card>
-                    <CardHeader>
-                    <CardTitle className="flex items-center justify-between">
-                        <span className="flex items-center gap-2">
-                          <User className="w-5 h-5" />
-                          My Profile
-                        </span>
-                        {studentInfo && (
-                          <Button variant="ghost" size="sm" onClick={openEditProfileDialog}>
-                            <Edit className="w-4 h-4 mr-1" />
-                            Edit
-                          </Button>
-                        )}
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      {studentInfo ? (
-                        <>
-                          <div className="flex flex-col items-center mb-6">
-                            <Avatar className="w-24 h-24 mb-4">
-                              <AvatarImage src={studentInfo.photo_url || ""} />
-                              <AvatarFallback className="bg-primary/10 text-primary text-2xl">
-                                {getInitials(studentInfo.full_name)}
-                              </AvatarFallback>
-                            </Avatar>
-                            <h3 className="font-bold text-lg text-center">{studentInfo.full_name}</h3>
-                            <p className="text-sm text-muted-foreground">{studentInfo.registration_number}</p>
-                          </div>
-
-                          <Separator />
-
-                          <div className="space-y-3 pt-2">
-                            <div className="flex items-center gap-3 text-sm">
-                              <GraduationCap className="w-4 h-4 text-muted-foreground" />
-                              <span className="text-muted-foreground">Class:</span>
-                              <span className="font-medium ml-auto">
-                                {studentInfo.class} {studentInfo.section && `- ${studentInfo.section}`}
-                              </span>
-                            </div>
-                            
-                            {studentInfo.roll_number && (
-                              <div className="flex items-center gap-3 text-sm">
-                                <Award className="w-4 h-4 text-muted-foreground" />
-                                <span className="text-muted-foreground">Roll No:</span>
-                                <span className="font-medium ml-auto">{studentInfo.roll_number}</span>
-                              </div>
-                            )}
-
-                            {studentInfo.date_of_birth && (
-                              <div className="flex items-center gap-3 text-sm">
-                                <Calendar className="w-4 h-4 text-muted-foreground" />
-                                <span className="text-muted-foreground">DOB:</span>
-                                <span className="font-medium ml-auto">
-                                  {formatDate(studentInfo.date_of_birth)} ({calculateAge(studentInfo.date_of_birth)} yrs)
-                                </span>
-                              </div>
-                            )}
-
-                            {studentInfo.gender && (
-                              <div className="flex items-center gap-3 text-sm">
-                                <User className="w-4 h-4 text-muted-foreground" />
-                                <span className="text-muted-foreground">Gender:</span>
-                                <span className="font-medium ml-auto capitalize">{studentInfo.gender}</span>
-                              </div>
-                            )}
-
-                            {studentInfo.admission_year && (
-                              <div className="flex items-center gap-3 text-sm">
-                                <BookOpen className="w-4 h-4 text-muted-foreground" />
-                                <span className="text-muted-foreground">Admitted:</span>
-                                <span className="font-medium ml-auto">{studentInfo.admission_year}</span>
-                              </div>
-                            )}
-                          </div>
-
-                          <Separator />
-
-                          <div className="space-y-3 pt-2">
-                            <h4 className="font-semibold text-sm flex items-center gap-2">
-                              <Users className="w-4 h-4" />
-                              Guardian Details
-                            </h4>
-                            
-                            {studentInfo.guardian_name && (
-                              <div className="flex items-center gap-3 text-sm">
-                                <User className="w-4 h-4 text-muted-foreground" />
-                                <span className="text-muted-foreground">Name:</span>
-                                <span className="font-medium ml-auto">{studentInfo.guardian_name}</span>
-                              </div>
-                            )}
-
-                            {studentInfo.guardian_phone && (
-                              <div className="flex items-center gap-3 text-sm">
-                                <Phone className="w-4 h-4 text-muted-foreground" />
-                                <span className="text-muted-foreground">Phone:</span>
-                                <span className="font-medium ml-auto">{studentInfo.guardian_phone}</span>
-                              </div>
-                            )}
-
-                            {studentInfo.guardian_email && (
-                              <div className="flex items-center gap-3 text-sm">
-                                <Mail className="w-4 h-4 text-muted-foreground" />
-                                <span className="text-muted-foreground">Email:</span>
-                                <span className="font-medium ml-auto text-xs">{studentInfo.guardian_email}</span>
-                              </div>
-                            )}
-
-                            {studentInfo.address && (
-                              <div className="flex items-start gap-3 text-sm">
-                                <MapPin className="w-4 h-4 text-muted-foreground mt-0.5" />
-                                <span className="text-muted-foreground">Address:</span>
-                                <span className="font-medium ml-auto text-right">{studentInfo.address}</span>
-                              </div>
-                            )}
-                          </div>
-                        </>
-                      ) : (
-                        <div className="text-center py-8 text-muted-foreground">
-                          <GraduationCap className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                          <p>Student profile not found.</p>
-                          <p className="text-sm">Contact admin if this is an error.</p>
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
-                </motion.div>
-
-                {/* Right Column */}
-                <div className="lg:col-span-2 space-y-6">
-                  {/* Recent Notices */}
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.1 }}
-                  >
-                    <Card>
-                      <CardHeader className="flex flex-row items-center justify-between">
-                        <CardTitle className="flex items-center gap-2">
-                          <Bell className="w-5 h-5" />
-                          Recent Notices
-                        </CardTitle>
-                        <Button variant="ghost" size="sm" onClick={() => setActiveTab("notices")}>
-                          View All
-                        </Button>
-                      </CardHeader>
-                      <CardContent>
-                        {notices.length === 0 ? (
-                          <p className="text-center py-8 text-muted-foreground">No notices available.</p>
-                        ) : (
-                          <div className="space-y-3">
-                            {notices.slice(0, 3).map((notice) => (
-                              <div key={notice.id} className="p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
-                                <div className="flex items-start justify-between gap-2">
-                                  <div className="flex-1 min-w-0">
-                                    <h4 className="font-medium text-foreground truncate">{notice.title}</h4>
-                                    <p className="text-sm text-muted-foreground line-clamp-2 mt-1">
-                                      {notice.content}
-                                    </p>
-                                  </div>
-                                  <div className="flex flex-col items-end gap-1">
-                                    {notice.is_pinned && (
-                                      <Badge variant="secondary" className="text-xs">Pinned</Badge>
-                                    )}
-                                    {notice.category && (
-                                      <Badge variant="outline" className="text-xs">{notice.category}</Badge>
-                                    )}
-                                  </div>
-                                </div>
-                                <p className="text-xs text-muted-foreground mt-2">
-                                  {formatDate(notice.created_at)}
-                                </p>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </CardContent>
-                    </Card>
-                  </motion.div>
-
-                  {/* Upcoming Events */}
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.2 }}
-                  >
-                    <Card>
-                      <CardHeader className="flex flex-row items-center justify-between">
-                        <CardTitle className="flex items-center gap-2">
-                          <Calendar className="w-5 h-5" />
-                          Upcoming Events
-                        </CardTitle>
-                        <Button variant="ghost" size="sm" onClick={() => setActiveTab("calendar")}>
-                          View Calendar
-                        </Button>
-                      </CardHeader>
-                      <CardContent>
-                        {upcomingEvents.length === 0 ? (
-                          <p className="text-center py-8 text-muted-foreground">No upcoming events.</p>
-                        ) : (
-                          <div className="space-y-3">
-                            {upcomingEvents.slice(0, 3).map((event) => (
-                              <div key={event.id} className="flex items-center gap-4 p-3 rounded-lg bg-muted/50">
-                                <div className="text-center min-w-[50px]">
-                                  <p className="text-2xl font-bold text-primary">
-                                    {new Date(event.event_date).getDate()}
-                                  </p>
-                                  <p className="text-xs text-muted-foreground uppercase">
-                                    {new Date(event.event_date).toLocaleString("en", { month: "short" })}
-                                  </p>
-                                </div>
-                                <div className="flex-1">
-                                  <h4 className="font-medium">{event.title}</h4>
-                                  {event.description && (
-                                    <p className="text-sm text-muted-foreground line-clamp-1">{event.description}</p>
-                                  )}
-                                </div>
-                                <Badge className={getEventTypeColor(event.event_type)}>
-                                  {event.event_type}
-                                </Badge>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </CardContent>
-                    </Card>
-                  </motion.div>
+              <div className="lg:col-span-2 space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <NoticesCard notices={notices} limit={4} onViewAll={() => setActiveTab("notices")} />
+                  <UpcomingEventsCard events={upcomingEvents} limit={4} onViewAll={() => setActiveTab("calendar")} />
                 </div>
+                <ActivityLogCard activities={activities} />
               </div>
+            </div>
+          </TabsContent>
 
-              {/* Activity Log */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
-              >
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Clock className="w-5 h-5" />
-                      Recent Activity
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    {activities.length === 0 ? (
-                      <p className="text-center py-8 text-muted-foreground">No recent activity.</p>
-                    ) : (
-                      <div className="space-y-2">
-                        {activities.map((activity) => (
-                          <div key={activity.id} className="flex items-center gap-3 p-2 rounded hover:bg-muted/50">
-                            <div className="w-2 h-2 rounded-full bg-primary"></div>
-                            <div className="flex-1">
-                              <p className="text-sm">
-                                <span className="font-medium capitalize">{activity.action}</span>
-                                <span className="text-muted-foreground"> on {activity.entity_type}</span>
-                              </p>
-                            </div>
-                            <p className="text-xs text-muted-foreground">
-                              {new Date(activity.created_at).toLocaleDateString()}
-                            </p>
-                          </div>
-                        ))}
+          <TabsContent value="notices">
+            <Card>
+              <CardHeader><CardTitle className="flex items-center gap-2"><Bell className="w-5 h-5" />All Notices</CardTitle></CardHeader>
+              <CardContent>
+                {notices.length === 0 ? (
+                  <p className="text-center py-12 text-muted-foreground">No notices available.</p>
+                ) : (
+                  <div className="space-y-4">
+                    {notices.map((notice) => (
+                      <div key={notice.id} className="p-4 rounded-lg border bg-card hover:shadow-md transition-shadow">
+                        <div className="flex items-center gap-2 mb-2">
+                          {notice.is_pinned && <Badge variant="secondary">📌 Pinned</Badge>}
+                          {notice.category && <Badge variant="outline">{notice.category}</Badge>}
+                        </div>
+                        <h3 className="font-semibold text-lg">{notice.title}</h3>
+                        <p className="text-muted-foreground mt-2">{notice.content}</p>
+                        <p className="text-xs text-muted-foreground mt-4">Published on {formatDate(notice.created_at)}</p>
                       </div>
-                    )}
-                  </CardContent>
-                </Card>
-              </motion.div>
-            </TabsContent>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
 
-            {/* Notices Tab */}
-            <TabsContent value="notices">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Bell className="w-5 h-5" />
-                    All Notices
-                  </CardTitle>
-                  <CardDescription>Stay updated with school announcements</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  {notices.length === 0 ? (
-                    <p className="text-center py-12 text-muted-foreground">No notices available.</p>
-                  ) : (
-                    <div className="space-y-4">
-                      {notices.map((notice) => (
-                        <div key={notice.id} className="p-4 rounded-lg border bg-card hover:shadow-md transition-shadow">
-                          <div className="flex items-start justify-between gap-4">
-                            <div className="flex-1">
-                              <div className="flex items-center gap-2 mb-2">
-                                {notice.is_pinned && (
-                                  <Badge variant="secondary">📌 Pinned</Badge>
-                                )}
-                                {notice.category && (
-                                  <Badge variant="outline">{notice.category}</Badge>
-                                )}
-                              </div>
-                              <h3 className="font-semibold text-lg">{notice.title}</h3>
-                              <p className="text-muted-foreground mt-2">{notice.content}</p>
-                              {notice.attachment_url && (
-                                <Button variant="link" size="sm" className="mt-2 p-0" asChild>
-                                  <a href={notice.attachment_url} target="_blank" rel="noopener noreferrer">
-                                    📎 View Attachment
-                                  </a>
-                                </Button>
-                              )}
-                            </div>
-                          </div>
-                          <p className="text-xs text-muted-foreground mt-4">
-                            Published on {formatDate(notice.created_at)}
-                          </p>
+          <TabsContent value="calendar">
+            <Card>
+              <CardHeader><CardTitle className="flex items-center gap-2"><Calendar className="w-5 h-5" />Academic Calendar</CardTitle></CardHeader>
+              <CardContent>
+                {upcomingEvents.length === 0 ? (
+                  <p className="text-center py-12 text-muted-foreground">No upcoming events.</p>
+                ) : (
+                  <div className="space-y-4">
+                    {upcomingEvents.map((event) => (
+                      <div key={event.id} className="flex gap-4 p-4 rounded-lg border bg-card">
+                        <div className="text-center min-w-[60px] py-2 px-3 rounded-lg bg-primary/10">
+                          <p className="text-2xl font-bold text-primary">{new Date(event.event_date).getDate()}</p>
+                          <p className="text-xs text-muted-foreground uppercase">{new Date(event.event_date).toLocaleString("en", { month: "short" })}</p>
                         </div>
-                      ))}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            {/* Calendar Tab */}
-            <TabsContent value="calendar">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Calendar className="w-5 h-5" />
-                    Academic Calendar
-                  </CardTitle>
-                  <CardDescription>Upcoming events, exams, and holidays</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  {upcomingEvents.length === 0 ? (
-                    <p className="text-center py-12 text-muted-foreground">No upcoming events scheduled.</p>
-                  ) : (
-                    <div className="space-y-4">
-                      {upcomingEvents.map((event) => (
-                        <div key={event.id} className="flex gap-4 p-4 rounded-lg border bg-card">
-                          <div className="text-center min-w-[60px] py-2 px-3 rounded-lg bg-primary/10">
-                            <p className="text-2xl font-bold text-primary">
-                              {new Date(event.event_date).getDate()}
-                            </p>
-                            <p className="text-xs text-muted-foreground uppercase">
-                              {new Date(event.event_date).toLocaleString("en", { month: "short" })}
-                            </p>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <h3 className="font-semibold">{event.title}</h3>
+                            <Badge variant="outline">{event.event_type}</Badge>
                           </div>
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-1">
-                              <h3 className="font-semibold">{event.title}</h3>
-                              <Badge className={getEventTypeColor(event.event_type)}>
-                                {event.event_type}
-                              </Badge>
-                            </div>
-                            {event.description && (
-                              <p className="text-sm text-muted-foreground">{event.description}</p>
-                            )}
-                            {event.end_date && event.end_date !== event.event_date && (
-                              <p className="text-xs text-muted-foreground mt-2">
-                                Until {formatDate(event.end_date)}
-                              </p>
-                            )}
+                          {event.description && <p className="text-sm text-muted-foreground">{event.description}</p>}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="results">
+            <Card>
+              <CardHeader><CardTitle className="flex items-center gap-2"><FileText className="w-5 h-5" />Exam Results</CardTitle><CardDescription>View and download your published exam results</CardDescription></CardHeader>
+              <CardContent>
+                {examResults.length === 0 ? (
+                  <div className="text-center py-12"><FileText className="w-12 h-12 mx-auto text-muted-foreground/50 mb-4" /><p className="text-muted-foreground">No exam results published yet.</p></div>
+                ) : (
+                  <div className="space-y-4">
+                    {examResults.map((result) => (
+                      <div key={result.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-lg border bg-card hover:shadow-md transition-shadow">
+                        <div className="flex-1">
+                          <h3 className="font-semibold text-lg">{result.title}</h3>
+                          <div className="flex flex-wrap items-center gap-2 mt-2">
+                            <Badge variant="outline">{result.exam_type}</Badge>
+                            <Badge variant="secondary">{result.class}</Badge>
+                            <span className="text-sm text-muted-foreground">{result.academic_year}</span>
                           </div>
                         </div>
-                      ))}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            {/* Results Tab */}
-            <TabsContent value="results">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <FileText className="w-5 h-5" />
-                    Exam Results
-                  </CardTitle>
-                  <CardDescription>View and download your published exam results</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  {examResults.length === 0 ? (
-                    <div className="text-center py-12">
-                      <FileText className="w-12 h-12 mx-auto text-muted-foreground/50 mb-4" />
-                      <p className="text-muted-foreground">No exam results published yet for your class.</p>
-                    </div>
-                  ) : (
-                    <div className="space-y-4">
-                      {examResults.map((result) => (
-                        <div key={result.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-lg border bg-card hover:shadow-md transition-shadow">
-                          <div className="flex-1">
-                            <h3 className="font-semibold text-lg">{result.title}</h3>
-                            <div className="flex flex-wrap items-center gap-2 mt-2">
-                              <Badge variant="outline">{result.exam_type}</Badge>
-                              <Badge variant="secondary">{result.class}</Badge>
-                              <span className="text-sm text-muted-foreground">
-                                {result.academic_year}
-                              </span>
-                            </div>
-                            <p className="text-xs text-muted-foreground mt-2">
-                              Published on {formatDate(result.created_at)}
-                            </p>
-                          </div>
-                          {result.result_url ? (
-                            <div className="flex items-center gap-2">
-                              <Button variant="outline" size="sm" asChild>
-                                <a href={result.result_url} target="_blank" rel="noopener noreferrer">
-                                  <Eye className="w-4 h-4 mr-2" />
-                                  View
-                                </a>
-                              </Button>
-                              <Button 
-                                size="sm" 
-                                onClick={() => {
-                                  const link = document.createElement('a');
-                                  link.href = result.result_url!;
-                                  link.download = `${result.title.replace(/\s+/g, '_')}_${result.academic_year}.pdf`;
-                                  link.target = '_blank';
-                                  document.body.appendChild(link);
-                                  link.click();
-                                  document.body.removeChild(link);
-                                  toast({
-                                    title: "Download Started",
-                                    description: `Downloading ${result.title}`,
-                                  });
-                                }}
-                              >
-                                <FileText className="w-4 h-4 mr-2" />
-                                Download PDF
-                              </Button>
-                            </div>
-                          ) : (
-                            <Badge variant="secondary" className="self-start sm:self-center">Coming Soon</Badge>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </TabsContent>
-          </Tabs>
-        </div>
+                        {result.result_url ? (
+                          <Button variant="outline" size="sm" asChild>
+                            <a href={result.result_url} target="_blank" rel="noopener noreferrer"><Eye className="w-4 h-4 mr-2" />View</a>
+                          </Button>
+                        ) : (
+                          <Badge variant="secondary">Coming Soon</Badge>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </main>
     </div>
   );
