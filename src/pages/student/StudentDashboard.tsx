@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
 import { User, Bell, Calendar, FileText, Eye, Loader2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -20,6 +19,7 @@ import UpcomingEventsCard from "@/components/student/UpcomingEventsCard";
 import ActivityLogCard from "@/components/student/ActivityLogCard";
 import EditProfileDialog from "@/components/student/EditProfileDialog";
 import PasswordChangeDialog from "@/components/student/PasswordChangeDialog";
+import NoStudentRecordCard from "@/components/student/NoStudentRecordCard";
 
 interface StudentInfo {
   id: string;
@@ -137,12 +137,32 @@ const StudentDashboard = () => {
 
   const fetchStudentData = async () => {
     try {
-      const { data } = await supabase
+      // First try to find by user_id (preferred method)
+      let { data } = await supabase
         .from("students")
         .select("*")
-        .eq("guardian_email", profile?.email)
+        .eq("user_id", user?.id)
         .maybeSingle();
-      if (data) setStudentInfo(data);
+      
+      // Fallback: try to find by guardian_email matching user's email
+      if (!data && user?.email) {
+        const { data: fallbackData } = await supabase
+          .from("students")
+          .select("*")
+          .eq("guardian_email", user.email)
+          .maybeSingle();
+        
+        // If found by email, update the user_id for future lookups
+        if (fallbackData) {
+          await supabase
+            .from("students")
+            .update({ user_id: user.id })
+            .eq("id", fallbackData.id);
+          data = { ...fallbackData, user_id: user.id };
+        }
+      }
+      
+      setStudentInfo(data);
     } catch (error) {
       console.error("Error fetching student data:", error);
     }
@@ -324,6 +344,10 @@ const StudentDashboard = () => {
 
   if (!user) return null;
 
+  const handleContactAdmin = () => {
+    navigate("/contact");
+  };
+
   return (
     <div className="min-h-screen bg-gradient-subtle">
       <PasswordChangeDialog
@@ -352,53 +376,58 @@ const StudentDashboard = () => {
       />
 
       <StudentHeader
-        studentName={studentInfo?.full_name || "Student"}
+        studentName={studentInfo?.full_name || profile?.full_name || "Student"}
         photoUrl={studentInfo?.photo_url || null}
         onPasswordChange={() => setShowPasswordDialog(true)}
         onSignOut={signOut}
       />
 
       <main className="container mx-auto px-4 py-6 sm:py-8 space-y-6">
-        <WelcomeBanner
-          studentName={studentInfo?.full_name || "Student"}
-          registrationNumber={studentInfo?.registration_number || ""}
-          className={studentInfo?.class || ""}
-          section={studentInfo?.section || null}
-          status={studentInfo?.status || null}
-          photoUrl={studentInfo?.photo_url || null}
-        />
+        {!studentInfo ? (
+          <NoStudentRecordCard
+            userEmail={user?.email}
+            onContactAdmin={handleContactAdmin}
+          />
+        ) : (
+          <>
+            <WelcomeBanner
+              studentName={studentInfo.full_name}
+              registrationNumber={studentInfo.registration_number}
+              className={studentInfo.class}
+              section={studentInfo.section}
+              status={studentInfo.status}
+              photoUrl={studentInfo.photo_url}
+            />
 
-        <QuickStats
-          currentClass={studentInfo?.class || "-"}
-          rollNumber={studentInfo?.roll_number || null}
-          upcomingEvents={upcomingEvents.length}
-          notices={notices.length}
-          examResults={examResults.length}
-          recentActivities={activities.length}
-        />
+            <QuickStats
+              currentClass={studentInfo.class}
+              rollNumber={studentInfo.roll_number}
+              upcomingEvents={upcomingEvents.length}
+              notices={notices.length}
+              examResults={examResults.length}
+              recentActivities={activities.length}
+            />
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4 lg:w-auto lg:inline-flex bg-card border">
-            <TabsTrigger value="overview" className="gap-2"><User className="w-4 h-4 hidden sm:inline" />Overview</TabsTrigger>
-            <TabsTrigger value="notices" className="gap-2"><Bell className="w-4 h-4 hidden sm:inline" />Notices</TabsTrigger>
-            <TabsTrigger value="calendar" className="gap-2"><Calendar className="w-4 h-4 hidden sm:inline" />Calendar</TabsTrigger>
-            <TabsTrigger value="results" className="gap-2"><FileText className="w-4 h-4 hidden sm:inline" />Results</TabsTrigger>
-          </TabsList>
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+              <TabsList className="grid w-full grid-cols-4 lg:w-auto lg:inline-flex bg-card border">
+                <TabsTrigger value="overview" className="gap-2"><User className="w-4 h-4 hidden sm:inline" />Overview</TabsTrigger>
+                <TabsTrigger value="notices" className="gap-2"><Bell className="w-4 h-4 hidden sm:inline" />Notices</TabsTrigger>
+                <TabsTrigger value="calendar" className="gap-2"><Calendar className="w-4 h-4 hidden sm:inline" />Calendar</TabsTrigger>
+                <TabsTrigger value="results" className="gap-2"><FileText className="w-4 h-4 hidden sm:inline" />Results</TabsTrigger>
+              </TabsList>
 
-          <TabsContent value="overview" className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {studentInfo && (
-                <ProfileCard
-                  studentInfo={studentInfo}
-                  isUploadingPhoto={isUploadingPhoto}
-                  onPhotoUpload={handlePhotoUpload}
-                  onEditProfile={openEditProfileDialog}
-                />
-              )}
-              <div className="lg:col-span-2 space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <NoticesCard notices={notices} limit={4} onViewAll={() => setActiveTab("notices")} />
-                  <UpcomingEventsCard events={upcomingEvents} limit={4} onViewAll={() => setActiveTab("calendar")} />
+              <TabsContent value="overview" className="space-y-6">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                  <ProfileCard
+                    studentInfo={studentInfo}
+                    isUploadingPhoto={isUploadingPhoto}
+                    onPhotoUpload={handlePhotoUpload}
+                    onEditProfile={openEditProfileDialog}
+                  />
+                  <div className="lg:col-span-2 space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <NoticesCard notices={notices} limit={4} onViewAll={() => setActiveTab("notices")} />
+                      <UpcomingEventsCard events={upcomingEvents} limit={4} onViewAll={() => setActiveTab("calendar")} />
                 </div>
                 <ActivityLogCard activities={activities} />
               </div>
@@ -491,7 +520,9 @@ const StudentDashboard = () => {
               </CardContent>
             </Card>
           </TabsContent>
-        </Tabs>
+            </Tabs>
+          </>
+        )}
       </main>
     </div>
   );

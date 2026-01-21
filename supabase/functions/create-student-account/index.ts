@@ -136,6 +136,7 @@ const handler = async (req: Request): Promise<Response> => {
     const { error: studentError } = await supabase
       .from("students")
       .insert({
+        user_id: userId,
         registration_number: registrationNumber,
         full_name: studentName,
         class: applyingForClass,
