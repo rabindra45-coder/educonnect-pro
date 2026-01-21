@@ -93,7 +93,7 @@ const FaceRegistrationDialog = ({ open, onOpenChange, onSuccess }: FaceRegistrat
     setStep("saving");
     try {
       // Upload face image to storage
-      const fileName = `face-data/${user.id}/${Date.now()}.jpg`;
+      const fileName = `students/${user.id}/face-${Date.now()}.jpg`;
       const base64Data = capturedImage.split(",")[1];
       const binaryData = Uint8Array.from(atob(base64Data), (c) => c.charCodeAt(0));
 
