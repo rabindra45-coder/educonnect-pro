@@ -6,6 +6,36 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+function base64FromBytes(bytes: Uint8Array): string {
+  // Avoid call stack limits from spreading large arrays into fromCharCode
+  const chunkSize = 0x8000;
+  let binary = "";
+  for (let i = 0; i < bytes.length; i += chunkSize) {
+    binary += String.fromCharCode(...bytes.subarray(i, i + chunkSize));
+  }
+  return btoa(binary);
+}
+
+function toImageDataUrl(bytes: Uint8Array, contentType: string | null): string {
+  const safeType = contentType && contentType.startsWith("image/") ? contentType : "image/jpeg";
+  return `data:${safeType};base64,${base64FromBytes(bytes)}`;
+}
+
+function normalizeImageDataUrl(dataUrl: string): string | null {
+  if (typeof dataUrl !== "string") return null;
+  const trimmed = dataUrl.trim();
+  if (!trimmed.startsWith("data:")) return null;
+  const base64Idx = trimmed.indexOf("base64,");
+  if (base64Idx === -1) return null;
+  const base64Part = trimmed.slice(base64Idx + "base64,".length).trim();
+  if (!base64Part) return null;
+  // Force an image/* mimetype; some providers reject non-image data URLs.
+  const mimeMatch = trimmed.match(/^data:([^;]+);/);
+  const mime = mimeMatch?.[1] ?? "image/jpeg";
+  const safeMime = mime.startsWith("image/") ? mime : "image/jpeg";
+  return `data:${safeMime};base64,${base64Part}`;
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -17,6 +47,14 @@ serve(async (req) => {
     if (!email || !faceImage) {
       return new Response(
         JSON.stringify({ error: "Email and face image are required" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const normalizedFaceImage = normalizeImageDataUrl(faceImage);
+    if (!normalizedFaceImage) {
+      return new Response(
+        JSON.stringify({ error: "Invalid face image format" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
@@ -65,9 +103,8 @@ serve(async (req) => {
         throw new Error("Failed to fetch stored face image");
       }
       const imageBuffer = await imageResponse.arrayBuffer();
-      const base64 = btoa(String.fromCharCode(...new Uint8Array(imageBuffer)));
-      const contentType = imageResponse.headers.get("content-type") || "image/jpeg";
-      storedFaceBase64 = `data:${contentType};base64,${base64}`;
+      const contentType = imageResponse.headers.get("content-type");
+      storedFaceBase64 = toImageDataUrl(new Uint8Array(imageBuffer), contentType);
     } catch (e) {
       console.error("Error fetching stored face image:", e);
       return new Response(
@@ -103,7 +140,7 @@ Be strict - only return true if you are confident it's the same person.`,
             content: [
               { type: "text", text: "Compare these two face images and determine if they are the same person:" },
               { type: "image_url", image_url: { url: storedFaceBase64 } },
-              { type: "image_url", image_url: { url: faceImage } },
+              { type: "image_url", image_url: { url: normalizedFaceImage } },
             ],
           },
         ],
