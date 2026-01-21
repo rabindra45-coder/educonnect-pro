@@ -20,6 +20,7 @@ import {
   Lock,
   User,
   CheckCircle2,
+  ScanFace,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,6 +29,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import schoolLogo from "@/assets/logo.png";
+import FaceLoginDialog from "@/components/auth/FaceLoginDialog";
 
 const loginSchema = z.object({
   email: z.string().trim().email("Invalid email address").max(255, "Email too long"),
@@ -58,6 +60,7 @@ const StudentAuth = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showFaceLogin, setShowFaceLogin] = useState(false);
   const { user, signIn, hasRole, isLoading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -398,6 +401,25 @@ const StudentAuth = () => {
                           </span>
                         )}
                       </Button>
+
+                      <div className="relative my-4">
+                        <div className="absolute inset-0 flex items-center">
+                          <span className="w-full border-t border-muted-foreground/20" />
+                        </div>
+                        <div className="relative flex justify-center text-xs uppercase">
+                          <span className="bg-card px-2 text-muted-foreground">Or</span>
+                        </div>
+                      </div>
+
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="w-full h-12 rounded-xl text-base font-medium"
+                        onClick={() => setShowFaceLogin(true)}
+                      >
+                        <ScanFace className="w-5 h-5 mr-2" />
+                        Login with Face
+                      </Button>
                     </form>
                   </motion.div>
                 ) : (
@@ -567,6 +589,12 @@ const StudentAuth = () => {
           </motion.div>
         </div>
       </motion.div>
+
+      <FaceLoginDialog
+        open={showFaceLogin}
+        onOpenChange={setShowFaceLogin}
+        onSuccess={() => navigate("/student")}
+      />
     </div>
   );
 };
