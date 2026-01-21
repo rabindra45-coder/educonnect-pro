@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { User, Bell, Calendar, FileText, Eye, Loader2 } from "lucide-react";
+import { User, Bell, Calendar, FileText, Eye, Loader2, ScanFace } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -20,6 +20,7 @@ import ActivityLogCard from "@/components/student/ActivityLogCard";
 import EditProfileDialog from "@/components/student/EditProfileDialog";
 import PasswordChangeDialog from "@/components/student/PasswordChangeDialog";
 import NoStudentRecordCard from "@/components/student/NoStudentRecordCard";
+import FaceRegistrationDialog from "@/components/student/FaceRegistrationDialog";
 
 interface StudentInfo {
   id: string;
@@ -80,6 +81,8 @@ const StudentDashboard = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [showPasswordDialog, setShowPasswordDialog] = useState(false);
   const [showEditProfileDialog, setShowEditProfileDialog] = useState(false);
+  const [showFaceRegistration, setShowFaceRegistration] = useState(false);
+  const [hasFaceData, setHasFaceData] = useState(false);
   const [editProfileData, setEditProfileData] = useState({
     guardian_name: "",
     guardian_phone: "",
@@ -124,8 +127,20 @@ const StudentDashboard = () => {
       fetchNotices(),
       fetchExamResults(),
       fetchUpcomingEvents(),
+      fetchFaceData(),
     ]);
     setIsLoading(false);
+  };
+
+  const fetchFaceData = async () => {
+    if (!user) return;
+    const { data } = await supabase
+      .from("student_face_data")
+      .select("id")
+      .eq("user_id", user.id)
+      .eq("is_active", true)
+      .maybeSingle();
+    setHasFaceData(!!data);
   };
 
   const checkIfPasswordChangeRequired = () => {
@@ -375,6 +390,12 @@ const StudentDashboard = () => {
         onProfileUpdate={handleProfileUpdate}
       />
 
+      <FaceRegistrationDialog
+        open={showFaceRegistration}
+        onOpenChange={setShowFaceRegistration}
+        onSuccess={() => setHasFaceData(true)}
+      />
+
       <StudentHeader
         studentName={studentInfo?.full_name || profile?.full_name || "Student"}
         photoUrl={studentInfo?.photo_url || null}
@@ -421,8 +442,10 @@ const StudentDashboard = () => {
                   <ProfileCard
                     studentInfo={studentInfo}
                     isUploadingPhoto={isUploadingPhoto}
+                    hasFaceData={hasFaceData}
                     onPhotoUpload={handlePhotoUpload}
                     onEditProfile={openEditProfileDialog}
+                    onSetupFaceLogin={() => setShowFaceRegistration(true)}
                   />
                   <div className="lg:col-span-2 space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

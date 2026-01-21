@@ -1,5 +1,8 @@
 project_id = "jnszyfzletlalgvqbcfs"
 
+[functions.verify-face]
+verify_jwt = false
+
 [functions.create-student-account]
 verify_jwt = false
 

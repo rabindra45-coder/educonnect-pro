@@ -512,6 +512,33 @@ export type Database = {
         }
         Relationships: []
       }
+      student_face_data: {
+        Row: {
+          created_at: string
+          face_image_url: string
+          id: string
+          is_active: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          face_image_url: string
+          id?: string
+          is_active?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          face_image_url?: string
+          id?: string
+          is_active?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       students: {
         Row: {
           address: string | null
