@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { Camera, Loader2, CheckCircle, X, ScanFace, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -27,18 +27,24 @@ const FaceRegistrationDialog = ({ open, onOpenChange, onSuccess }: FaceRegistrat
   const { user } = useAuth();
   const { toast } = useToast();
 
+  // Attach stream to video element when both are available
+  useEffect(() => {
+    if (stream && videoRef.current && step === "camera") {
+      videoRef.current.srcObject = stream;
+      videoRef.current.play().catch(console.error);
+    }
+  }, [stream, step]);
+
   const startCamera = useCallback(async () => {
     try {
+      setStep("camera"); // Change step first so video element renders
       const mediaStream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: "user", width: 640, height: 480 },
       });
       setStream(mediaStream);
-      if (videoRef.current) {
-        videoRef.current.srcObject = mediaStream;
-      }
-      setStep("camera");
     } catch (error) {
       console.error("Camera error:", error);
+      setStep("intro");
       toast({
         title: "Camera Access Denied",
         description: "Please allow camera access to use face login.",
