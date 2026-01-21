@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
-import { 
+import {
   Plus, 
   Search, 
   Edit, 
@@ -8,7 +7,8 @@ import {
   GraduationCap,
   Download,
   Mail,
-  Send
+  Send,
+  Link2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -40,6 +40,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import AdminLayout from "@/components/admin/AdminLayout";
+import LinkStudentUserDialog from "@/components/admin/LinkStudentUserDialog";
 
 interface Student {
   id: string;
@@ -53,6 +54,7 @@ interface Student {
   guardian_name: string | null;
   guardian_phone: string | null;
   guardian_email: string | null;
+  user_id: string | null;
   status: string;
   created_at: string;
 }
@@ -66,6 +68,7 @@ const StudentsManagement = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingStudent, setEditingStudent] = useState<Student | null>(null);
   const [isEmailDialogOpen, setIsEmailDialogOpen] = useState(false);
+  const [isLinkDialogOpen, setIsLinkDialogOpen] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
   const [emailSubject, setEmailSubject] = useState("");
   const [emailMessage, setEmailMessage] = useState("");
@@ -211,6 +214,11 @@ const StudentsManagement = () => {
     setEmailSubject("");
     setEmailMessage("");
     setIsEmailDialogOpen(true);
+  };
+
+  const openLinkDialog = (student: Student) => {
+    setSelectedStudent(student);
+    setIsLinkDialogOpen(true);
   };
 
   const sendEmail = async () => {
@@ -475,7 +483,12 @@ const StudentsManagement = () => {
                   {filteredStudents.map((student) => (
                     <TableRow key={student.id}>
                       <TableCell className="font-medium">
-                        {student.registration_number}
+                        <div className="flex items-center gap-2">
+                          {student.registration_number}
+                          {student.user_id && (
+                            <span className="w-2 h-2 rounded-full bg-primary" title="Linked to user account" />
+                          )}
+                        </div>
                       </TableCell>
                       <TableCell>{student.full_name}</TableCell>
                       <TableCell>{student.class}</TableCell>
@@ -503,6 +516,15 @@ const StudentsManagement = () => {
                         </span>
                       </TableCell>
                       <TableCell className="text-right">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => openLinkDialog(student)}
+                          title={student.user_id ? "Linked to user" : "Link to user account"}
+                          className={student.user_id ? "text-primary" : ""}
+                        >
+                          <Link2 className="w-4 h-4" />
+                        </Button>
                         <Button
                           variant="ghost"
                           size="icon"
@@ -597,6 +619,14 @@ const StudentsManagement = () => {
             )}
           </DialogContent>
         </Dialog>
+
+        {/* Link User Dialog */}
+        <LinkStudentUserDialog
+          open={isLinkDialogOpen}
+          onOpenChange={setIsLinkDialogOpen}
+          student={selectedStudent}
+          onSuccess={fetchStudents}
+        />
       </div>
     </AdminLayout>
   );
