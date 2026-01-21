@@ -57,6 +57,25 @@ serve(async (req) => {
       );
     }
 
+    // Download stored face image and convert to base64
+    let storedFaceBase64: string;
+    try {
+      const imageResponse = await fetch(faceData.face_image_url);
+      if (!imageResponse.ok) {
+        throw new Error("Failed to fetch stored face image");
+      }
+      const imageBuffer = await imageResponse.arrayBuffer();
+      const base64 = btoa(String.fromCharCode(...new Uint8Array(imageBuffer)));
+      const contentType = imageResponse.headers.get("content-type") || "image/jpeg";
+      storedFaceBase64 = `data:${contentType};base64,${base64}`;
+    } catch (e) {
+      console.error("Error fetching stored face image:", e);
+      return new Response(
+        JSON.stringify({ success: false, message: "Could not retrieve stored face data" }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     // Use Gemini Vision to compare faces
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -83,7 +102,7 @@ Be strict - only return true if you are confident it's the same person.`,
             role: "user",
             content: [
               { type: "text", text: "Compare these two face images and determine if they are the same person:" },
-              { type: "image_url", image_url: { url: faceData.face_image_url } },
+              { type: "image_url", image_url: { url: storedFaceBase64 } },
               { type: "image_url", image_url: { url: faceImage } },
             ],
           },
