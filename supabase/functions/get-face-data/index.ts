@@ -12,19 +12,12 @@ serve(async (req) => {
   }
 
   try {
-    const { email, verified, confidence } = await req.json();
+    const { email } = await req.json();
 
     if (!email) {
       return new Response(
         JSON.stringify({ error: "Email is required" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    if (!verified) {
-      return new Response(
-        JSON.stringify({ success: false, message: "Face verification failed" }),
-        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
@@ -44,25 +37,30 @@ serve(async (req) => {
       );
     }
 
-    // Generate a magic link for passwordless login
-    const { data: linkData, error: linkError } = await supabase.auth.admin.generateLink({
-      type: "magiclink",
-      email: email,
-    });
+    // Get stored face data
+    const { data: faceData, error: faceError } = await supabase
+      .from("student_face_data")
+      .select("face_image_url")
+      .eq("user_id", user.id)
+      .eq("is_active", true)
+      .single();
 
-    if (linkError) throw linkError;
+    if (faceError || !faceData) {
+      return new Response(
+        JSON.stringify({ success: false, message: "Face login not set up for this account" }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
     return new Response(
       JSON.stringify({
         success: true,
-        token: linkData.properties?.hashed_token,
-        message: "Face verified successfully",
-        confidence: confidence || 0,
+        faceUrl: faceData.face_image_url,
       }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error) {
-    console.error("verify-face error:", error);
+    console.error("get-face-data error:", error);
     return new Response(
       JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
