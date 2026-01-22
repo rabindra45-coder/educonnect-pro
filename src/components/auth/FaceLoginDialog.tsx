@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from "react";
-import { Camera, Loader2, ScanFace, RotateCcw, Mail, AlertCircle } from "lucide-react";
+import { Camera, Loader2, ScanFace, RotateCcw, Mail, AlertCircle, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -26,12 +26,20 @@ const FaceLoginDialog = ({ open, onOpenChange, onSuccess }: FaceLoginDialogProps
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isVideoReady, setIsVideoReady] = useState(false);
+  const [cameraTimedOut, setCameraTimedOut] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const { toast } = useToast();
 
   const startCamera = useCallback(async () => {
     try {
+      // Clear any existing timeout
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
+      setCameraTimedOut(false);
       // Render the camera UI first so the <video> element exists before attaching the stream.
       setStep("camera");
       setIsVideoReady(false);
@@ -40,6 +48,11 @@ const FaceLoginDialog = ({ open, onOpenChange, onSuccess }: FaceLoginDialogProps
       });
       setStream(mediaStream);
       setError(null);
+
+      // Start a 5-second timeout for camera readiness
+      timeoutRef.current = setTimeout(() => {
+        setCameraTimedOut(true);
+      }, 5000);
     } catch (error) {
       console.error("Camera error:", error);
       setError("Camera access denied. Please allow camera access.");
@@ -59,6 +72,12 @@ const FaceLoginDialog = ({ open, onOpenChange, onSuccess }: FaceLoginDialogProps
       // videoWidth/Height become available after metadata is loaded.
       if (video.videoWidth > 0 && video.videoHeight > 0) {
         setIsVideoReady(true);
+        setCameraTimedOut(false);
+        // Clear timeout since camera is ready
+        if (timeoutRef.current) {
+          clearTimeout(timeoutRef.current);
+          timeoutRef.current = null;
+        }
       }
     };
 
@@ -78,15 +97,26 @@ const FaceLoginDialog = ({ open, onOpenChange, onSuccess }: FaceLoginDialogProps
       setStream(null);
     }
     setIsVideoReady(false);
+    setCameraTimedOut(false);
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
   }, [stream]);
 
+  const retryCamera = useCallback(() => {
+    stopCamera();
+    startCamera();
+  }, [stopCamera, startCamera]);
+
+  // Cleanup timeout on unmount
   useEffect(() => {
     return () => {
-      if (stream) {
-        stream.getTracks().forEach((track) => track.stop());
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
       }
     };
-  }, [stream]);
+  }, []);
 
   const captureAndVerify = useCallback(async () => {
     if (!videoRef.current || !canvasRef.current) return;
@@ -253,6 +283,31 @@ const FaceLoginDialog = ({ open, onOpenChange, onSuccess }: FaceLoginDialogProps
                 <div className="absolute inset-0 pointer-events-none">
                   <div className="absolute inset-[15%] border-2 border-dashed border-white/50 rounded-full" />
                 </div>
+                {/* Camera readiness indicator */}
+                {!isVideoReady && (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/60">
+                    {cameraTimedOut ? (
+                      <div className="text-center space-y-3">
+                        <AlertCircle className="w-8 h-8 text-destructive mx-auto" />
+                        <p className="text-sm text-white">Camera not responding</p>
+                        <Button 
+                          variant="secondary" 
+                          size="sm" 
+                          onClick={retryCamera}
+                          className="gap-2"
+                        >
+                          <RefreshCw className="w-4 h-4" />
+                          Retry
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="text-center space-y-2">
+                        <Loader2 className="w-8 h-8 text-white animate-spin mx-auto" />
+                        <p className="text-sm text-white/80">Initializing camera…</p>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
               <canvas ref={canvasRef} className="hidden" />
               <div className="flex gap-2">
