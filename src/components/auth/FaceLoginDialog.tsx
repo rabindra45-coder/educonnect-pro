@@ -25,32 +25,59 @@ const FaceLoginDialog = ({ open, onOpenChange, onSuccess }: FaceLoginDialogProps
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isVideoReady, setIsVideoReady] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { toast } = useToast();
 
   const startCamera = useCallback(async () => {
     try {
+      // Render the camera UI first so the <video> element exists before attaching the stream.
+      setStep("camera");
+      setIsVideoReady(false);
       const mediaStream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: "user", width: 640, height: 480 },
       });
       setStream(mediaStream);
-      if (videoRef.current) {
-        videoRef.current.srcObject = mediaStream;
-      }
-      setStep("camera");
       setError(null);
     } catch (error) {
       console.error("Camera error:", error);
       setError("Camera access denied. Please allow camera access.");
+      setStep("email");
     }
   }, []);
+
+  // Attach stream to video element when both are available (prevents empty frames like `data:,`).
+  useEffect(() => {
+    if (!stream || step !== "camera" || !videoRef.current) return;
+
+    const video = videoRef.current;
+    setIsVideoReady(false);
+    video.srcObject = stream;
+
+    const onReady = () => {
+      // videoWidth/Height become available after metadata is loaded.
+      if (video.videoWidth > 0 && video.videoHeight > 0) {
+        setIsVideoReady(true);
+      }
+    };
+
+    video.addEventListener("loadedmetadata", onReady);
+    video.addEventListener("canplay", onReady);
+    video.play().catch(console.error);
+
+    return () => {
+      video.removeEventListener("loadedmetadata", onReady);
+      video.removeEventListener("canplay", onReady);
+    };
+  }, [stream, step]);
 
   const stopCamera = useCallback(() => {
     if (stream) {
       stream.getTracks().forEach((track) => track.stop());
       setStream(null);
     }
+    setIsVideoReady(false);
   }, [stream]);
 
   useEffect(() => {
@@ -66,6 +93,13 @@ const FaceLoginDialog = ({ open, onOpenChange, onSuccess }: FaceLoginDialogProps
 
     const video = videoRef.current;
     const canvas = canvasRef.current;
+
+    // Prevent sending empty frames (canvas.toDataURL() becomes `data:,` when width/height are 0).
+    if (!isVideoReady || video.videoWidth === 0 || video.videoHeight === 0) {
+      setError("Camera not ready yet. Please wait a second and try again.");
+      return;
+    }
+
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
 
@@ -77,6 +111,10 @@ const FaceLoginDialog = ({ open, onOpenChange, onSuccess }: FaceLoginDialogProps
     }
 
     const imageData = canvas.toDataURL("image/jpeg", 0.8);
+    if (!imageData || imageData === "data:," || !imageData.includes("base64,")) {
+      setError("Could not capture a clear image. Please try again.");
+      return;
+    }
     setCapturedImage(imageData);
     stopCamera();
     setStep("verifying");
@@ -132,7 +170,7 @@ const FaceLoginDialog = ({ open, onOpenChange, onSuccess }: FaceLoginDialogProps
       setStep("camera");
       startCamera();
     }
-  }, [email, stopCamera, startCamera, toast, onSuccess]);
+  }, [email, stopCamera, startCamera, toast, onSuccess, isVideoReady]);
 
   const handleEmailSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -221,7 +259,7 @@ const FaceLoginDialog = ({ open, onOpenChange, onSuccess }: FaceLoginDialogProps
                 <Button variant="outline" onClick={handleClose} className="flex-1">
                   Cancel
                 </Button>
-                <Button onClick={captureAndVerify} className="flex-1">
+                <Button onClick={captureAndVerify} className="flex-1" disabled={!isVideoReady}>
                   <ScanFace className="w-4 h-4 mr-2" />
                   Verify Face
                 </Button>
