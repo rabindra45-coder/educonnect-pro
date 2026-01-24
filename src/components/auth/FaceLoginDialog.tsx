@@ -83,26 +83,42 @@ const FaceLoginDialog = ({ open, onOpenChange, onSuccess }: FaceLoginDialogProps
   useEffect(() => {
     if (step !== "camera" || !isVideoReady || !videoRef.current) {
       if (faceDetectionIntervalRef.current) {
-        clearInterval(faceDetectionIntervalRef.current);
+        clearTimeout(faceDetectionIntervalRef.current);
         faceDetectionIntervalRef.current = null;
       }
       return;
     }
 
-    const checkForFace = async () => {
-      if (videoRef.current) {
-        const detected = await detectFaceInVideo(videoRef.current);
-        setFaceDetected(detected);
+    // Avoid overlapping detections (estimateFaces can be slow and concurrent calls can
+    // cause persistent "no face" results on some devices).
+    let cancelled = false;
+    let inFlight = false;
+
+    const tick = async () => {
+      if (cancelled) return;
+      if (!videoRef.current) return;
+
+      if (!inFlight) {
+        inFlight = true;
+        try {
+          const detected = await detectFaceInVideo(videoRef.current);
+          if (!cancelled) setFaceDetected(detected);
+        } finally {
+          inFlight = false;
+        }
       }
+
+      // Slightly faster than 500ms for responsiveness, but still light enough.
+      faceDetectionIntervalRef.current = setTimeout(tick, 300) as unknown as NodeJS.Timeout;
     };
 
-    // Check for face every 500ms
-    faceDetectionIntervalRef.current = setInterval(checkForFace, 500);
-    checkForFace(); // Initial check
+    tick();
 
     return () => {
+      cancelled = true;
       if (faceDetectionIntervalRef.current) {
-        clearInterval(faceDetectionIntervalRef.current);
+        clearTimeout(faceDetectionIntervalRef.current);
+        faceDetectionIntervalRef.current = null;
       }
     };
   }, [step, isVideoReady]);
@@ -198,7 +214,7 @@ const FaceLoginDialog = ({ open, onOpenChange, onSuccess }: FaceLoginDialogProps
       timeoutRef.current = null;
     }
     if (faceDetectionIntervalRef.current) {
-      clearInterval(faceDetectionIntervalRef.current);
+      clearTimeout(faceDetectionIntervalRef.current);
       faceDetectionIntervalRef.current = null;
     }
   }, [stream]);
@@ -211,7 +227,7 @@ const FaceLoginDialog = ({ open, onOpenChange, onSuccess }: FaceLoginDialogProps
   useEffect(() => {
     return () => {
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
-      if (faceDetectionIntervalRef.current) clearInterval(faceDetectionIntervalRef.current);
+      if (faceDetectionIntervalRef.current) clearTimeout(faceDetectionIntervalRef.current);
     };
   }, []);
 
