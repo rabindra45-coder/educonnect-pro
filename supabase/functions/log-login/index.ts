@@ -1,8 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { Resend } from "https://esm.sh/resend@2.0.0";
-
-const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
+import nodemailer from "https://esm.sh/nodemailer@6.9.10";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -82,13 +80,21 @@ const handler = async (req: Request): Promise<Response> => {
       console.error("Error logging activity:", logError);
     }
 
-    // Send email notification
-    try {
-      const emailResponse = await resend.emails.send({
-        from: "Shree Durga Saraswati Janata Secondary School <onboarding@resend.dev>",
-        to: [email],
-        subject: "New Login to Your Student Account",
-        html: `
+    // Send email notification using Gmail SMTP
+    const gmailUser = Deno.env.get("GMAIL_USER");
+    const gmailAppPassword = Deno.env.get("GMAIL_APP_PASSWORD");
+
+    if (gmailUser && gmailAppPassword) {
+      try {
+        const transporter = nodemailer.createTransport({
+          service: "gmail",
+          auth: {
+            user: gmailUser,
+            pass: gmailAppPassword,
+          },
+        });
+
+        const emailHtml = `
           <!DOCTYPE html>
           <html>
           <head>
@@ -165,13 +171,22 @@ const handler = async (req: Request): Promise<Response> => {
             </div>
           </body>
           </html>
-        `,
-      });
+        `;
 
-      console.log("Login notification email sent:", emailResponse);
-    } catch (emailError) {
-      console.error("Error sending login email:", emailError);
-      // Don't fail the request if email fails
+        await transporter.sendMail({
+          from: `"SDSJSS Security" <${gmailUser}>`,
+          to: email,
+          subject: `🔐 Login Alert - ${loginMethod === 'face' ? 'Face Recognition' : 'Password'} Login Detected`,
+          html: emailHtml,
+        });
+
+        console.log("Login notification email sent via Gmail SMTP");
+      } catch (emailError) {
+        console.error("Error sending login email via Gmail:", emailError);
+        // Don't fail the request if email fails
+      }
+    } else {
+      console.log("Gmail credentials not configured, skipping email notification");
     }
 
     return new Response(
