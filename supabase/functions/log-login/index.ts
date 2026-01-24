@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import nodemailer from "https://esm.sh/nodemailer@6.9.10";
+import { SMTPClient } from "https://deno.land/x/denomailer@1.6.0/mod.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -86,11 +86,15 @@ const handler = async (req: Request): Promise<Response> => {
 
     if (gmailUser && gmailAppPassword) {
       try {
-        const transporter = nodemailer.createTransport({
-          service: "gmail",
-          auth: {
-            user: gmailUser,
-            pass: gmailAppPassword,
+        const client = new SMTPClient({
+          connection: {
+            hostname: "smtp.gmail.com",
+            port: 465,
+            tls: true,
+            auth: {
+              username: gmailUser,
+              password: gmailAppPassword,
+            },
           },
         });
 
@@ -173,12 +177,15 @@ const handler = async (req: Request): Promise<Response> => {
           </html>
         `;
 
-        await transporter.sendMail({
-          from: `"SDSJSS Security" <${gmailUser}>`,
+        await client.send({
+          from: gmailUser,
           to: email,
           subject: `🔐 Login Alert - ${loginMethod === 'face' ? 'Face Recognition' : 'Password'} Login Detected`,
+          content: "New login detected on your account",
           html: emailHtml,
         });
+
+        await client.close();
 
         console.log("Login notification email sent via Gmail SMTP");
       } catch (emailError) {
