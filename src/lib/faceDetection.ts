@@ -196,8 +196,28 @@ export async function detectFaceInVideo(
   if (!detector) return false;
 
   try {
-    const faces = await detector.estimateFaces(video);
-    return faces.length > 0;
+    // Some browsers/devices can return empty results when passing a video element
+    // directly. We try video first, then fall back to drawing a frame to a canvas.
+    if (video.readyState < 2 || video.videoWidth === 0 || video.videoHeight === 0) {
+      return false;
+    }
+
+    const faces = await detector.estimateFaces(video, { flipHorizontal: true } as any);
+    if (faces.length > 0) return true;
+
+    const canvas = document.createElement("canvas");
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return false;
+
+    // Mirror to match the user-facing camera preview
+    ctx.translate(canvas.width, 0);
+    ctx.scale(-1, 1);
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+    const facesFromCanvas = await detector.estimateFaces(canvas, { flipHorizontal: false } as any);
+    return facesFromCanvas.length > 0;
   } catch {
     return false;
   }
