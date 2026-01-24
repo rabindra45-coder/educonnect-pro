@@ -163,17 +163,18 @@ const HeroSection = () => {
               exit={{ opacity: 0, y: -15 }}
               transition={{ duration: 0.4 }}
             >
+              {/* Badge - hidden on mobile */}
               {currentSlideData?.subtitle ? (
-                <span className="inline-block px-2.5 xs:px-3 sm:px-4 py-1 xs:py-1.5 sm:py-2 rounded-full bg-secondary/25 text-secondary text-[10px] xs:text-xs sm:text-sm font-medium mb-3 xs:mb-4 sm:mb-6 backdrop-blur-sm border border-secondary/30">
+                <span className="hidden sm:inline-block px-4 py-2 rounded-full bg-secondary/25 text-secondary text-sm font-medium mb-6 backdrop-blur-sm border border-secondary/30">
                   {currentSlideData.subtitle}
                 </span>
               ) : (
-                <span className="inline-block px-2.5 xs:px-3 sm:px-4 py-1 xs:py-1.5 sm:py-2 rounded-full bg-secondary/25 text-secondary text-[10px] xs:text-xs sm:text-sm font-medium mb-3 xs:mb-4 sm:mb-6 backdrop-blur-sm border border-secondary/30">
+                <span className="hidden sm:inline-block px-4 py-2 rounded-full bg-secondary/25 text-secondary text-sm font-medium mb-6 backdrop-blur-sm border border-secondary/30">
                   🎓 Excellence in Education Since 2025
                 </span>
               )}
 
-              <h1 className="font-display text-xl xs:text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-primary-foreground leading-tight mb-3 xs:mb-4 sm:mb-6 drop-shadow-lg">
+              <h1 className="font-display text-lg xs:text-xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-primary-foreground leading-tight mb-3 xs:mb-4 sm:mb-6 drop-shadow-lg">
                 {currentSlideData?.title ? (
                   currentSlideData.title
                 ) : (
