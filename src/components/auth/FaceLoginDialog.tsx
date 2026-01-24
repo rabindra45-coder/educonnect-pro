@@ -322,11 +322,11 @@ const FaceLoginDialog = ({ open, onOpenChange, onSuccess }: FaceLoginDialogProps
           return;
         }
 
-        if (data.success && data.token) {
+        if (data.success && data.token_hash) {
           const { error: authError } = await supabase.auth.verifyOtp({
             email,
-            token: data.token,
-            type: "magiclink",
+            token_hash: data.token_hash,
+            type: "email",
           });
 
           if (authError) {
