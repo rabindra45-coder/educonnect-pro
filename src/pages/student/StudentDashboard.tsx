@@ -46,6 +46,7 @@ interface ActivityLog {
   entity_type: string;
   created_at: string;
   details: any;
+  ip_address?: string;
 }
 
 interface ExamResult {

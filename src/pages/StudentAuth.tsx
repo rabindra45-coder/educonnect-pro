@@ -103,6 +103,25 @@ const StudentAuth = () => {
           : error.message,
         variant: "destructive",
       });
+    } else {
+      // Log the login and send email notification
+      try {
+        const { data: { user: loggedInUser } } = await supabase.auth.getUser();
+        if (loggedInUser) {
+          await supabase.functions.invoke("log-login", {
+            body: {
+              userId: loggedInUser.id,
+              email: data.email,
+              fullName: loggedInUser.user_metadata?.full_name,
+              loginMethod: "password",
+              userAgent: navigator.userAgent,
+              timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+            },
+          });
+        }
+      } catch (logError) {
+        console.error("Error logging login:", logError);
+      }
     }
   };
 
