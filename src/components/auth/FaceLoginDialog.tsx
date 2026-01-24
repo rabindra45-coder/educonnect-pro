@@ -20,6 +20,7 @@ import {
   getFaceDescriptorFromUrl,
   compareFaceDescriptors,
   detectFaceInVideo,
+  type FaceDescriptor,
 } from "@/lib/faceDetection";
 
 interface FaceLoginDialogProps {

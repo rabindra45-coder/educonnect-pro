@@ -1,20 +1,29 @@
-import * as faceapi from "face-api.js";
+import * as tf from "@tensorflow/tfjs";
+import * as faceLandmarksDetection from "@tensorflow-models/face-landmarks-detection";
 
+let detector: faceLandmarksDetection.FaceLandmarksDetector | null = null;
 let modelsLoaded = false;
 
-const MODEL_URL = "https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.12/model";
-
 export async function loadFaceModels(): Promise<void> {
-  if (modelsLoaded) return;
+  if (modelsLoaded && detector) return;
 
   try {
-    await Promise.all([
-      faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL),
-      faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
-      faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL),
-    ]);
+    // Set TensorFlow.js backend
+    await tf.setBackend("webgl");
+    await tf.ready();
+
+    // Load the MediaPipe FaceMesh model
+    detector = await faceLandmarksDetection.createDetector(
+      faceLandmarksDetection.SupportedModels.MediaPipeFaceMesh,
+      {
+        runtime: "tfjs",
+        refineLandmarks: true,
+        maxFaces: 1,
+      }
+    );
+
     modelsLoaded = true;
-    console.log("Face detection models loaded successfully");
+    console.log("TensorFlow.js Face detection models loaded successfully");
   } catch (error) {
     console.error("Error loading face detection models:", error);
     throw new Error("Failed to load face detection models");
@@ -22,34 +31,89 @@ export async function loadFaceModels(): Promise<void> {
 }
 
 export function areModelsLoaded(): boolean {
-  return modelsLoaded;
+  return modelsLoaded && detector !== null;
 }
 
-export async function detectFace(
+export interface FaceDescriptor {
+  landmarks: number[][];
+  boundingBox: {
+    xMin: number;
+    yMin: number;
+    xMax: number;
+    yMax: number;
+    width: number;
+    height: number;
+  };
+}
+
+async function detectFace(
   imageElement: HTMLImageElement | HTMLVideoElement | HTMLCanvasElement
-): Promise<faceapi.WithFaceDescriptor<faceapi.WithFaceLandmarks<{ detection: faceapi.FaceDetection }>> | null> {
-  if (!modelsLoaded) {
+): Promise<FaceDescriptor | null> {
+  if (!detector) {
     throw new Error("Face models not loaded. Call loadFaceModels() first.");
   }
 
-  const detection = await faceapi
-    .detectSingleFace(imageElement)
-    .withFaceLandmarks()
-    .withFaceDescriptor();
+  try {
+    const faces = await detector.estimateFaces(imageElement);
 
-  return detection || null;
+    if (faces.length === 0) return null;
+
+    const face = faces[0];
+    const keypoints = face.keypoints;
+
+    // Extract key landmarks for comparison (using subset of 468 landmarks)
+    // Focus on stable facial features: eyes, nose, mouth corners, face outline
+    const keyIndices = [
+      // Left eye
+      33, 133, 159, 145,
+      // Right eye
+      362, 263, 386, 374,
+      // Nose
+      1, 2, 98, 327,
+      // Mouth corners
+      61, 291, 0, 17,
+      // Face outline
+      10, 152, 234, 454,
+      // Forehead
+      67, 297, 109, 338,
+      // Cheeks
+      116, 345, 127, 356,
+    ];
+
+    const landmarks: number[][] = keyIndices.map((idx) => {
+      const point = keypoints[idx];
+      return point ? [point.x, point.y, point.z || 0] : [0, 0, 0];
+    });
+
+    const box = face.box;
+
+    return {
+      landmarks,
+      boundingBox: {
+        xMin: box.xMin,
+        yMin: box.yMin,
+        xMax: box.xMax,
+        yMax: box.yMax,
+        width: box.width,
+        height: box.height,
+      },
+    };
+  } catch (error) {
+    console.error("Face detection error:", error);
+    return null;
+  }
 }
 
 export async function getFaceDescriptorFromDataUrl(
   dataUrl: string
-): Promise<Float32Array | null> {
+): Promise<FaceDescriptor | null> {
   return new Promise((resolve, reject) => {
     const img = new Image();
     img.crossOrigin = "anonymous";
     img.onload = async () => {
       try {
-        const detection = await detectFace(img);
-        resolve(detection?.descriptor || null);
+        const descriptor = await detectFace(img);
+        resolve(descriptor);
       } catch (error) {
         reject(error);
       }
@@ -61,14 +125,14 @@ export async function getFaceDescriptorFromDataUrl(
 
 export async function getFaceDescriptorFromUrl(
   url: string
-): Promise<Float32Array | null> {
+): Promise<FaceDescriptor | null> {
   return new Promise((resolve, reject) => {
     const img = new Image();
     img.crossOrigin = "anonymous";
     img.onload = async () => {
       try {
-        const detection = await detectFace(img);
-        resolve(detection?.descriptor || null);
+        const descriptor = await detectFace(img);
+        resolve(descriptor);
       } catch (error) {
         reject(error);
       }
@@ -78,18 +142,50 @@ export async function getFaceDescriptorFromUrl(
   });
 }
 
+function normalizeDescriptor(descriptor: FaceDescriptor): number[][] {
+  const { landmarks, boundingBox } = descriptor;
+  const { width, height, xMin, yMin } = boundingBox;
+
+  // Normalize landmarks relative to bounding box
+  return landmarks.map(([x, y, z]) => [
+    (x - xMin) / width,
+    (y - yMin) / height,
+    z / Math.max(width, height),
+  ]);
+}
+
+function calculateDistance(landmarks1: number[][], landmarks2: number[][]): number {
+  if (landmarks1.length !== landmarks2.length) {
+    return 1; // Maximum distance if landmarks don't match
+  }
+
+  let sumSquaredDiff = 0;
+  for (let i = 0; i < landmarks1.length; i++) {
+    for (let j = 0; j < 3; j++) {
+      const diff = landmarks1[i][j] - landmarks2[i][j];
+      sumSquaredDiff += diff * diff;
+    }
+  }
+
+  return Math.sqrt(sumSquaredDiff / landmarks1.length);
+}
+
 export function compareFaceDescriptors(
-  descriptor1: Float32Array,
-  descriptor2: Float32Array
+  descriptor1: FaceDescriptor,
+  descriptor2: FaceDescriptor
 ): { match: boolean; distance: number; confidence: number } {
-  const distance = faceapi.euclideanDistance(descriptor1, descriptor2);
-  
-  // Typical threshold for face matching is 0.6
-  // Lower distance = more similar faces
-  const match = distance < 0.6;
-  
-  // Convert distance to confidence percentage (0.0 = 100%, 1.0+ = 0%)
-  const confidence = Math.max(0, Math.min(100, Math.round((1 - distance) * 100)));
+  const normalized1 = normalizeDescriptor(descriptor1);
+  const normalized2 = normalizeDescriptor(descriptor2);
+
+  const distance = calculateDistance(normalized1, normalized2);
+
+  // Threshold for matching (lower = stricter)
+  // TensorFlow landmarks are more precise, so we use a tighter threshold
+  const threshold = 0.35;
+  const match = distance < threshold;
+
+  // Convert distance to confidence percentage
+  const confidence = Math.max(0, Math.min(100, Math.round((1 - distance / 0.5) * 100)));
 
   return { match, distance, confidence };
 }
@@ -97,8 +193,12 @@ export function compareFaceDescriptors(
 export async function detectFaceInVideo(
   video: HTMLVideoElement
 ): Promise<boolean> {
-  if (!modelsLoaded) return false;
-  
-  const detection = await faceapi.detectSingleFace(video);
-  return !!detection;
+  if (!detector) return false;
+
+  try {
+    const faces = await detector.estimateFaces(video);
+    return faces.length > 0;
+  } catch {
+    return false;
+  }
 }
