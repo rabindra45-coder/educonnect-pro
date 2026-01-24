@@ -90,7 +90,7 @@ const HeroSection = () => {
   const currentSlideData = slides[currentSlide];
 
   return (
-    <section className="relative min-h-[60vh] xs:min-h-[65vh] sm:min-h-[80vh] lg:min-h-[90vh] flex items-center overflow-hidden">
+    <section className="relative min-h-[50vh] xs:min-h-[55vh] sm:min-h-[80vh] lg:min-h-[90vh] flex items-center overflow-hidden bg-primary/10">
       {/* Background Image with Slider */}
       <div className="absolute inset-0">
         <AnimatePresence mode="wait">
@@ -98,16 +98,18 @@ const HeroSection = () => {
             key={currentSlide}
             src={currentBackground}
             alt="Hero background"
-            className="w-full h-full object-cover"
-            style={{ objectPosition: 'center 25%' }}
+            className="w-full h-full object-contain sm:object-cover"
+            style={{ objectPosition: 'center center' }}
             initial={{ opacity: 0, scale: 1.02 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.5 }}
           />
         </AnimatePresence>
+        {/* Background fill for letterboxing on mobile */}
+        <div className="absolute inset-0 -z-10 bg-primary/20 sm:hidden"></div>
         {/* Enhanced gradient overlay for better text readability on mobile */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/50 sm:bg-black/30"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/40 to-black/60 sm:bg-black/30"></div>
       </div>
 
       {/* Breaking News Ticker */}
