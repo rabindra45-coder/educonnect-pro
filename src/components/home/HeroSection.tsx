@@ -184,7 +184,7 @@ const HeroSection = () => {
                 )}
               </h1>
 
-              <p className="text-xs xs:text-sm sm:text-lg md:text-xl text-primary-foreground/90 mb-4 xs:mb-5 sm:mb-8 max-w-2xl leading-relaxed drop-shadow-md line-clamp-3 sm:line-clamp-none">
+              <p className="hidden sm:block text-lg md:text-xl text-primary-foreground/90 mb-8 max-w-2xl leading-relaxed drop-shadow-md">
                 Welcome to Shree Durga Saraswati Janata Secondary School — where we nurture 
                 young minds with quality education, strong values, and a vision for excellence.
               </p>
