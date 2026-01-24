@@ -10,21 +10,21 @@ const CTASection = () => {
   const isInView = useInView(ref, { once: true, margin: "-100px" });
 
   return (
-    <section className="py-12 sm:py-16 md:py-20 bg-background" ref={ref}>
-      <div className="container mx-auto px-4">
+    <section className="py-8 xs:py-10 sm:py-16 md:py-20 bg-background" ref={ref}>
+      <div className="container mx-auto px-3 xs:px-4">
         <motion.div
-          className="relative bg-gradient-primary rounded-2xl sm:rounded-3xl p-6 sm:p-10 md:p-16 overflow-hidden"
+          className="relative bg-gradient-primary rounded-xl xs:rounded-2xl sm:rounded-3xl p-4 xs:p-6 sm:p-10 md:p-16 overflow-hidden"
           initial={{ opacity: 0, y: 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.8 }}
         >
           {/* Background Decorations */}
-          <div className="absolute top-0 right-0 w-40 sm:w-64 h-40 sm:h-64 bg-primary-foreground/5 rounded-full blur-3xl"></div>
-          <div className="absolute bottom-0 left-0 w-32 sm:w-48 h-32 sm:h-48 bg-secondary/10 rounded-full blur-2xl"></div>
+          <div className="absolute top-0 right-0 w-32 xs:w-40 sm:w-64 h-32 xs:h-40 sm:h-64 bg-primary-foreground/5 rounded-full blur-3xl"></div>
+          <div className="absolute bottom-0 left-0 w-24 xs:w-32 sm:w-48 h-24 xs:h-32 sm:h-48 bg-secondary/10 rounded-full blur-2xl"></div>
 
           <div className="relative z-10 max-w-3xl mx-auto text-center">
             <motion.h2
-              className="font-display text-xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-primary-foreground mb-4 sm:mb-6"
+              className="font-display text-lg xs:text-xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-primary-foreground mb-3 xs:mb-4 sm:mb-6"
               initial={{ opacity: 0, y: 20 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.6, delay: 0.2 }}
@@ -34,7 +34,7 @@ const CTASection = () => {
             </motion.h2>
 
             <motion.p
-              className="text-sm sm:text-base md:text-lg text-primary-foreground/80 mb-6 sm:mb-8 max-w-2xl mx-auto"
+              className="text-xs xs:text-sm sm:text-base md:text-lg text-primary-foreground/80 mb-4 xs:mb-5 sm:mb-8 max-w-2xl mx-auto"
               initial={{ opacity: 0, y: 20 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.6, delay: 0.3 }}
@@ -44,18 +44,18 @@ const CTASection = () => {
             </motion.p>
 
             <motion.div
-              className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center"
+              className="flex flex-row gap-2 xs:gap-3 sm:gap-4 justify-center"
               initial={{ opacity: 0, y: 20 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.6, delay: 0.4 }}
             >
-              <Button variant="hero" size="lg" className="text-sm sm:text-base" asChild>
+              <Button variant="hero" size="default" className="text-xs xs:text-sm sm:text-base px-3 xs:px-4 sm:px-6 py-2 xs:py-2.5 sm:py-3 h-auto touch-manipulation" asChild>
                 <Link to="/admission">
-                  Apply for Admission
-                  <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 ml-1.5 sm:ml-2" />
+                  Apply Now
+                  <ArrowRight className="w-3.5 h-3.5 xs:w-4 xs:h-4 sm:w-5 sm:h-5 ml-1 xs:ml-1.5 sm:ml-2" />
                 </Link>
               </Button>
-              <Button variant="hero-outline" size="lg" className="text-sm sm:text-base" asChild>
+              <Button variant="hero-outline" size="default" className="text-xs xs:text-sm sm:text-base px-3 xs:px-4 sm:px-6 py-2 xs:py-2.5 sm:py-3 h-auto touch-manipulation" asChild>
                 <Link to="/contact">
                   Contact Us
                 </Link>
