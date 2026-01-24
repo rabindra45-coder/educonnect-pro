@@ -335,6 +335,25 @@ const FaceLoginDialog = ({ open, onOpenChange, onSuccess }: FaceLoginDialogProps
             return;
           }
 
+          // Log the face login and send email notification
+          try {
+            const { data: { user: loggedInUser } } = await supabase.auth.getUser();
+            if (loggedInUser) {
+              await supabase.functions.invoke("log-login", {
+                body: {
+                  userId: loggedInUser.id,
+                  email: email,
+                  fullName: loggedInUser.user_metadata?.full_name,
+                  loginMethod: "face",
+                  userAgent: navigator.userAgent,
+                  timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                },
+              });
+            }
+          } catch (logError) {
+            console.error("Error logging face login:", logError);
+          }
+
           toast({
             title: "Welcome Back!",
             description: `Face verified with ${result.confidence}% confidence.`,
