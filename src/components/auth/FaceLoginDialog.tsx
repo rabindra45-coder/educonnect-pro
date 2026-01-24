@@ -324,7 +324,6 @@ const FaceLoginDialog = ({ open, onOpenChange, onSuccess }: FaceLoginDialogProps
 
         if (data.success && data.token_hash) {
           const { error: authError } = await supabase.auth.verifyOtp({
-            email,
             token_hash: data.token_hash,
             type: "email",
           });
