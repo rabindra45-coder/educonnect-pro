@@ -55,7 +55,7 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({
         success: true,
-        token: linkData.properties?.hashed_token,
+        token_hash: linkData.properties?.hashed_token,
         message: "Face verified successfully",
         confidence: confidence || 0,
       }),
