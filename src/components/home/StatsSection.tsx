@@ -20,11 +20,11 @@ interface StatItemProps {
 }
 
 const iconMap: Record<string, React.ReactNode> = {
-  users: <Users className="w-8 h-8" />,
-  "graduation-cap": <GraduationCap className="w-8 h-8" />,
-  award: <Award className="w-8 h-8" />,
-  "trending-up": <TrendingUp className="w-8 h-8" />,
-  "book-open": <BookOpen className="w-8 h-8" />,
+  users: <Users className="w-full h-full" />,
+  "graduation-cap": <GraduationCap className="w-full h-full" />,
+  award: <Award className="w-full h-full" />,
+  "trending-up": <TrendingUp className="w-full h-full" />,
+  "book-open": <BookOpen className="w-full h-full" />,
 };
 
 const StatItem = ({ icon, value, label, delay }: StatItemProps) => {
@@ -62,18 +62,18 @@ const StatItem = ({ icon, value, label, delay }: StatItemProps) => {
   return (
     <motion.div
       ref={ref}
-      className="text-center p-4 sm:p-6 md:p-8 rounded-xl sm:rounded-2xl bg-card shadow-card hover:shadow-card-hover transition-all duration-300 border border-border/50"
+      className="text-center p-3 xs:p-4 sm:p-6 md:p-8 rounded-xl sm:rounded-2xl bg-card shadow-card hover:shadow-card-hover active:scale-[0.98] transition-all duration-300 border border-border/50 touch-manipulation"
       initial={{ opacity: 0, y: 30 }}
       animate={isInView ? { opacity: 1, y: 0 } : {}}
       transition={{ duration: 0.6, delay }}
     >
-      <div className="w-10 h-10 sm:w-14 sm:h-14 md:w-16 md:h-16 mx-auto mb-2 sm:mb-4 rounded-lg sm:rounded-xl bg-primary/10 flex items-center justify-center text-primary">
-        <div className="w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8">{icon}</div>
+      <div className="w-9 h-9 xs:w-10 xs:h-10 sm:w-14 sm:h-14 md:w-16 md:h-16 mx-auto mb-1.5 xs:mb-2 sm:mb-4 rounded-lg sm:rounded-xl bg-primary/10 flex items-center justify-center text-primary p-2 xs:p-2.5 sm:p-3 md:p-4">
+        {icon}
       </div>
-      <div className="font-display text-xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-1 sm:mb-2">
+      <div className="font-display text-lg xs:text-xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-0.5 xs:mb-1 sm:mb-2">
         {numericValue > 0 ? `${count.toLocaleString()}${suffix}` : value}
       </div>
-      <div className="text-muted-foreground text-xs sm:text-sm md:text-base font-medium">{label}</div>
+      <div className="text-muted-foreground text-[10px] xs:text-xs sm:text-sm md:text-base font-medium leading-tight">{label}</div>
     </motion.div>
   );
 };
@@ -94,16 +94,16 @@ const StatsSection = () => {
   }, []);
 
   const defaultIcons = [
-    <Users className="w-8 h-8" />,
-    <GraduationCap className="w-8 h-8" />,
-    <Award className="w-8 h-8" />,
-    <TrendingUp className="w-8 h-8" />,
+    <Users className="w-full h-full" />,
+    <GraduationCap className="w-full h-full" />,
+    <Award className="w-full h-full" />,
+    <TrendingUp className="w-full h-full" />,
   ];
 
   return (
-    <section className="py-12 sm:py-16 md:py-20 bg-gradient-subtle">
-      <div className="container mx-auto px-4">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6 lg:gap-8">
+    <section className="py-8 xs:py-10 sm:py-16 md:py-20 bg-gradient-subtle">
+      <div className="container mx-auto px-3 xs:px-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 xs:gap-3 sm:gap-4 md:gap-6 lg:gap-8">
           {stats.map((stat, index) => (
             <StatItem
               key={stat.id}
