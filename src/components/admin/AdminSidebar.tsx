@@ -13,7 +13,8 @@ import {
   Home,
   Image,
   Layers,
-  FolderOpen
+  FolderOpen,
+  MessageCircle
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
@@ -35,6 +36,7 @@ const AdminSidebar = () => {
     { name: "Documents", path: "/admin/documents", icon: FolderOpen },
     { name: "Teachers", path: "/admin/teachers", icon: Users },
     { name: "Admissions", path: "/admin/admissions", icon: FileText },
+    { name: "Chats", path: "/admin/chats", icon: MessageCircle },
     ...(hasRole("super_admin") ? [
       { name: "User Management", path: "/admin/users", icon: UserCog },
     ] : []),

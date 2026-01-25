@@ -14,3 +14,9 @@ verify_jwt = false
 
 [functions.log-login]
 verify_jwt = false
+
+[functions.chat]
+verify_jwt = false
+
+[functions.analyze-chat-importance]
+verify_jwt = false
