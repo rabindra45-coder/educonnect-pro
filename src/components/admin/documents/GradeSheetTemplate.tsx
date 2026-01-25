@@ -45,6 +45,8 @@ interface GradeSheetData {
   subjects: SubjectMark[];
   total_credit: number;
   gpa: string;
+  dob_bs?: string;
+  dob_ad?: string;
 }
 
 interface GradeSheetTemplateProps {
