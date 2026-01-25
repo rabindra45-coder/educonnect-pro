@@ -30,6 +30,7 @@ import GalleryManagement from "./pages/admin/GalleryManagement";
 import ContentManagement from "./pages/admin/ContentManagement";
 import Settings from "./pages/admin/Settings";
 import StudentDashboard from "./pages/student/StudentDashboard";
+import VerifyStudent from "./pages/VerifyStudent";
 
 const queryClient = new QueryClient();
 
@@ -66,6 +67,7 @@ const App = () => (
               <Route path="/admin/content" element={<ContentManagement />} />
               <Route path="/admin/settings" element={<Settings />} />
               <Route path="/student" element={<StudentDashboard />} />
+              <Route path="/verify/:studentId" element={<VerifyStudent />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { User, Bell, Calendar, FileText, Eye, Loader2, ScanFace } from "lucide-react";
+import { User, Bell, Calendar, FileText, Eye, Loader2, ScanFace, CreditCard } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -21,6 +21,7 @@ import EditProfileDialog from "@/components/student/EditProfileDialog";
 import PasswordChangeDialog from "@/components/student/PasswordChangeDialog";
 import NoStudentRecordCard from "@/components/student/NoStudentRecordCard";
 import FaceRegistrationDialog from "@/components/student/FaceRegistrationDialog";
+import StudentIDCard from "@/components/student/StudentIDCard";
 
 interface StudentInfo {
   id: string;
@@ -84,6 +85,7 @@ const StudentDashboard = () => {
   const [showEditProfileDialog, setShowEditProfileDialog] = useState(false);
   const [showFaceRegistration, setShowFaceRegistration] = useState(false);
   const [hasFaceData, setHasFaceData] = useState(false);
+  const [schoolSettings, setSchoolSettings] = useState<any>(null);
   const [editProfileData, setEditProfileData] = useState({
     guardian_name: "",
     guardian_phone: "",
@@ -129,8 +131,18 @@ const StudentDashboard = () => {
       fetchExamResults(),
       fetchUpcomingEvents(),
       fetchFaceData(),
+      fetchSchoolSettings(),
     ]);
     setIsLoading(false);
+  };
+
+  const fetchSchoolSettings = async () => {
+    const { data } = await supabase
+      .from("school_settings")
+      .select("school_name, school_address, school_phone, school_email, school_website, logo_url, principal_name")
+      .limit(1)
+      .maybeSingle();
+    setSchoolSettings(data);
   };
 
   const fetchFaceData = async () => {
@@ -431,8 +443,9 @@ const StudentDashboard = () => {
             />
 
             <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-              <TabsList className="grid w-full grid-cols-4 lg:w-auto lg:inline-flex bg-card border">
+              <TabsList className="grid w-full grid-cols-5 lg:w-auto lg:inline-flex bg-card border">
                 <TabsTrigger value="overview" className="gap-2"><User className="w-4 h-4 hidden sm:inline" />Overview</TabsTrigger>
+                <TabsTrigger value="idcard" className="gap-2"><CreditCard className="w-4 h-4 hidden sm:inline" />ID Card</TabsTrigger>
                 <TabsTrigger value="notices" className="gap-2"><Bell className="w-4 h-4 hidden sm:inline" />Notices</TabsTrigger>
                 <TabsTrigger value="calendar" className="gap-2"><Calendar className="w-4 h-4 hidden sm:inline" />Calendar</TabsTrigger>
                 <TabsTrigger value="results" className="gap-2"><FileText className="w-4 h-4 hidden sm:inline" />Results</TabsTrigger>
@@ -457,6 +470,17 @@ const StudentDashboard = () => {
               </div>
             </div>
           </TabsContent>
+
+              <TabsContent value="idcard">
+                <div className="max-w-md mx-auto">
+                  {schoolSettings && (
+                    <StudentIDCard
+                      studentInfo={studentInfo}
+                      schoolSettings={schoolSettings}
+                    />
+                  )}
+                </div>
+              </TabsContent>
 
           <TabsContent value="notices">
             <Card>
