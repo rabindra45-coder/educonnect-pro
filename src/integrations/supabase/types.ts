@@ -176,6 +176,63 @@ export type Database = {
         }
         Relationships: []
       }
+      attendance: {
+        Row: {
+          check_in_time: string | null
+          check_out_time: string | null
+          created_at: string
+          date: string
+          id: string
+          marked_by: string | null
+          notification_sent: boolean | null
+          remarks: string | null
+          status: Database["public"]["Enums"]["attendance_status"]
+          student_id: string
+          updated_at: string
+        }
+        Insert: {
+          check_in_time?: string | null
+          check_out_time?: string | null
+          created_at?: string
+          date?: string
+          id?: string
+          marked_by?: string | null
+          notification_sent?: boolean | null
+          remarks?: string | null
+          status?: Database["public"]["Enums"]["attendance_status"]
+          student_id: string
+          updated_at?: string
+        }
+        Update: {
+          check_in_time?: string | null
+          check_out_time?: string | null
+          created_at?: string
+          date?: string
+          id?: string
+          marked_by?: string | null
+          notification_sent?: boolean | null
+          remarks?: string | null
+          status?: Database["public"]["Enums"]["attendance_status"]
+          student_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "attendance_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "attendance_summary"
+            referencedColumns: ["student_id"]
+          },
+          {
+            foreignKeyName: "attendance_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       book_issues: {
         Row: {
           book_id: string
@@ -226,6 +283,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "books"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "book_issues_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "attendance_summary"
+            referencedColumns: ["student_id"]
           },
           {
             foreignKeyName: "book_issues_student_id_fkey"
@@ -428,6 +492,13 @@ export type Database = {
             foreignKeyName: "exam_marks_student_id_fkey"
             columns: ["student_id"]
             isOneToOne: false
+            referencedRelation: "attendance_summary"
+            referencedColumns: ["student_id"]
+          },
+          {
+            foreignKeyName: "exam_marks_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
             referencedRelation: "students"
             referencedColumns: ["id"]
           },
@@ -610,6 +681,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "student_fees"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fee_payments_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "attendance_summary"
+            referencedColumns: ["student_id"]
           },
           {
             foreignKeyName: "fee_payments_student_id_fkey"
@@ -834,6 +912,13 @@ export type Database = {
             foreignKeyName: "library_fines_student_id_fkey"
             columns: ["student_id"]
             isOneToOne: false
+            referencedRelation: "attendance_summary"
+            referencedColumns: ["student_id"]
+          },
+          {
+            foreignKeyName: "library_fines_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
             referencedRelation: "students"
             referencedColumns: ["id"]
           },
@@ -961,6 +1046,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "student_fees"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_transactions_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "attendance_summary"
+            referencedColumns: ["student_id"]
           },
           {
             foreignKeyName: "payment_transactions_student_id_fkey"
@@ -1133,6 +1225,13 @@ export type Database = {
             foreignKeyName: "student_documents_student_id_fkey"
             columns: ["student_id"]
             isOneToOne: false
+            referencedRelation: "attendance_summary"
+            referencedColumns: ["student_id"]
+          },
+          {
+            foreignKeyName: "student_documents_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
             referencedRelation: "students"
             referencedColumns: ["id"]
           },
@@ -1232,6 +1331,13 @@ export type Database = {
             foreignKeyName: "student_fees_student_id_fkey"
             columns: ["student_id"]
             isOneToOne: false
+            referencedRelation: "attendance_summary"
+            referencedColumns: ["student_id"]
+          },
+          {
+            foreignKeyName: "student_fees_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
             referencedRelation: "students"
             referencedColumns: ["id"]
           },
@@ -1293,6 +1399,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "exams"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_results_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "attendance_summary"
+            referencedColumns: ["student_id"]
           },
           {
             foreignKeyName: "student_results_student_id_fkey"
@@ -1518,7 +1631,25 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      attendance_summary: {
+        Row: {
+          absent_days: number | null
+          attendance_percentage: number | null
+          class: string | null
+          excused_days: number | null
+          full_name: string | null
+          guardian_email: string | null
+          guardian_phone: string | null
+          late_days: number | null
+          month: string | null
+          present_days: number | null
+          roll_number: number | null
+          section: string | null
+          student_id: string | null
+          total_days: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       calculate_gpa: {
@@ -1551,6 +1682,7 @@ export type Database = {
         | "staff"
         | "student"
         | "librarian"
+      attendance_status: "present" | "absent" | "late" | "excused"
       exam_type: "terminal" | "unit" | "monthly" | "final" | "pre_board"
       fee_type:
         | "admission"
@@ -1711,6 +1843,7 @@ export const Constants = {
         "student",
         "librarian",
       ],
+      attendance_status: ["present", "absent", "late", "excused"],
       exam_type: ["terminal", "unit", "monthly", "final", "pre_board"],
       fee_type: [
         "admission",

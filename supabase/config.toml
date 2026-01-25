@@ -29,3 +29,6 @@ verify_jwt = false
 
 [functions.setup-librarian]
 verify_jwt = false
+
+[functions.send-attendance-notification]
+verify_jwt = false
