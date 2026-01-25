@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { User, Bell, Calendar, FileText, Eye, Loader2, ScanFace, CreditCard, FolderOpen } from "lucide-react";
+import { User, Bell, Calendar, FileText, Eye, Loader2, ScanFace, CreditCard } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -22,7 +22,6 @@ import PasswordChangeDialog from "@/components/student/PasswordChangeDialog";
 import NoStudentRecordCard from "@/components/student/NoStudentRecordCard";
 import FaceRegistrationDialog from "@/components/student/FaceRegistrationDialog";
 import StudentIDCard from "@/components/student/StudentIDCard";
-import StudentDocumentsCard from "@/components/student/StudentDocumentsCard";
 
 interface StudentInfo {
   id: string;
@@ -70,17 +69,6 @@ interface AcademicEvent {
   description: string | null;
 }
 
-interface StudentDocument {
-  id: string;
-  document_type: string;
-  title: string;
-  serial_number: string | null;
-  document_data: Record<string, unknown>;
-  document_image_url: string | null;
-  issued_date: string | null;
-  issued_by: string | null;
-}
-
 const DEFAULT_PASSWORD = "12345678";
 
 const StudentDashboard = () => {
@@ -92,7 +80,6 @@ const StudentDashboard = () => {
   const [notices, setNotices] = useState<any[]>([]);
   const [examResults, setExamResults] = useState<ExamResult[]>([]);
   const [upcomingEvents, setUpcomingEvents] = useState<AcademicEvent[]>([]);
-  const [studentDocuments, setStudentDocuments] = useState<StudentDocument[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showPasswordDialog, setShowPasswordDialog] = useState(false);
   const [showEditProfileDialog, setShowEditProfileDialog] = useState(false);
@@ -145,7 +132,6 @@ const StudentDashboard = () => {
       fetchUpcomingEvents(),
       fetchFaceData(),
       fetchSchoolSettings(),
-      fetchStudentDocuments(),
     ]);
     setIsLoading(false);
   };
@@ -270,28 +256,9 @@ const StudentDashboard = () => {
     }
   };
 
-  const fetchStudentDocuments = async () => {
-    try {
-      if (!studentInfo?.id) return;
-      const { data } = await supabase
-        .from("student_documents")
-        .select("id, document_type, title, serial_number, document_data, document_image_url, issued_date, issued_by")
-        .eq("student_id", studentInfo.id)
-        .eq("is_active", true)
-        .order("created_at", { ascending: false });
-      setStudentDocuments((data as StudentDocument[]) || []);
-    } catch (error) {
-      console.error("Error fetching student documents:", error);
-    }
-  };
-
   useEffect(() => {
     if (studentInfo?.class) fetchExamResults();
   }, [studentInfo?.class]);
-
-  useEffect(() => {
-    if (studentInfo?.id) fetchStudentDocuments();
-  }, [studentInfo?.id]);
 
   const openEditProfileDialog = () => {
     if (studentInfo) {
@@ -476,10 +443,9 @@ const StudentDashboard = () => {
             />
 
             <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-              <TabsList className="grid w-full grid-cols-6 lg:w-auto lg:inline-flex bg-card border">
+              <TabsList className="grid w-full grid-cols-5 lg:w-auto lg:inline-flex bg-card border">
                 <TabsTrigger value="overview" className="gap-2"><User className="w-4 h-4 hidden sm:inline" />Overview</TabsTrigger>
                 <TabsTrigger value="idcard" className="gap-2"><CreditCard className="w-4 h-4 hidden sm:inline" />ID Card</TabsTrigger>
-                <TabsTrigger value="documents" className="gap-2"><FolderOpen className="w-4 h-4 hidden sm:inline" />Documents</TabsTrigger>
                 <TabsTrigger value="notices" className="gap-2"><Bell className="w-4 h-4 hidden sm:inline" />Notices</TabsTrigger>
                 <TabsTrigger value="calendar" className="gap-2"><Calendar className="w-4 h-4 hidden sm:inline" />Calendar</TabsTrigger>
                 <TabsTrigger value="results" className="gap-2"><FileText className="w-4 h-4 hidden sm:inline" />Results</TabsTrigger>
@@ -499,11 +465,11 @@ const StudentDashboard = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <NoticesCard notices={notices} limit={4} onViewAll={() => setActiveTab("notices")} />
                       <UpcomingEventsCard events={upcomingEvents} limit={4} onViewAll={() => setActiveTab("calendar")} />
-                    </div>
-                    <ActivityLogCard activities={activities} />
-                  </div>
                 </div>
-              </TabsContent>
+                <ActivityLogCard activities={activities} />
+              </div>
+            </div>
+          </TabsContent>
 
               <TabsContent value="idcard">
                 <div className="max-w-md mx-auto">
@@ -514,10 +480,6 @@ const StudentDashboard = () => {
                     />
                   )}
                 </div>
-              </TabsContent>
-
-              <TabsContent value="documents">
-                <StudentDocumentsCard documents={studentDocuments} />
               </TabsContent>
 
           <TabsContent value="notices">
