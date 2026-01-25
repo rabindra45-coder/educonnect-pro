@@ -512,6 +512,62 @@ export type Database = {
         }
         Relationships: []
       }
+      student_documents: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          document_data: Json | null
+          document_image_url: string | null
+          document_type: string
+          id: string
+          is_active: boolean | null
+          issued_by: string | null
+          issued_date: string | null
+          serial_number: string | null
+          student_id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          document_data?: Json | null
+          document_image_url?: string | null
+          document_type: string
+          id?: string
+          is_active?: boolean | null
+          issued_by?: string | null
+          issued_date?: string | null
+          serial_number?: string | null
+          student_id: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          document_data?: Json | null
+          document_image_url?: string | null
+          document_type?: string
+          id?: string
+          is_active?: boolean | null
+          issued_by?: string | null
+          issued_date?: string | null
+          serial_number?: string | null
+          student_id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_documents_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       student_face_data: {
         Row: {
           created_at: string
