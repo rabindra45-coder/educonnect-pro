@@ -31,6 +31,10 @@ import ContentManagement from "./pages/admin/ContentManagement";
 import DocumentsManagement from "./pages/admin/DocumentsManagement";
 import Settings from "./pages/admin/Settings";
 import ChatManagement from "./pages/admin/ChatManagement";
+import ExamsManagement from "./pages/admin/ExamsManagement";
+import SubjectsManagement from "./pages/admin/SubjectsManagement";
+import MarksEntry from "./pages/admin/MarksEntry";
+import AdminExamResults from "./pages/admin/ExamResults";
 import StudentDashboard from "./pages/student/StudentDashboard";
 import VerifyStudent from "./pages/VerifyStudent";
 import Chat from "./pages/Chat";
@@ -71,6 +75,10 @@ const App = () => (
               <Route path="/admin/documents" element={<DocumentsManagement />} />
               <Route path="/admin/settings" element={<Settings />} />
               <Route path="/admin/chats" element={<ChatManagement />} />
+              <Route path="/admin/exams" element={<ExamsManagement />} />
+              <Route path="/admin/subjects" element={<SubjectsManagement />} />
+              <Route path="/admin/exams/:examId/marks" element={<MarksEntry />} />
+              <Route path="/admin/exams/:examId/results" element={<AdminExamResults />} />
               <Route path="/student" element={<StudentDashboard />} />
               <Route path="/verify/:studentId" element={<VerifyStudent />} />
               <Route path="/chat" element={<Chat />} />
