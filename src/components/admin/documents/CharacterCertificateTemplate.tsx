@@ -36,6 +36,10 @@ interface CharacterCertificateData {
   ward_no?: string;
   district?: string;
   municipality?: string;
+  dob_bs?: string;
+  dob_ad?: string;
+  admission_date?: string;
+  admission_reg_no?: string;
 }
 
 interface CharacterCertificateTemplateProps {
@@ -64,9 +68,10 @@ const CharacterCertificateTemplate = forwardRef<HTMLDivElement, CharacterCertifi
       return "Son/Daughter";
     };
 
-    const formatBSDate = (dateStr: string | null) => {
-      if (!dateStr) return "..................";
-      return dateStr;
+    const getPronounHimHer = () => {
+      if (student.gender === "male") return "him";
+      if (student.gender === "female") return "her";
+      return "him/her";
     };
 
     return (
@@ -190,25 +195,29 @@ const CharacterCertificateTemplate = forwardRef<HTMLDivElement, CharacterCertifi
             </p>
 
             <p className="italic text-lg font-semibold text-center py-2">
-              good moral character. We wish him/her a successful career and a bright future.
+              good moral character. We wish {getPronounHimHer()} a successful career and a bright future.
             </p>
 
             {/* Details Section */}
             <div className="mt-6 space-y-3 text-base">
               <p>
                 Date of Birth :{" "}
-                <span className="font-bold border-b-2 border-dotted border-black">{formatBSDate(student.date_of_birth)}</span>
-                {" "}B.S. ( ............................. A.D.)
+                <span className="font-bold border-b-2 border-dotted border-black">{data.dob_bs || student.date_of_birth || ".................."}</span>
+                {" "}B.S. ({" "}
+                <span className="font-bold">{data.dob_ad || "..........................."}</span>
+                {" "}A.D.)
               </p>
               <p>
                 Basic/S.E.E. Regd. No.{" "}
                 <span className="font-bold border-b-2 border-dotted border-black">{data.see_reg_no || ".................."}</span>
-                {" "}Date of Admission ..........................
+                {" "}Date of Admission{" "}
+                <span className="font-bold border-b-2 border-dotted border-black">{data.admission_date || "........................"}</span>
               </p>
               <p>
                 Basic/S.E.E. Symbol No.{" "}
                 <span className="font-bold border-b-2 border-dotted border-black">{data.symbol_no || ".................."}</span>
-                {" "}Admission Reg. No. ..........................
+                {" "}Admission Reg. No.{" "}
+                <span className="font-bold border-b-2 border-dotted border-black">{data.admission_reg_no || "........................"}</span>
               </p>
             </div>
           </div>

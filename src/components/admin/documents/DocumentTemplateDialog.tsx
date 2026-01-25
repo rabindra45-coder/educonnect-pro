@@ -20,8 +20,9 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { toPng } from "html-to-image";
-import { Download, FileText, Save } from "lucide-react";
+import { Download, FileText, Save, RefreshCw } from "lucide-react";
 import { format } from "date-fns";
+import { convertBSDateStringToAD } from "@/lib/nepaliDateConverter";
 import CharacterCertificateTemplate from "./CharacterCertificateTemplate";
 import GradeSheetTemplate, { DEFAULT_SUBJECTS } from "./GradeSheetTemplate";
 import SEECertificateTemplate from "./SEECertificateTemplate";
@@ -83,6 +84,10 @@ const DocumentTemplateDialog = ({
     ward_no: "",
     district: "",
     municipality: "",
+    dob_bs: "",
+    dob_ad: "",
+    admission_date: "",
+    admission_reg_no: "",
   });
 
   // Grade Sheet Data
@@ -96,6 +101,8 @@ const DocumentTemplateDialog = ({
     subjects: [...DEFAULT_SUBJECTS],
     total_credit: 32,
     gpa: "",
+    dob_bs: "",
+    dob_ad: "",
   });
 
   // SEE Certificate Data
@@ -333,6 +340,10 @@ const DocumentTemplateDialog = ({
       ward_no: "",
       district: "",
       municipality: "",
+      dob_bs: "",
+      dob_ad: "",
+      admission_date: "",
+      admission_reg_no: "",
     });
     setGradeSheetData({
       sr_no: "",
@@ -344,6 +355,8 @@ const DocumentTemplateDialog = ({
       subjects: [...DEFAULT_SUBJECTS],
       total_credit: 32,
       gpa: "",
+      dob_bs: "",
+      dob_ad: "",
     });
     setSeeCertificateData({
       sr_no: "",
@@ -356,6 +369,52 @@ const DocumentTemplateDialog = ({
       dob_ad: "",
       issued_date: format(new Date(), "dd-MMMM-yyyy"),
     });
+  };
+
+  // Auto-convert BS to AD for character certificate
+  const handleCharacterDobBsChange = (value: string) => {
+    setCharacterData((prev) => ({
+      ...prev,
+      dob_bs: value,
+    }));
+  };
+
+  const convertCharacterDobToAD = () => {
+    if (characterData.dob_bs) {
+      const adDate = convertBSDateStringToAD(characterData.dob_bs, 'YYYY-MM-DD');
+      if (adDate) {
+        setCharacterData((prev) => ({ ...prev, dob_ad: adDate }));
+        toast({ title: "Converted", description: `BS ${characterData.dob_bs} → AD ${adDate}` });
+      } else {
+        toast({ variant: "destructive", title: "Error", description: "Invalid BS date format. Use YYYY-MM-DD" });
+      }
+    }
+  };
+
+  // Auto-convert BS to AD for SEE certificate
+  const convertSeeDobToAD = () => {
+    if (seeCertificateData.dob_bs) {
+      const adDate = convertBSDateStringToAD(seeCertificateData.dob_bs, 'YYYY-MM-DD');
+      if (adDate) {
+        setSeeCertificateData((prev) => ({ ...prev, dob_ad: adDate }));
+        toast({ title: "Converted", description: `BS ${seeCertificateData.dob_bs} → AD ${adDate}` });
+      } else {
+        toast({ variant: "destructive", title: "Error", description: "Invalid BS date format. Use YYYY-MM-DD" });
+      }
+    }
+  };
+
+  // Auto-convert BS to AD for grade sheet
+  const convertGradeSheetDobToAD = () => {
+    if (gradeSheetData.dob_bs) {
+      const adDate = convertBSDateStringToAD(gradeSheetData.dob_bs, 'YYYY-MM-DD');
+      if (adDate) {
+        setGradeSheetData((prev) => ({ ...prev, dob_ad: adDate }));
+        toast({ title: "Converted", description: `BS ${gradeSheetData.dob_bs} → AD ${adDate}` });
+      } else {
+        toast({ variant: "destructive", title: "Error", description: "Invalid BS date format. Use YYYY-MM-DD" });
+      }
+    }
   };
 
   const renderTemplate = () => {
@@ -460,7 +519,7 @@ const DocumentTemplateDialog = ({
                       <Input
                         value={characterData.gpa}
                         onChange={(e) => setCharacterData({ ...characterData, gpa: e.target.value })}
-                        placeholder="e.g., 2.94"
+                        placeholder="e.g., 3.00"
                       />
                     </div>
                     <div className="space-y-1">
@@ -500,7 +559,7 @@ const DocumentTemplateDialog = ({
                       <Input
                         value={characterData.ward_no}
                         onChange={(e) => setCharacterData({ ...characterData, ward_no: e.target.value })}
-                        placeholder="e.g., 7"
+                        placeholder="e.g., 05"
                       />
                     </div>
                     <div className="space-y-1">
@@ -516,7 +575,7 @@ const DocumentTemplateDialog = ({
                       <Input
                         value={characterData.see_reg_no}
                         onChange={(e) => setCharacterData({ ...characterData, see_reg_no: e.target.value })}
-                        placeholder="Registration number"
+                        placeholder="e.g., 080222298745663281"
                       />
                     </div>
                     <div className="space-y-1">
@@ -524,7 +583,7 @@ const DocumentTemplateDialog = ({
                       <Input
                         value={characterData.symbol_no}
                         onChange={(e) => setCharacterData({ ...characterData, symbol_no: e.target.value })}
-                        placeholder="Symbol number"
+                        placeholder="e.g., 02209712A"
                       />
                     </div>
                     <div className="space-y-1">
@@ -534,6 +593,58 @@ const DocumentTemplateDialog = ({
                         value={characterData.issued_date}
                         onChange={(e) => setCharacterData({ ...characterData, issued_date: e.target.value })}
                       />
+                    </div>
+                  </div>
+
+                  {/* DOB with BS to AD conversion */}
+                  <div className="border-t pt-3 mt-3">
+                    <Label className="text-xs font-semibold">Date of Birth (BS → AD Conversion)</Label>
+                    <div className="grid grid-cols-3 gap-2 mt-2">
+                      <div className="space-y-1">
+                        <Label className="text-xs text-muted-foreground">DOB (B.S.)</Label>
+                        <Input
+                          value={characterData.dob_bs}
+                          onChange={(e) => handleCharacterDobBsChange(e.target.value)}
+                          placeholder="YYYY-MM-DD (e.g., 2005-12-26)"
+                        />
+                      </div>
+                      <div className="flex items-end">
+                        <Button type="button" variant="outline" size="sm" onClick={convertCharacterDobToAD} className="w-full">
+                          <RefreshCw className="w-3 h-3 mr-1" />
+                          Convert
+                        </Button>
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-xs text-muted-foreground">DOB (A.D.)</Label>
+                        <Input
+                          value={characterData.dob_ad}
+                          onChange={(e) => setCharacterData({ ...characterData, dob_ad: e.target.value })}
+                          placeholder="Auto-converted or enter"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Admission Details */}
+                  <div className="border-t pt-3">
+                    <Label className="text-xs font-semibold">Admission Details</Label>
+                    <div className="grid grid-cols-2 gap-3 mt-2">
+                      <div className="space-y-1">
+                        <Label className="text-xs text-muted-foreground">Admission Date</Label>
+                        <Input
+                          value={characterData.admission_date}
+                          onChange={(e) => setCharacterData({ ...characterData, admission_date: e.target.value })}
+                          placeholder="e.g., 2075-02-15"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-xs text-muted-foreground">Admission Reg. No.</Label>
+                        <Input
+                          value={characterData.admission_reg_no}
+                          onChange={(e) => setCharacterData({ ...characterData, admission_reg_no: e.target.value })}
+                          placeholder="Registration number"
+                        />
+                      </div>
                     </div>
                   </div>
                 </TabsContent>
@@ -710,22 +821,6 @@ const DocumentTemplateDialog = ({
                         placeholder="e.g., 2024"
                       />
                     </div>
-                    <div className="space-y-1">
-                      <Label className="text-xs">Date of Birth (B.S.)</Label>
-                      <Input
-                        value={seeCertificateData.dob_bs}
-                        onChange={(e) => setSeeCertificateData({ ...seeCertificateData, dob_bs: e.target.value })}
-                        placeholder="e.g., 2064-08-10"
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <Label className="text-xs">Date of Birth (A.D.)</Label>
-                      <Input
-                        value={seeCertificateData.dob_ad}
-                        onChange={(e) => setSeeCertificateData({ ...seeCertificateData, dob_ad: e.target.value })}
-                        placeholder="e.g., 2007-11-26"
-                      />
-                    </div>
                     <div className="space-y-1 col-span-2">
                       <Label className="text-xs">Date of Issue</Label>
                       <Input
@@ -733,6 +828,35 @@ const DocumentTemplateDialog = ({
                         onChange={(e) => setSeeCertificateData({ ...seeCertificateData, issued_date: e.target.value })}
                         placeholder="e.g., 28-June-2024"
                       />
+                    </div>
+                  </div>
+
+                  {/* DOB with BS to AD conversion */}
+                  <div className="border-t pt-3 mt-3">
+                    <Label className="text-xs font-semibold">Date of Birth (BS → AD Conversion)</Label>
+                    <div className="grid grid-cols-3 gap-2 mt-2">
+                      <div className="space-y-1">
+                        <Label className="text-xs text-muted-foreground">DOB (B.S.)</Label>
+                        <Input
+                          value={seeCertificateData.dob_bs}
+                          onChange={(e) => setSeeCertificateData({ ...seeCertificateData, dob_bs: e.target.value })}
+                          placeholder="YYYY-MM-DD (e.g., 2064-08-10)"
+                        />
+                      </div>
+                      <div className="flex items-end">
+                        <Button type="button" variant="outline" size="sm" onClick={convertSeeDobToAD} className="w-full">
+                          <RefreshCw className="w-3 h-3 mr-1" />
+                          Convert
+                        </Button>
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-xs text-muted-foreground">DOB (A.D.)</Label>
+                        <Input
+                          value={seeCertificateData.dob_ad}
+                          onChange={(e) => setSeeCertificateData({ ...seeCertificateData, dob_ad: e.target.value })}
+                          placeholder="Auto-converted or enter"
+                        />
+                      </div>
                     </div>
                   </div>
                 </TabsContent>
