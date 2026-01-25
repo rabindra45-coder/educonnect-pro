@@ -46,6 +46,9 @@ const Footer = () => {
   }, {
     name: "Online Admission",
     path: "/admission"
+  }, {
+    name: "Library Portal",
+    path: "/library/login"
   }];
   const academics = [{
     name: "Primary Level",

@@ -40,6 +40,8 @@ import StudentFees from "./pages/admin/StudentFees";
 import StudentDashboard from "./pages/student/StudentDashboard";
 import VerifyStudent from "./pages/VerifyStudent";
 import Chat from "./pages/Chat";
+import LibraryDashboard from "./pages/library/LibraryDashboard";
+import LibraryLogin from "./pages/library/LibraryLogin";
 
 const queryClient = new QueryClient();
 
@@ -86,6 +88,8 @@ const App = () => (
               <Route path="/student" element={<StudentDashboard />} />
               <Route path="/verify/:studentId" element={<VerifyStudent />} />
               <Route path="/chat" element={<Chat />} />
+              <Route path="/library" element={<LibraryDashboard />} />
+              <Route path="/library/login" element={<LibraryLogin />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>

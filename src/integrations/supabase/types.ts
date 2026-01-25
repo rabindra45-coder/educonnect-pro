@@ -176,6 +176,123 @@ export type Database = {
         }
         Relationships: []
       }
+      book_issues: {
+        Row: {
+          book_id: string
+          created_at: string
+          due_date: string
+          id: string
+          issue_date: string
+          issued_by: string | null
+          remarks: string | null
+          return_date: string | null
+          returned_to: string | null
+          status: string | null
+          student_id: string
+          updated_at: string
+        }
+        Insert: {
+          book_id: string
+          created_at?: string
+          due_date: string
+          id?: string
+          issue_date?: string
+          issued_by?: string | null
+          remarks?: string | null
+          return_date?: string | null
+          returned_to?: string | null
+          status?: string | null
+          student_id: string
+          updated_at?: string
+        }
+        Update: {
+          book_id?: string
+          created_at?: string
+          due_date?: string
+          id?: string
+          issue_date?: string
+          issued_by?: string | null
+          remarks?: string | null
+          return_date?: string | null
+          returned_to?: string | null
+          status?: string | null
+          student_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "book_issues_book_id_fkey"
+            columns: ["book_id"]
+            isOneToOne: false
+            referencedRelation: "books"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "book_issues_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      books: {
+        Row: {
+          author: string
+          available_copies: number
+          category: string | null
+          cover_image_url: string | null
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean | null
+          isbn: string | null
+          pdf_url: string | null
+          published_year: number | null
+          publisher: string | null
+          shelf_location: string | null
+          title: string
+          total_copies: number
+          updated_at: string
+        }
+        Insert: {
+          author: string
+          available_copies?: number
+          category?: string | null
+          cover_image_url?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          isbn?: string | null
+          pdf_url?: string | null
+          published_year?: number | null
+          publisher?: string | null
+          shelf_location?: string | null
+          title: string
+          total_copies?: number
+          updated_at?: string
+        }
+        Update: {
+          author?: string
+          available_copies?: number
+          category?: string | null
+          cover_image_url?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          isbn?: string | null
+          pdf_url?: string | null
+          published_year?: number | null
+          publisher?: string | null
+          shelf_location?: string | null
+          title?: string
+          total_copies?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       chat_conversations: {
         Row: {
           created_at: string
@@ -655,6 +772,99 @@ export type Database = {
           name?: string
           photo_url?: string | null
           role?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      library_fines: {
+        Row: {
+          book_issue_id: string
+          created_at: string
+          days_overdue: number | null
+          fine_amount: number
+          fine_reason: string
+          id: string
+          paid_amount: number | null
+          paid_date: string | null
+          status: string | null
+          student_id: string
+          updated_at: string
+          waive_reason: string | null
+          waived_by: string | null
+        }
+        Insert: {
+          book_issue_id: string
+          created_at?: string
+          days_overdue?: number | null
+          fine_amount: number
+          fine_reason: string
+          id?: string
+          paid_amount?: number | null
+          paid_date?: string | null
+          status?: string | null
+          student_id: string
+          updated_at?: string
+          waive_reason?: string | null
+          waived_by?: string | null
+        }
+        Update: {
+          book_issue_id?: string
+          created_at?: string
+          days_overdue?: number | null
+          fine_amount?: number
+          fine_reason?: string
+          id?: string
+          paid_amount?: number | null
+          paid_date?: string | null
+          status?: string | null
+          student_id?: string
+          updated_at?: string
+          waive_reason?: string | null
+          waived_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "library_fines_book_issue_id_fkey"
+            columns: ["book_issue_id"]
+            isOneToOne: false
+            referencedRelation: "book_issues"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "library_fines_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      library_settings: {
+        Row: {
+          created_at: string
+          default_issue_days: number | null
+          fine_per_day: number | null
+          id: string
+          lost_book_fine_multiplier: number | null
+          max_books_per_student: number | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          default_issue_days?: number | null
+          fine_per_day?: number | null
+          id?: string
+          lost_book_fine_multiplier?: number | null
+          max_books_per_student?: number | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          default_issue_days?: number | null
+          fine_per_day?: number | null
+          id?: string
+          lost_book_fine_multiplier?: number | null
+          max_books_per_student?: number | null
           updated_at?: string
         }
         Relationships: []
@@ -1331,9 +1541,16 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_librarian: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
-      app_role: "super_admin" | "admin" | "teacher" | "staff" | "student"
+      app_role:
+        | "super_admin"
+        | "admin"
+        | "teacher"
+        | "staff"
+        | "student"
+        | "librarian"
       exam_type: "terminal" | "unit" | "monthly" | "final" | "pre_board"
       fee_type:
         | "admission"
@@ -1486,7 +1703,14 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["super_admin", "admin", "teacher", "staff", "student"],
+      app_role: [
+        "super_admin",
+        "admin",
+        "teacher",
+        "staff",
+        "student",
+        "librarian",
+      ],
       exam_type: ["terminal", "unit", "monthly", "final", "pre_board"],
       fee_type: [
         "admission",

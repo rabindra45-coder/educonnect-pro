@@ -26,3 +26,6 @@ verify_jwt = false
 
 [functions.verify-payment]
 verify_jwt = false
+
+[functions.setup-librarian]
+verify_jwt = false
