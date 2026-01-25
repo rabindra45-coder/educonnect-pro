@@ -7,6 +7,7 @@ import FacilitiesSection from "@/components/home/FacilitiesSection";
 import NewsSection from "@/components/home/NewsSection";
 import TestimonialsSection from "@/components/home/TestimonialsSection";
 import CTASection from "@/components/home/CTASection";
+import ChatBubble from "@/components/chat/ChatBubble";
 
 const Index = () => {
   return (
@@ -30,6 +31,7 @@ const Index = () => {
         <TestimonialsSection />
         <CTASection />
       </MainLayout>
+      <ChatBubble />
     </>
   );
 };

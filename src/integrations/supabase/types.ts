@@ -176,6 +176,83 @@ export type Database = {
         }
         Relationships: []
       }
+      chat_conversations: {
+        Row: {
+          created_at: string
+          id: string
+          importance_reason: string | null
+          is_auto_flagged: boolean | null
+          is_important: boolean | null
+          status: string | null
+          updated_at: string
+          user_id: string | null
+          visitor_email: string | null
+          visitor_id: string
+          visitor_name: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          importance_reason?: string | null
+          is_auto_flagged?: boolean | null
+          is_important?: boolean | null
+          status?: string | null
+          updated_at?: string
+          user_id?: string | null
+          visitor_email?: string | null
+          visitor_id: string
+          visitor_name?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          importance_reason?: string | null
+          is_auto_flagged?: boolean | null
+          is_important?: boolean | null
+          status?: string | null
+          updated_at?: string
+          user_id?: string | null
+          visitor_email?: string | null
+          visitor_id?: string
+          visitor_name?: string | null
+        }
+        Relationships: []
+      }
+      chat_messages: {
+        Row: {
+          content: string
+          conversation_id: string
+          created_at: string
+          id: string
+          is_flagged: boolean | null
+          role: string
+        }
+        Insert: {
+          content: string
+          conversation_id: string
+          created_at?: string
+          id?: string
+          is_flagged?: boolean | null
+          role: string
+        }
+        Update: {
+          content?: string
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          is_flagged?: boolean | null
+          role?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "chat_conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       exam_results: {
         Row: {
           academic_year: string
