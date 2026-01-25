@@ -20,10 +20,11 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { toPng } from "html-to-image";
-import { Download, Eye, FileText, Save } from "lucide-react";
+import { Download, FileText, Save } from "lucide-react";
 import { format } from "date-fns";
 import CharacterCertificateTemplate from "./CharacterCertificateTemplate";
 import GradeSheetTemplate, { DEFAULT_SUBJECTS } from "./GradeSheetTemplate";
+import SEECertificateTemplate from "./SEECertificateTemplate";
 
 interface Student {
   id: string;
@@ -53,6 +54,8 @@ interface DocumentTemplateDialogProps {
   onDocumentCreated: () => void;
 }
 
+type TemplateType = "character" | "gradesheet" | "see_certificate";
+
 const DocumentTemplateDialog = ({
   open,
   onOpenChange,
@@ -60,7 +63,7 @@ const DocumentTemplateDialog = ({
   onDocumentCreated,
 }: DocumentTemplateDialogProps) => {
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
-  const [templateType, setTemplateType] = useState<"character" | "gradesheet">("character");
+  const [templateType, setTemplateType] = useState<TemplateType>("character");
   const [schoolSettings, setSchoolSettings] = useState<SchoolSettings | null>(null);
   const [saving, setSaving] = useState(false);
   const templateRef = useRef<HTMLDivElement>(null);
@@ -95,6 +98,19 @@ const DocumentTemplateDialog = ({
     gpa: "",
   });
 
+  // SEE Certificate Data
+  const [seeCertificateData, setSeeCertificateData] = useState({
+    sr_no: "",
+    symbol_no: "",
+    roll: "",
+    exam_year_bs: "",
+    exam_year_ad: "",
+    gpa: "",
+    dob_bs: "",
+    dob_ad: "",
+    issued_date: format(new Date(), "dd-MMMM-yyyy"),
+  });
+
   useEffect(() => {
     fetchSchoolSettings();
   }, []);
@@ -117,7 +133,7 @@ const DocumentTemplateDialog = ({
     const student = students.find((s) => s.id === studentId);
     setSelectedStudent(student || null);
 
-    // Auto-fill character data from student
+    // Auto-fill data from student
     if (student) {
       setCharacterData((prev) => ({
         ...prev,
@@ -126,6 +142,11 @@ const DocumentTemplateDialog = ({
       setGradeSheetData((prev) => ({
         ...prev,
         roll: student.section || "",
+      }));
+      setSeeCertificateData((prev) => ({
+        ...prev,
+        roll: student.section || "",
+        dob_bs: student.date_of_birth || "",
       }));
     }
   };
@@ -152,6 +173,58 @@ const DocumentTemplateDialog = ({
 
     const gpa = totalCredits > 0 ? (totalGradePoints / totalCredits).toFixed(2) : "0.00";
     setGradeSheetData((prev) => ({ ...prev, gpa }));
+  };
+
+  const getDocumentData = () => {
+    switch (templateType) {
+      case "character":
+        return characterData;
+      case "gradesheet":
+        return gradeSheetData;
+      case "see_certificate":
+        return seeCertificateData;
+      default:
+        return characterData;
+    }
+  };
+
+  const getDocumentTitle = () => {
+    switch (templateType) {
+      case "character":
+        return "Character & Transfer Certificate";
+      case "gradesheet":
+        return "SEE Grade Sheet";
+      case "see_certificate":
+        return "SEE Certificate (प्रमाण-पत्र)";
+      default:
+        return "Document";
+    }
+  };
+
+  const getSerialNumber = () => {
+    switch (templateType) {
+      case "character":
+        return characterData.serial_number;
+      case "gradesheet":
+        return gradeSheetData.sr_no;
+      case "see_certificate":
+        return seeCertificateData.sr_no;
+      default:
+        return "";
+    }
+  };
+
+  const getIssuedDate = () => {
+    switch (templateType) {
+      case "character":
+        return characterData.issued_date;
+      case "gradesheet":
+        return gradeSheetData.issued_date;
+      case "see_certificate":
+        return seeCertificateData.issued_date;
+      default:
+        return format(new Date(), "yyyy-MM-dd");
+    }
   };
 
   const handleSaveDocument = async () => {
@@ -190,13 +263,11 @@ const DocumentTemplateDialog = ({
         .from("student_documents")
         .insert([{
           student_id: selectedStudent.id,
-          document_type: templateType === "character" ? "character_certificate" : "grade_sheet",
-          title: templateType === "character" 
-            ? "Character & Transfer Certificate" 
-            : "SEE Grade Sheet",
-          serial_number: templateType === "character" ? characterData.serial_number : gradeSheetData.sr_no,
-          issued_date: templateType === "character" ? characterData.issued_date : gradeSheetData.issued_date,
-          document_data: JSON.parse(JSON.stringify(templateType === "character" ? characterData : gradeSheetData)),
+          document_type: templateType === "character" ? "character_certificate" : templateType === "gradesheet" ? "grade_sheet" : "see_certificate",
+          title: getDocumentTitle(),
+          serial_number: getSerialNumber(),
+          issued_date: getIssuedDate(),
+          document_data: JSON.parse(JSON.stringify(getDocumentData())),
           document_image_url: publicUrl,
           created_by: user?.id,
         }]);
@@ -274,6 +345,53 @@ const DocumentTemplateDialog = ({
       total_credit: 32,
       gpa: "",
     });
+    setSeeCertificateData({
+      sr_no: "",
+      symbol_no: "",
+      roll: "",
+      exam_year_bs: "",
+      exam_year_ad: "",
+      gpa: "",
+      dob_bs: "",
+      dob_ad: "",
+      issued_date: format(new Date(), "dd-MMMM-yyyy"),
+    });
+  };
+
+  const renderTemplate = () => {
+    if (!selectedStudent || !schoolSettings) return null;
+
+    switch (templateType) {
+      case "character":
+        return (
+          <CharacterCertificateTemplate
+            ref={templateRef}
+            student={selectedStudent}
+            schoolSettings={schoolSettings}
+            data={characterData}
+          />
+        );
+      case "gradesheet":
+        return (
+          <GradeSheetTemplate
+            ref={templateRef}
+            student={selectedStudent}
+            schoolSettings={schoolSettings}
+            data={gradeSheetData}
+          />
+        );
+      case "see_certificate":
+        return (
+          <SEECertificateTemplate
+            ref={templateRef}
+            student={selectedStudent}
+            schoolSettings={schoolSettings}
+            data={seeCertificateData}
+          />
+        );
+      default:
+        return null;
+    }
   };
 
   return (
@@ -311,10 +429,11 @@ const DocumentTemplateDialog = ({
               </div>
 
               {/* Template Type Selection */}
-              <Tabs value={templateType} onValueChange={(v) => setTemplateType(v as "character" | "gradesheet")}>
-                <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="character">Character Certificate</TabsTrigger>
-                  <TabsTrigger value="gradesheet">Grade Sheet</TabsTrigger>
+              <Tabs value={templateType} onValueChange={(v) => setTemplateType(v as TemplateType)}>
+                <TabsList className="grid w-full grid-cols-3">
+                  <TabsTrigger value="character" className="text-xs">Character Cert</TabsTrigger>
+                  <TabsTrigger value="gradesheet" className="text-xs">Grade Sheet</TabsTrigger>
+                  <TabsTrigger value="see_certificate" className="text-xs">SEE Certificate</TabsTrigger>
                 </TabsList>
 
                 {/* Character Certificate Form */}
@@ -539,6 +658,84 @@ const DocumentTemplateDialog = ({
                     </div>
                   </div>
                 </TabsContent>
+
+                {/* SEE Certificate Form */}
+                <TabsContent value="see_certificate" className="space-y-3 mt-4">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                      <Label className="text-xs">SR No.</Label>
+                      <Input
+                        value={seeCertificateData.sr_no}
+                        onChange={(e) => setSeeCertificateData({ ...seeCertificateData, sr_no: e.target.value })}
+                        placeholder="e.g., 8022214XXXXX"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">Symbol No.</Label>
+                      <Input
+                        value={seeCertificateData.symbol_no}
+                        onChange={(e) => setSeeCertificateData({ ...seeCertificateData, symbol_no: e.target.value })}
+                        placeholder="e.g., 02209717 C"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">Roll</Label>
+                      <Input
+                        value={seeCertificateData.roll}
+                        onChange={(e) => setSeeCertificateData({ ...seeCertificateData, roll: e.target.value })}
+                        placeholder="e.g., SARLAHI"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">GPA</Label>
+                      <Input
+                        value={seeCertificateData.gpa}
+                        onChange={(e) => setSeeCertificateData({ ...seeCertificateData, gpa: e.target.value })}
+                        placeholder="e.g., 2.94"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">Exam Year (B.S.)</Label>
+                      <Input
+                        value={seeCertificateData.exam_year_bs}
+                        onChange={(e) => setSeeCertificateData({ ...seeCertificateData, exam_year_bs: e.target.value })}
+                        placeholder="e.g., 2080"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">Exam Year (A.D.)</Label>
+                      <Input
+                        value={seeCertificateData.exam_year_ad}
+                        onChange={(e) => setSeeCertificateData({ ...seeCertificateData, exam_year_ad: e.target.value })}
+                        placeholder="e.g., 2024"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">Date of Birth (B.S.)</Label>
+                      <Input
+                        value={seeCertificateData.dob_bs}
+                        onChange={(e) => setSeeCertificateData({ ...seeCertificateData, dob_bs: e.target.value })}
+                        placeholder="e.g., 2064-08-10"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">Date of Birth (A.D.)</Label>
+                      <Input
+                        value={seeCertificateData.dob_ad}
+                        onChange={(e) => setSeeCertificateData({ ...seeCertificateData, dob_ad: e.target.value })}
+                        placeholder="e.g., 2007-11-26"
+                      />
+                    </div>
+                    <div className="space-y-1 col-span-2">
+                      <Label className="text-xs">Date of Issue</Label>
+                      <Input
+                        value={seeCertificateData.issued_date}
+                        onChange={(e) => setSeeCertificateData({ ...seeCertificateData, issued_date: e.target.value })}
+                        placeholder="e.g., 28-June-2024"
+                      />
+                    </div>
+                  </div>
+                </TabsContent>
               </Tabs>
 
               {/* Action Buttons */}
@@ -566,28 +763,14 @@ const DocumentTemplateDialog = ({
           {/* Preview Section */}
           <div className="border rounded-lg bg-muted/50 overflow-hidden">
             <div className="p-2 bg-muted border-b flex items-center gap-2">
-              <Eye className="w-4 h-4" />
+              <FileText className="w-4 h-4" />
               <span className="text-sm font-medium">Live Preview</span>
             </div>
             <ScrollArea className="h-[calc(100%-40px)]">
               <div className="p-4 flex justify-center">
-                <div className="transform scale-[0.6] origin-top">
+                <div className="transform scale-[0.55] origin-top">
                   {selectedStudent && schoolSettings ? (
-                    templateType === "character" ? (
-                      <CharacterCertificateTemplate
-                        ref={templateRef}
-                        student={selectedStudent}
-                        schoolSettings={schoolSettings}
-                        data={characterData}
-                      />
-                    ) : (
-                      <GradeSheetTemplate
-                        ref={templateRef}
-                        student={selectedStudent}
-                        schoolSettings={schoolSettings}
-                        data={gradeSheetData}
-                      />
-                    )
+                    renderTemplate()
                   ) : (
                     <div className="w-[800px] h-[1000px] border-2 border-dashed rounded-lg flex items-center justify-center text-muted-foreground bg-white">
                       <div className="text-center">
