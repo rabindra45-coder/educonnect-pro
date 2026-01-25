@@ -2,6 +2,7 @@ import { forwardRef } from "react";
 import { format } from "date-fns";
 import nebLogo from "@/assets/neb-logo.png";
 import nepalEmblem from "@/assets/nepal-govt-emblem.png";
+import nandlalSignature from "@/assets/nandlal-signature.png";
 
 interface Student {
   id: string;
@@ -246,7 +247,11 @@ const GradeSheetTemplate = forwardRef<HTMLDivElement, GradeSheetTemplateProps>(
               <p className="mt-2">DATE OF ISSUE: <span className="font-bold">{data.issued_date || format(new Date(), "dd-MMMM-yyyy")}</span></p>
             </div>
             <div className="text-center">
-              <div className="h-12"></div>
+              <img 
+                src={nandlalSignature} 
+                alt="Controller Signature" 
+                className="h-14 mx-auto object-contain"
+              />
               <div className="border-t-2 border-black pt-1 px-8">
                 <p className="italic text-sm">Nanda Lal Pandel</p>
                 <p className="font-bold text-sm">CONTROLLER OF EXAMINATIONS</p>
