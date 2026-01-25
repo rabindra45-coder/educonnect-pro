@@ -443,6 +443,114 @@ export type Database = {
         }
         Relationships: []
       }
+      fee_payments: {
+        Row: {
+          amount: number
+          created_at: string
+          gateway_response: Json | null
+          id: string
+          notes: string | null
+          paid_at: string
+          payment_method: Database["public"]["Enums"]["payment_method"]
+          receipt_number: string | null
+          received_by: string | null
+          student_fee_id: string
+          student_id: string
+          transaction_id: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          gateway_response?: Json | null
+          id?: string
+          notes?: string | null
+          paid_at?: string
+          payment_method: Database["public"]["Enums"]["payment_method"]
+          receipt_number?: string | null
+          received_by?: string | null
+          student_fee_id: string
+          student_id: string
+          transaction_id?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          gateway_response?: Json | null
+          id?: string
+          notes?: string | null
+          paid_at?: string
+          payment_method?: Database["public"]["Enums"]["payment_method"]
+          receipt_number?: string | null
+          received_by?: string | null
+          student_fee_id?: string
+          student_id?: string
+          transaction_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fee_payments_student_fee_id_fkey"
+            columns: ["student_fee_id"]
+            isOneToOne: false
+            referencedRelation: "student_fees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fee_payments_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fee_structures: {
+        Row: {
+          academic_year: string
+          amount: number
+          class: string
+          created_at: string
+          created_by: string | null
+          description: string | null
+          due_day: number | null
+          fee_type: Database["public"]["Enums"]["fee_type"]
+          frequency: string
+          id: string
+          is_active: boolean | null
+          late_fee_percentage: number | null
+          updated_at: string
+        }
+        Insert: {
+          academic_year: string
+          amount: number
+          class: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          due_day?: number | null
+          fee_type: Database["public"]["Enums"]["fee_type"]
+          frequency?: string
+          id?: string
+          is_active?: boolean | null
+          late_fee_percentage?: number | null
+          updated_at?: string
+        }
+        Update: {
+          academic_year?: string
+          amount?: number
+          class?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          due_day?: number | null
+          fee_type?: Database["public"]["Enums"]["fee_type"]
+          frequency?: string
+          id?: string
+          is_active?: boolean | null
+          late_fee_percentage?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       gallery_images: {
         Row: {
           album: string
@@ -592,6 +700,66 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      payment_transactions: {
+        Row: {
+          amount: number
+          created_at: string
+          gateway: string
+          gateway_reference: string | null
+          gateway_transaction_id: string | null
+          id: string
+          request_payload: Json | null
+          response_payload: Json | null
+          status: string | null
+          student_fee_id: string
+          student_id: string
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          gateway: string
+          gateway_reference?: string | null
+          gateway_transaction_id?: string | null
+          id?: string
+          request_payload?: Json | null
+          response_payload?: Json | null
+          status?: string | null
+          student_fee_id: string
+          student_id: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          gateway?: string
+          gateway_reference?: string | null
+          gateway_transaction_id?: string | null
+          id?: string
+          request_payload?: Json | null
+          response_payload?: Json | null
+          status?: string | null
+          student_fee_id?: string
+          student_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_transactions_student_fee_id_fkey"
+            columns: ["student_fee_id"]
+            isOneToOne: false
+            referencedRelation: "student_fees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_transactions_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
@@ -786,6 +954,78 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      student_fees: {
+        Row: {
+          amount: number
+          balance: number | null
+          created_at: string
+          discount: number | null
+          discount_reason: string | null
+          due_date: string
+          fee_structure_id: string
+          id: string
+          late_fee: number | null
+          month_year: string | null
+          paid_amount: number | null
+          remarks: string | null
+          status: Database["public"]["Enums"]["payment_status"] | null
+          student_id: string
+          total_amount: number | null
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          balance?: number | null
+          created_at?: string
+          discount?: number | null
+          discount_reason?: string | null
+          due_date: string
+          fee_structure_id: string
+          id?: string
+          late_fee?: number | null
+          month_year?: string | null
+          paid_amount?: number | null
+          remarks?: string | null
+          status?: Database["public"]["Enums"]["payment_status"] | null
+          student_id: string
+          total_amount?: number | null
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          balance?: number | null
+          created_at?: string
+          discount?: number | null
+          discount_reason?: string | null
+          due_date?: string
+          fee_structure_id?: string
+          id?: string
+          late_fee?: number | null
+          month_year?: string | null
+          paid_amount?: number | null
+          remarks?: string | null
+          status?: Database["public"]["Enums"]["payment_status"] | null
+          student_id?: string
+          total_amount?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_fees_fee_structure_id_fkey"
+            columns: ["fee_structure_id"]
+            isOneToOne: false
+            referencedRelation: "fee_structures"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_fees_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       student_results: {
         Row: {
@@ -1094,6 +1334,30 @@ export type Database = {
     Enums: {
       app_role: "super_admin" | "admin" | "teacher" | "staff" | "student"
       exam_type: "terminal" | "unit" | "monthly" | "final" | "pre_board"
+      fee_type:
+        | "admission"
+        | "tuition"
+        | "exam"
+        | "library"
+        | "sports"
+        | "computer"
+        | "transport"
+        | "uniform"
+        | "other"
+      payment_method:
+        | "cash"
+        | "esewa"
+        | "khalti"
+        | "imepay"
+        | "bank_transfer"
+        | "cheque"
+      payment_status:
+        | "pending"
+        | "paid"
+        | "partial"
+        | "overdue"
+        | "cancelled"
+        | "refunded"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1223,6 +1487,33 @@ export const Constants = {
     Enums: {
       app_role: ["super_admin", "admin", "teacher", "staff", "student"],
       exam_type: ["terminal", "unit", "monthly", "final", "pre_board"],
+      fee_type: [
+        "admission",
+        "tuition",
+        "exam",
+        "library",
+        "sports",
+        "computer",
+        "transport",
+        "uniform",
+        "other",
+      ],
+      payment_method: [
+        "cash",
+        "esewa",
+        "khalti",
+        "imepay",
+        "bank_transfer",
+        "cheque",
+      ],
+      payment_status: [
+        "pending",
+        "paid",
+        "partial",
+        "overdue",
+        "cancelled",
+        "refunded",
+      ],
     },
   },
 } as const

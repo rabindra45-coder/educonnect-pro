@@ -16,7 +16,8 @@ import {
   FolderOpen,
   MessageCircle,
   ClipboardList,
-  BookOpen
+  BookOpen,
+  Wallet
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
@@ -38,6 +39,7 @@ const AdminSidebar = () => {
     { name: "Documents", path: "/admin/documents", icon: FolderOpen },
     { name: "Exams", path: "/admin/exams", icon: ClipboardList },
     { name: "Subjects", path: "/admin/subjects", icon: BookOpen },
+    { name: "Fees", path: "/admin/fees", icon: Wallet },
     { name: "Teachers", path: "/admin/teachers", icon: Users },
     { name: "Admissions", path: "/admin/admissions", icon: FileText },
     { name: "Chats", path: "/admin/chats", icon: MessageCircle },
