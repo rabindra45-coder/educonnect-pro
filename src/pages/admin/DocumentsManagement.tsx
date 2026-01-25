@@ -30,7 +30,8 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import AdminLayout from "@/components/admin/AdminLayout";
-import { Plus, Trash2, Eye, FileText, Upload, Download, Search } from "lucide-react";
+import DocumentTemplateDialog from "@/components/admin/documents/DocumentTemplateDialog";
+import { Plus, Trash2, Eye, FileText, Upload, Download, Search, LayoutTemplate } from "lucide-react";
 import { format } from "date-fns";
 
 interface Student {
@@ -74,6 +75,7 @@ const DocumentsManagement = () => {
   const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [templateDialogOpen, setTemplateDialogOpen] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [selectedDocument, setSelectedDocument] = useState<StudentDocument | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -317,13 +319,18 @@ const DocumentsManagement = () => {
               Create and manage student documents like certificates, grade sheets, etc.
             </p>
           </div>
-          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-            <DialogTrigger asChild>
-              <Button onClick={() => resetForm()}>
-                <Plus className="w-4 h-4 mr-2" />
-                Create Document
-              </Button>
-            </DialogTrigger>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => setTemplateDialogOpen(true)}>
+              <LayoutTemplate className="w-4 h-4 mr-2" />
+              Use Template
+            </Button>
+            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+              <DialogTrigger asChild>
+                <Button onClick={() => resetForm()}>
+                  <Plus className="w-4 h-4 mr-2" />
+                  Upload Document
+                </Button>
+              </DialogTrigger>
             <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>Create New Document</DialogTitle>
@@ -555,6 +562,7 @@ const DocumentsManagement = () => {
               </form>
             </DialogContent>
           </Dialog>
+          </div>
         </div>
 
         {/* Filters */}
@@ -706,6 +714,14 @@ const DocumentsManagement = () => {
             )}
           </DialogContent>
         </Dialog>
+
+        {/* Template Dialog */}
+        <DocumentTemplateDialog
+          open={templateDialogOpen}
+          onOpenChange={setTemplateDialogOpen}
+          students={students}
+          onDocumentCreated={fetchDocuments}
+        />
       </div>
     </AdminLayout>
   );
