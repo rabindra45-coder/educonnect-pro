@@ -1,5 +1,6 @@
 import { forwardRef } from "react";
 import { format } from "date-fns";
+import principalSignature from "@/assets/principal-signature.png";
 
 interface Student {
   id: string;
@@ -225,7 +226,11 @@ const CharacterCertificateTemplate = forwardRef<HTMLDivElement, CharacterCertifi
               <p className="italic font-semibold text-sm">Date of Issue</p>
             </div>
             <div className="text-center">
-              <div className="h-12"></div>
+              <img 
+                src={principalSignature} 
+                alt="Principal Signature" 
+                className="h-14 mx-auto object-contain"
+              />
               <div className="border-t-2 border-black pt-1 px-4">
                 <p className="italic font-semibold text-sm">Headmaster</p>
                 <p className="text-xs text-gray-600">{schoolSettings.principal_name || "Principal Name"}</p>

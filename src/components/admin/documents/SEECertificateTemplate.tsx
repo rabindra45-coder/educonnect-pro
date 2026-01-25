@@ -2,6 +2,7 @@ import { forwardRef } from "react";
 import { format } from "date-fns";
 import nebLogo from "@/assets/neb-logo.png";
 import nepalEmblem from "@/assets/nepal-govt-emblem.png";
+import nandlalSignature from "@/assets/nandlal-signature.png";
 
 interface Student {
   id: string;
@@ -182,9 +183,13 @@ const SEECertificateTemplate = forwardRef<HTMLDivElement, SEECertificateTemplate
               <p>NEB, SANOTHIMI, BHAKTAPUR, NEPAL</p>
             </div>
             <div className="text-center">
-              <div className="h-10"></div>
-              <p className="italic text-lg font-script">Nanda Lal Pandel</p>
+              <img 
+                src={nandlalSignature} 
+                alt="Controller Signature" 
+                className="h-14 mx-auto object-contain"
+              />
               <div className="border-t-2 border-black pt-1 px-4">
+                <p className="italic text-sm">Nanda Lal Pandel</p>
                 <p className="font-bold text-sm">CONTROLLER OF EXAMINATIONS</p>
               </div>
             </div>
