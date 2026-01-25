@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { User, Bell, Calendar, FileText, Eye, Loader2, ScanFace, CreditCard, FolderOpen, TrendingUp } from "lucide-react";
+import { User, Bell, Calendar, FileText, Eye, Loader2, ScanFace, CreditCard, FolderOpen, TrendingUp, Wallet } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -24,6 +24,7 @@ import FaceRegistrationDialog from "@/components/student/FaceRegistrationDialog"
 import StudentIDCard from "@/components/student/StudentIDCard";
 import StudentDocumentsCard from "@/components/student/StudentDocumentsCard";
 import StudentResultsCard from "@/components/student/StudentResultsCard";
+import StudentFeesCard from "@/components/student/StudentFeesCard";
 
 interface StudentInfo {
   id: string;
@@ -477,9 +478,10 @@ const StudentDashboard = () => {
             />
 
             <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-              <TabsList className="grid w-full grid-cols-6 lg:w-auto lg:inline-flex bg-card border">
+              <TabsList className="grid w-full grid-cols-7 lg:w-auto lg:inline-flex bg-card border">
                 <TabsTrigger value="overview" className="gap-2"><User className="w-4 h-4 hidden sm:inline" />Overview</TabsTrigger>
                 <TabsTrigger value="idcard" className="gap-2"><CreditCard className="w-4 h-4 hidden sm:inline" />ID Card</TabsTrigger>
+                <TabsTrigger value="fees" className="gap-2"><Wallet className="w-4 h-4 hidden sm:inline" />Fees</TabsTrigger>
                 <TabsTrigger value="documents" className="gap-2"><FolderOpen className="w-4 h-4 hidden sm:inline" />Documents</TabsTrigger>
                 <TabsTrigger value="notices" className="gap-2"><Bell className="w-4 h-4 hidden sm:inline" />Notices</TabsTrigger>
                 <TabsTrigger value="calendar" className="gap-2"><Calendar className="w-4 h-4 hidden sm:inline" />Calendar</TabsTrigger>
@@ -515,6 +517,14 @@ const StudentDashboard = () => {
                     />
                   )}
                 </div>
+              </TabsContent>
+
+              <TabsContent value="fees">
+                <StudentFeesCard
+                  studentId={studentInfo.id}
+                  studentName={studentInfo.full_name}
+                  className={studentInfo.class}
+                />
               </TabsContent>
 
               <TabsContent value="documents">
