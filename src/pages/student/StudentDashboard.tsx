@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { User, Bell, Calendar, FileText, Eye, Loader2, ScanFace, CreditCard, FolderOpen } from "lucide-react";
+import { User, Bell, Calendar, FileText, Eye, Loader2, ScanFace, CreditCard, FolderOpen, TrendingUp } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -23,6 +23,7 @@ import NoStudentRecordCard from "@/components/student/NoStudentRecordCard";
 import FaceRegistrationDialog from "@/components/student/FaceRegistrationDialog";
 import StudentIDCard from "@/components/student/StudentIDCard";
 import StudentDocumentsCard from "@/components/student/StudentDocumentsCard";
+import StudentResultsCard from "@/components/student/StudentResultsCard";
 
 interface StudentInfo {
   id: string;
@@ -575,36 +576,12 @@ const StudentDashboard = () => {
           </TabsContent>
 
           <TabsContent value="results">
-            <Card>
-              <CardHeader><CardTitle className="flex items-center gap-2"><FileText className="w-5 h-5" />Exam Results</CardTitle><CardDescription>View and download your published exam results</CardDescription></CardHeader>
-              <CardContent>
-                {examResults.length === 0 ? (
-                  <div className="text-center py-12"><FileText className="w-12 h-12 mx-auto text-muted-foreground/50 mb-4" /><p className="text-muted-foreground">No exam results published yet.</p></div>
-                ) : (
-                  <div className="space-y-4">
-                    {examResults.map((result) => (
-                      <div key={result.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-lg border bg-card hover:shadow-md transition-shadow">
-                        <div className="flex-1">
-                          <h3 className="font-semibold text-lg">{result.title}</h3>
-                          <div className="flex flex-wrap items-center gap-2 mt-2">
-                            <Badge variant="outline">{result.exam_type}</Badge>
-                            <Badge variant="secondary">{result.class}</Badge>
-                            <span className="text-sm text-muted-foreground">{result.academic_year}</span>
-                          </div>
-                        </div>
-                        {result.result_url ? (
-                          <Button variant="outline" size="sm" asChild>
-                            <a href={result.result_url} target="_blank" rel="noopener noreferrer"><Eye className="w-4 h-4 mr-2" />View</a>
-                          </Button>
-                        ) : (
-                          <Badge variant="secondary">Coming Soon</Badge>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+            <StudentResultsCard
+              studentId={studentInfo.id}
+              studentName={studentInfo.full_name}
+              className={studentInfo.class}
+              registrationNumber={studentInfo.registration_number}
+            />
           </TabsContent>
             </Tabs>
           </>

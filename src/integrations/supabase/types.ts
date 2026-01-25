@@ -253,6 +253,76 @@ export type Database = {
           },
         ]
       }
+      exam_marks: {
+        Row: {
+          created_at: string
+          entered_by: string | null
+          exam_id: string
+          grade: string | null
+          grade_point: number | null
+          id: string
+          practical_marks: number | null
+          remarks: string | null
+          student_id: string
+          subject_id: string
+          theory_marks: number | null
+          total_marks: number | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          entered_by?: string | null
+          exam_id: string
+          grade?: string | null
+          grade_point?: number | null
+          id?: string
+          practical_marks?: number | null
+          remarks?: string | null
+          student_id: string
+          subject_id: string
+          theory_marks?: number | null
+          total_marks?: number | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          entered_by?: string | null
+          exam_id?: string
+          grade?: string | null
+          grade_point?: number | null
+          id?: string
+          practical_marks?: number | null
+          remarks?: string | null
+          student_id?: string
+          subject_id?: string
+          theory_marks?: number | null
+          total_marks?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "exam_marks_exam_id_fkey"
+            columns: ["exam_id"]
+            isOneToOne: false
+            referencedRelation: "exams"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "exam_marks_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "exam_marks_subject_id_fkey"
+            columns: ["subject_id"]
+            isOneToOne: false
+            referencedRelation: "subjects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       exam_results: {
         Row: {
           academic_year: string
@@ -287,6 +357,51 @@ export type Database = {
           id?: string
           is_published?: boolean | null
           result_url?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      exams: {
+        Row: {
+          academic_year: string
+          class: string
+          created_at: string
+          created_by: string | null
+          end_date: string | null
+          exam_type: Database["public"]["Enums"]["exam_type"]
+          id: string
+          is_published: boolean | null
+          section: string | null
+          start_date: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          academic_year: string
+          class: string
+          created_at?: string
+          created_by?: string | null
+          end_date?: string | null
+          exam_type: Database["public"]["Enums"]["exam_type"]
+          id?: string
+          is_published?: boolean | null
+          section?: string | null
+          start_date?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          academic_year?: string
+          class?: string
+          created_at?: string
+          created_by?: string | null
+          end_date?: string | null
+          exam_type?: Database["public"]["Enums"]["exam_type"]
+          id?: string
+          is_published?: boolean | null
+          section?: string | null
+          start_date?: string | null
           title?: string
           updated_at?: string
         }
@@ -672,6 +787,72 @@ export type Database = {
         }
         Relationships: []
       }
+      student_results: {
+        Row: {
+          created_at: string
+          exam_id: string
+          gpa: number | null
+          grade: string | null
+          id: string
+          passed_subjects: number | null
+          percentage: number | null
+          rank: number | null
+          remarks: string | null
+          result_status: string | null
+          student_id: string
+          total_marks: number | null
+          total_subjects: number | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          exam_id: string
+          gpa?: number | null
+          grade?: string | null
+          id?: string
+          passed_subjects?: number | null
+          percentage?: number | null
+          rank?: number | null
+          remarks?: string | null
+          result_status?: string | null
+          student_id: string
+          total_marks?: number | null
+          total_subjects?: number | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          exam_id?: string
+          gpa?: number | null
+          grade?: string | null
+          id?: string
+          passed_subjects?: number | null
+          percentage?: number | null
+          rank?: number | null
+          remarks?: string | null
+          result_status?: string | null
+          student_id?: string
+          total_marks?: number | null
+          total_subjects?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_results_exam_id_fkey"
+            columns: ["exam_id"]
+            isOneToOne: false
+            referencedRelation: "exams"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_results_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       students: {
         Row: {
           address: string | null
@@ -732,6 +913,48 @@ export type Database = {
           status?: string | null
           updated_at?: string
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      subjects: {
+        Row: {
+          code: string
+          created_at: string
+          credit_hours: number | null
+          display_order: number | null
+          full_marks: number
+          id: string
+          is_active: boolean | null
+          is_optional: boolean | null
+          name: string
+          pass_marks: number
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          credit_hours?: number | null
+          display_order?: number | null
+          full_marks?: number
+          id?: string
+          is_active?: boolean | null
+          is_optional?: boolean | null
+          name: string
+          pass_marks?: number
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          credit_hours?: number | null
+          display_order?: number | null
+          full_marks?: number
+          id?: string
+          is_active?: boolean | null
+          is_optional?: boolean | null
+          name?: string
+          pass_marks?: number
+          updated_at?: string
         }
         Relationships: []
       }
@@ -848,6 +1071,17 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      calculate_gpa: {
+        Args: { p_exam_id: string; p_student_id: string }
+        Returns: number
+      }
+      calculate_neb_grade: {
+        Args: { full_marks: number; marks: number }
+        Returns: {
+          grade: string
+          grade_point: number
+        }[]
+      }
       has_any_admin_role: { Args: { _user_id: string }; Returns: boolean }
       has_role: {
         Args: {
@@ -859,6 +1093,7 @@ export type Database = {
     }
     Enums: {
       app_role: "super_admin" | "admin" | "teacher" | "staff" | "student"
+      exam_type: "terminal" | "unit" | "monthly" | "final" | "pre_board"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -987,6 +1222,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["super_admin", "admin", "teacher", "staff", "student"],
+      exam_type: ["terminal", "unit", "monthly", "final", "pre_board"],
     },
   },
 } as const
