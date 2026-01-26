@@ -10,15 +10,15 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { 
-  Settings, 
   User, 
   Lock, 
   Bell, 
   Globe,
   Loader2,
   Save,
-  Camera,
+  Pencil,
 } from "lucide-react";
+import TeacherProfileEditDialog from "./TeacherProfileEditDialog";
 
 interface TeacherProfile {
   id: string;
@@ -41,6 +41,7 @@ const TeacherSettings = ({ teacherProfile, onProfileUpdate }: TeacherSettingsPro
   const { user } = useAuth();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
   const [passwordData, setPasswordData] = useState({
     currentPassword: "",
     newPassword: "",
@@ -112,16 +113,30 @@ const TeacherSettings = ({ teacherProfile, onProfileUpdate }: TeacherSettingsPro
 
   return (
     <div className="space-y-6">
+      {/* Profile Edit Dialog */}
+      <TeacherProfileEditDialog
+        open={isEditProfileOpen}
+        onOpenChange={setIsEditProfileOpen}
+        teacherProfile={teacherProfile}
+        onProfileUpdate={onProfileUpdate}
+      />
+
       {/* Profile Card */}
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <User className="w-5 h-5" />
-            My Profile
-          </CardTitle>
-          <CardDescription>
-            View and manage your profile information
-          </CardDescription>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <div>
+            <CardTitle className="flex items-center gap-2">
+              <User className="w-5 h-5" />
+              My Profile
+            </CardTitle>
+            <CardDescription>
+              View and manage your profile information
+            </CardDescription>
+          </div>
+          <Button variant="outline" size="sm" onClick={() => setIsEditProfileOpen(true)}>
+            <Pencil className="w-4 h-4 mr-2" />
+            Edit Profile
+          </Button>
         </CardHeader>
         <CardContent>
           <div className="flex flex-col sm:flex-row items-start gap-6">
@@ -132,9 +147,6 @@ const TeacherSettings = ({ teacherProfile, onProfileUpdate }: TeacherSettingsPro
                   {teacherProfile?.full_name?.charAt(0) || "T"}
                 </AvatarFallback>
               </Avatar>
-              <button className="absolute bottom-0 right-0 w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white hover:bg-blue-700">
-                <Camera className="w-4 h-4" />
-              </button>
             </div>
             <div className="flex-1 space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
