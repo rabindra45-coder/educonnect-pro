@@ -176,6 +176,8 @@ const UsersManagement = () => {
     staff: "bg-orange-500/10 text-orange-600",
     student: "bg-cyan-500/10 text-cyan-600",
     librarian: "bg-amber-500/10 text-amber-600",
+    accountant: "bg-emerald-500/10 text-emerald-600",
+    parent: "bg-pink-500/10 text-pink-600",
   };
 
   if (!hasRole("super_admin")) {
