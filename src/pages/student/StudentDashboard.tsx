@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { User, Bell, Calendar, FileText, Eye, Loader2, ScanFace, CreditCard, FolderOpen, TrendingUp, Wallet, Book, UserCheck } from "lucide-react";
+import { User, Bell, Calendar, FileText, Eye, Loader2, ScanFace, CreditCard, FolderOpen, TrendingUp, Wallet, Book, UserCheck, BookOpen, MessageSquare } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -27,6 +27,8 @@ import StudentResultsCard from "@/components/student/StudentResultsCard";
 import StudentFeesCard from "@/components/student/StudentFeesCard";
 import StudentLibraryCard from "@/components/student/StudentLibraryCard";
 import StudentAttendanceCard from "@/components/student/StudentAttendanceCard";
+import StudentHomeworkCard from "@/components/student/StudentHomeworkCard";
+import StudentMessagesCard from "@/components/student/StudentMessagesCard";
 
 interface StudentInfo {
   id: string;
@@ -97,6 +99,8 @@ const StudentDashboard = () => {
   const [examResults, setExamResults] = useState<ExamResult[]>([]);
   const [upcomingEvents, setUpcomingEvents] = useState<AcademicEvent[]>([]);
   const [studentDocuments, setStudentDocuments] = useState<StudentDocument[]>([]);
+  const [homeworkCount, setHomeworkCount] = useState(0);
+  const [unreadMessages, setUnreadMessages] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [showPasswordDialog, setShowPasswordDialog] = useState(false);
   const [showEditProfileDialog, setShowEditProfileDialog] = useState(false);
@@ -274,6 +278,34 @@ const StudentDashboard = () => {
     }
   };
 
+  const fetchHomeworkCount = async () => {
+    try {
+      if (!studentInfo?.class) return;
+      const { count } = await supabase
+        .from("homework")
+        .select("*", { count: "exact", head: true })
+        .eq("class", studentInfo.class)
+        .eq("is_published", true);
+      setHomeworkCount(count || 0);
+    } catch (error) {
+      console.error("Error fetching homework count:", error);
+    }
+  };
+
+  const fetchUnreadMessages = async () => {
+    try {
+      if (!user) return;
+      const { count } = await supabase
+        .from("messages")
+        .select("*", { count: "exact", head: true })
+        .eq("recipient_id", user.id)
+        .eq("is_read", false);
+      setUnreadMessages(count || 0);
+    } catch (error) {
+      console.error("Error fetching unread messages:", error);
+    }
+  };
+
   const fetchStudentDocuments = async () => {
     try {
       if (!studentInfo?.id) return;
@@ -290,12 +322,19 @@ const StudentDashboard = () => {
   };
 
   useEffect(() => {
-    if (studentInfo?.class) fetchExamResults();
+    if (studentInfo?.class) {
+      fetchExamResults();
+      fetchHomeworkCount();
+    }
   }, [studentInfo?.class]);
 
   useEffect(() => {
     if (studentInfo?.id) fetchStudentDocuments();
   }, [studentInfo?.id]);
+
+  useEffect(() => {
+    if (user) fetchUnreadMessages();
+  }, [user]);
 
   const openEditProfileDialog = () => {
     if (studentInfo) {
@@ -476,12 +515,15 @@ const StudentDashboard = () => {
               upcomingEvents={upcomingEvents.length}
               notices={notices.length}
               examResults={examResults.length}
-              recentActivities={activities.length}
+              homeworkCount={homeworkCount}
+              unreadMessages={unreadMessages}
             />
 
             <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-              <TabsList className="grid w-full grid-cols-9 lg:w-auto lg:inline-flex bg-card border">
+              <TabsList className="flex flex-wrap gap-1 h-auto p-1 lg:inline-flex bg-card border">
                 <TabsTrigger value="overview" className="gap-2"><User className="w-4 h-4 hidden sm:inline" />Overview</TabsTrigger>
+                <TabsTrigger value="homework" className="gap-2"><BookOpen className="w-4 h-4 hidden sm:inline" />Homework</TabsTrigger>
+                <TabsTrigger value="messages" className="gap-2"><MessageSquare className="w-4 h-4 hidden sm:inline" />Messages</TabsTrigger>
                 <TabsTrigger value="idcard" className="gap-2"><CreditCard className="w-4 h-4 hidden sm:inline" />ID Card</TabsTrigger>
                 <TabsTrigger value="attendance" className="gap-2"><UserCheck className="w-4 h-4 hidden sm:inline" />Attendance</TabsTrigger>
                 <TabsTrigger value="fees" className="gap-2"><Wallet className="w-4 h-4 hidden sm:inline" />Fees</TabsTrigger>
@@ -503,6 +545,20 @@ const StudentDashboard = () => {
                     onSetupFaceLogin={() => setShowFaceRegistration(true)}
                   />
                   <div className="lg:col-span-2 space-y-6">
+                    {/* Messages and Homework Preview */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <StudentMessagesCard 
+                        studentId={studentInfo.id} 
+                        compact={true} 
+                        limit={3}
+                        onViewAll={() => setActiveTab("messages")}
+                      />
+                      <StudentHomeworkCard
+                        studentId={studentInfo.id}
+                        studentClass={studentInfo.class}
+                        section={studentInfo.section}
+                      />
+                    </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <NoticesCard notices={notices} limit={4} onViewAll={() => setActiveTab("notices")} />
                       <UpcomingEventsCard events={upcomingEvents} limit={4} onViewAll={() => setActiveTab("calendar")} />
@@ -510,6 +566,18 @@ const StudentDashboard = () => {
                     <ActivityLogCard activities={activities} />
                   </div>
                 </div>
+              </TabsContent>
+
+              <TabsContent value="homework">
+                <StudentHomeworkCard
+                  studentId={studentInfo.id}
+                  studentClass={studentInfo.class}
+                  section={studentInfo.section}
+                />
+              </TabsContent>
+
+              <TabsContent value="messages">
+                <StudentMessagesCard studentId={studentInfo.id} />
               </TabsContent>
 
               <TabsContent value="idcard">

@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { GraduationCap, Award, Calendar, Bell, FileText, Clock } from "lucide-react";
+import { GraduationCap, Award, Calendar, Bell, FileText, BookOpen, MessageSquare } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 
 interface QuickStatsProps {
@@ -8,7 +8,8 @@ interface QuickStatsProps {
   upcomingEvents: number;
   notices: number;
   examResults: number;
-  recentActivities: number;
+  homeworkCount?: number;
+  unreadMessages?: number;
 }
 
 const QuickStats = ({
@@ -17,7 +18,8 @@ const QuickStats = ({
   upcomingEvents,
   notices,
   examResults,
-  recentActivities,
+  homeworkCount = 0,
+  unreadMessages = 0,
 }: QuickStatsProps) => {
   const stats = [
     {
@@ -37,6 +39,23 @@ const QuickStats = ({
       borderColor: "border-secondary/20",
     },
     {
+      icon: BookOpen,
+      label: "Homework",
+      value: homeworkCount.toString(),
+      color: "text-purple-600",
+      bgColor: "bg-purple-500/10",
+      borderColor: "border-purple-500/20",
+    },
+    {
+      icon: MessageSquare,
+      label: "Messages",
+      value: unreadMessages.toString(),
+      color: "text-blue-600",
+      bgColor: "bg-blue-500/10",
+      borderColor: "border-blue-500/20",
+      highlight: unreadMessages > 0,
+    },
+    {
       icon: Calendar,
       label: "Upcoming Events",
       value: upcomingEvents.toString(),
@@ -52,22 +71,6 @@ const QuickStats = ({
       bgColor: "bg-orange-500/10",
       borderColor: "border-orange-500/20",
     },
-    {
-      icon: FileText,
-      label: "Exam Results",
-      value: examResults.toString(),
-      color: "text-purple-600",
-      bgColor: "bg-purple-500/10",
-      borderColor: "border-purple-500/20",
-    },
-    {
-      icon: Clock,
-      label: "Activities",
-      value: recentActivities.toString(),
-      color: "text-blue-600",
-      bgColor: "bg-blue-500/10",
-      borderColor: "border-blue-500/20",
-    },
   ];
 
   return (
@@ -79,7 +82,7 @@ const QuickStats = ({
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 + index * 0.05 }}
         >
-          <Card className={`relative overflow-hidden border ${stat.borderColor} hover:shadow-lg transition-all duration-300 group`}>
+          <Card className={`relative overflow-hidden border ${stat.borderColor} hover:shadow-lg transition-all duration-300 group ${(stat as any).highlight ? 'ring-2 ring-primary/50' : ''}`}>
             <div className={`absolute inset-0 ${stat.bgColor} opacity-0 group-hover:opacity-100 transition-opacity`} />
             <CardContent className="relative p-4 text-center">
               <div className={`inline-flex p-2 rounded-xl ${stat.bgColor} mb-2`}>
