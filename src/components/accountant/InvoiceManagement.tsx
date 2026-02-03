@@ -81,12 +81,18 @@ const InvoiceManagement = () => {
 
   const generateBulkInvoices = async () => {
     try {
-      const { error } = await supabase.rpc("generate_monthly_fees");
+      // Get current month and year
+      const now = new Date();
+      const { data, error } = await supabase.rpc("generate_monthly_fees", {
+        p_month: now.getMonth() + 1,
+        p_year: now.getFullYear()
+      });
+      
       if (error) throw error;
 
       toast({
         title: "Success",
-        description: "Monthly invoices generated successfully.",
+        description: `${data || 0} invoices generated successfully for ${format(now, 'MMMM yyyy')}.`,
       });
       fetchInvoices();
     } catch (error: any) {

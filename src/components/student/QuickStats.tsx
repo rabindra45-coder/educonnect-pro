@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { GraduationCap, Award, Calendar, Bell, FileText, BookOpen, MessageSquare } from "lucide-react";
+import { GraduationCap, Award, Calendar, Bell, BookOpen, MessageSquare, Wallet } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 
 interface QuickStatsProps {
@@ -10,6 +10,7 @@ interface QuickStatsProps {
   examResults: number;
   homeworkCount?: number;
   unreadMessages?: number;
+  pendingFees?: number;
 }
 
 const QuickStats = ({
@@ -20,6 +21,7 @@ const QuickStats = ({
   examResults,
   homeworkCount = 0,
   unreadMessages = 0,
+  pendingFees = 0,
 }: QuickStatsProps) => {
   const stats = [
     {
@@ -37,6 +39,15 @@ const QuickStats = ({
       color: "text-secondary",
       bgColor: "bg-secondary/10",
       borderColor: "border-secondary/20",
+    },
+    {
+      icon: Wallet,
+      label: "Pending Fees",
+      value: pendingFees > 0 ? `रू ${pendingFees.toLocaleString()}` : "Paid",
+      color: pendingFees > 0 ? "text-orange-600" : "text-green-600",
+      bgColor: pendingFees > 0 ? "bg-orange-500/10" : "bg-green-500/10",
+      borderColor: pendingFees > 0 ? "border-orange-500/20" : "border-green-500/20",
+      highlight: pendingFees > 0,
     },
     {
       icon: BookOpen,
@@ -62,14 +73,6 @@ const QuickStats = ({
       color: "text-green-600",
       bgColor: "bg-green-500/10",
       borderColor: "border-green-500/20",
-    },
-    {
-      icon: Bell,
-      label: "New Notices",
-      value: notices.toString(),
-      color: "text-orange-500",
-      bgColor: "bg-orange-500/10",
-      borderColor: "border-orange-500/20",
     },
   ];
 

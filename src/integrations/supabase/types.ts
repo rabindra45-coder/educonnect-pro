@@ -2594,7 +2594,14 @@ export type Database = {
           grade_point: number
         }[]
       }
-      generate_monthly_fees: { Args: never; Returns: undefined }
+      generate_monthly_fees: {
+        Args: { p_month?: number; p_year?: number }
+        Returns: number
+      }
+      generate_one_time_fees: {
+        Args: { p_student_id: string }
+        Returns: number
+      }
       get_parent_id: { Args: { _user_id: string }; Returns: string }
       get_teacher_id: { Args: { _user_id: string }; Returns: string }
       has_any_admin_role: { Args: { _user_id: string }; Returns: boolean }
