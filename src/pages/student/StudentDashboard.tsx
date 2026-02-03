@@ -29,6 +29,7 @@ import StudentLibraryCard from "@/components/student/StudentLibraryCard";
 import StudentAttendanceCard from "@/components/student/StudentAttendanceCard";
 import StudentHomeworkCard from "@/components/student/StudentHomeworkCard";
 import StudentMessagesCard from "@/components/student/StudentMessagesCard";
+import FeeSummaryCard from "@/components/student/FeeSummaryCard";
 
 interface StudentInfo {
   id: string;
@@ -101,6 +102,7 @@ const StudentDashboard = () => {
   const [studentDocuments, setStudentDocuments] = useState<StudentDocument[]>([]);
   const [homeworkCount, setHomeworkCount] = useState(0);
   const [unreadMessages, setUnreadMessages] = useState(0);
+  const [pendingFeesAmount, setPendingFeesAmount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [showPasswordDialog, setShowPasswordDialog] = useState(false);
   const [showEditProfileDialog, setShowEditProfileDialog] = useState(false);
@@ -306,6 +308,24 @@ const StudentDashboard = () => {
     }
   };
 
+  const fetchPendingFees = async () => {
+    try {
+      if (!studentInfo?.id) return;
+      const { data } = await supabase
+        .from("student_fees")
+        .select("balance")
+        .eq("student_id", studentInfo.id)
+        .in("status", ["pending", "partial", "overdue"]);
+      
+      if (data) {
+        const total = data.reduce((sum, f) => sum + Number(f.balance), 0);
+        setPendingFeesAmount(total);
+      }
+    } catch (error) {
+      console.error("Error fetching pending fees:", error);
+    }
+  };
+
   const fetchStudentDocuments = async () => {
     try {
       if (!studentInfo?.id) return;
@@ -329,7 +349,10 @@ const StudentDashboard = () => {
   }, [studentInfo?.class]);
 
   useEffect(() => {
-    if (studentInfo?.id) fetchStudentDocuments();
+    if (studentInfo?.id) {
+      fetchStudentDocuments();
+      fetchPendingFees();
+    }
   }, [studentInfo?.id]);
 
   useEffect(() => {
@@ -517,6 +540,7 @@ const StudentDashboard = () => {
               examResults={examResults.length}
               homeworkCount={homeworkCount}
               unreadMessages={unreadMessages}
+              pendingFees={pendingFeesAmount}
             />
 
             <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
@@ -545,6 +569,11 @@ const StudentDashboard = () => {
                     onSetupFaceLogin={() => setShowFaceRegistration(true)}
                   />
                   <div className="lg:col-span-2 space-y-6">
+                    {/* Fee Summary at the top */}
+                    <FeeSummaryCard
+                      studentId={studentInfo.id}
+                      onViewAll={() => setActiveTab("fees")}
+                    />
                     {/* Messages and Homework Preview */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <StudentMessagesCard 
