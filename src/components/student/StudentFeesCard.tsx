@@ -18,9 +18,10 @@ import {
 } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { DollarSign, CreditCard, Receipt, Download, AlertCircle, CheckCircle } from "lucide-react";
+import { DollarSign, CreditCard, Receipt, Download, AlertCircle, CheckCircle, Clock, QrCode } from "lucide-react";
 import { format } from "date-fns";
 import { toPng } from "html-to-image";
+import PaymentSubmissionDialog from "./PaymentSubmissionDialog";
 
 interface StudentFeesCardProps {
   studentId: string;
@@ -69,17 +70,20 @@ const feeTypeLabels: Record<string, string> = {
 const StudentFeesCard = ({ studentId, studentName, className }: StudentFeesCardProps) => {
   const [fees, setFees] = useState<StudentFee[]>([]);
   const [payments, setPayments] = useState<Payment[]>([]);
+  const [pendingVerifications, setPendingVerifications] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedPayment, setSelectedPayment] = useState<Payment | null>(null);
   const [selectedFee, setSelectedFee] = useState<StudentFee | null>(null);
   const [isReceiptOpen, setIsReceiptOpen] = useState(false);
-  const [isPaymentProcessing, setIsPaymentProcessing] = useState(false);
+  const [isPaymentDialogOpen, setIsPaymentDialogOpen] = useState(false);
+  const [payingFee, setPayingFee] = useState<StudentFee | null>(null);
   const receiptRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
   useEffect(() => {
     fetchFees();
     fetchPayments();
+    fetchPendingVerifications();
   }, [studentId]);
 
   const fetchFees = async () => {
@@ -108,40 +112,34 @@ const StudentFeesCard = ({ studentId, studentName, className }: StudentFeesCardP
     setPayments(data || []);
   };
 
-  const initiateOnlinePayment = async (fee: StudentFee, gateway: "esewa" | "khalti" | "imepay") => {
-    setIsPaymentProcessing(true);
-    
-    try {
-      const response = await supabase.functions.invoke("initiate-payment", {
-        body: {
-          gateway,
-          student_fee_id: fee.id,
-          amount: fee.balance,
-          student_name: studentName,
-          fee_type: feeTypeLabels[fee.fee_structures.fee_type],
-          return_url: window.location.href,
-        },
-      });
+  const fetchPendingVerifications = async () => {
+    const { data } = await supabase
+      .from("payment_verification_requests")
+      .select("*")
+      .eq("student_id", studentId)
+      .order("created_at", { ascending: false });
+    setPendingVerifications(data || []);
+  };
 
-      if (response.error) {
-        throw new Error(response.error.message);
-      }
+  const openPaymentDialog = (fee: StudentFee) => {
+    setPayingFee(fee);
+    setIsPaymentDialogOpen(true);
+  };
 
-      if (response.data.success && response.data.payment_url) {
-        // Redirect to payment gateway
-        window.location.href = response.data.payment_url;
-      } else {
-        throw new Error("Failed to initiate payment");
-      }
-    } catch (error: any) {
-      toast({
-        title: "Payment Error",
-        description: error.message || "Failed to initiate payment",
-        variant: "destructive",
-      });
-    } finally {
-      setIsPaymentProcessing(false);
-    }
+  const handlePaymentSuccess = () => {
+    fetchFees();
+    fetchPayments();
+    fetchPendingVerifications();
+  };
+
+  const hasPendingVerification = (feeId: string) => {
+    return pendingVerifications.some(
+      (v) => v.student_fee_id === feeId && v.status === "pending"
+    );
+  };
+
+  const getVerificationStatus = (feeId: string) => {
+    return pendingVerifications.find((v) => v.student_fee_id === feeId);
   };
 
   const viewReceipt = (payment: Payment, fee: StudentFee) => {
@@ -267,35 +265,23 @@ const StudentFeesCard = ({ studentId, studentName, className }: StudentFeesCardP
                     <div className="text-right">
                       <p className="text-2xl font-bold text-orange-600">रू {fee.balance.toLocaleString()}</p>
                       <p className="text-sm text-muted-foreground">Balance Due</p>
-                      <div className="flex gap-2 mt-2">
+                      {hasPendingVerification(fee.id) ? (
+                        <div className="mt-2">
+                          <Badge className="bg-yellow-100 text-yellow-800">
+                            <Clock className="w-3 h-3 mr-1" />
+                            Payment Pending Verification
+                          </Badge>
+                        </div>
+                      ) : (
                         <Button
                           size="sm"
-                          variant="outline"
-                          onClick={() => initiateOnlinePayment(fee, "esewa")}
-                          disabled={isPaymentProcessing}
-                          className="text-xs"
+                          className="mt-2"
+                          onClick={() => openPaymentDialog(fee)}
                         >
-                          eSewa
+                          <QrCode className="w-4 h-4 mr-2" />
+                          Pay Online
                         </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => initiateOnlinePayment(fee, "khalti")}
-                          disabled={isPaymentProcessing}
-                          className="text-xs"
-                        >
-                          Khalti
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => initiateOnlinePayment(fee, "imepay")}
-                          disabled={isPaymentProcessing}
-                          className="text-xs"
-                        >
-                          IME Pay
-                        </Button>
-                      </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -419,6 +405,15 @@ const StudentFeesCard = ({ studentId, studentName, className }: StudentFeesCardP
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Payment Submission Dialog */}
+      <PaymentSubmissionDialog
+        open={isPaymentDialogOpen}
+        onOpenChange={setIsPaymentDialogOpen}
+        fee={payingFee}
+        studentId={studentId}
+        onSuccess={handlePaymentSuccess}
+      />
     </div>
   );
 };

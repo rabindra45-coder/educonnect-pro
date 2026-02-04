@@ -34,8 +34,11 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { 
   Plus, Search, Edit, Trash2, DollarSign, Users, 
-  Receipt, TrendingUp, AlertCircle, CheckCircle2 
+  Receipt, TrendingUp, AlertCircle, CheckCircle2,
+  QrCode, FileCheck
 } from "lucide-react";
+import PaymentQRManagement from "@/components/admin/PaymentQRManagement";
+import PaymentVerificationManagement from "@/components/admin/PaymentVerificationManagement";
 
 const feeTypes = [
   { value: "admission", label: "Admission Fee" },
@@ -78,6 +81,7 @@ const FeeManagement = () => {
   const [editingFee, setEditingFee] = useState<FeeStructure | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterClass, setFilterClass] = useState("all");
+  const [activeTab, setActiveTab] = useState("structure");
   const { toast } = useToast();
 
   const [formData, setFormData] = useState({
@@ -241,6 +245,26 @@ const FeeManagement = () => {
               <h1 className="text-2xl font-bold text-foreground">Fee Management</h1>
               <p className="text-muted-foreground">Manage fee structures, payments, and receipts</p>
             </div>
+          </div>
+
+          <Tabs value={activeTab} onValueChange={setActiveTab}>
+            <TabsList className="grid w-full grid-cols-3 max-w-md">
+              <TabsTrigger value="structure" className="flex items-center gap-2">
+                <DollarSign className="w-4 h-4" />
+                Fee Structure
+              </TabsTrigger>
+              <TabsTrigger value="qr-codes" className="flex items-center gap-2">
+                <QrCode className="w-4 h-4" />
+                QR Codes
+              </TabsTrigger>
+              <TabsTrigger value="verification" className="flex items-center gap-2">
+                <FileCheck className="w-4 h-4" />
+                Verification
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="structure" className="space-y-6 mt-6">
+              <div className="flex justify-end">
             <Dialog open={isDialogOpen} onOpenChange={(open) => {
               setIsDialogOpen(open);
               if (!open) resetForm();
@@ -478,6 +502,16 @@ const FeeManagement = () => {
               </Table>
             </CardContent>
           </Card>
+            </TabsContent>
+
+            <TabsContent value="qr-codes" className="mt-6">
+              <PaymentQRManagement />
+            </TabsContent>
+
+            <TabsContent value="verification" className="mt-6">
+              <PaymentVerificationManagement />
+            </TabsContent>
+          </Tabs>
         </div>
       </AdminLayout>
     </>
