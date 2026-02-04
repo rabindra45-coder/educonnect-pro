@@ -1634,6 +1634,51 @@ export type Database = {
         }
         Relationships: []
       }
+      payment_qr_codes: {
+        Row: {
+          account_name: string | null
+          account_number: string | null
+          created_at: string | null
+          created_by: string | null
+          display_order: number | null
+          gateway: string
+          gateway_name: string
+          id: string
+          instructions: string | null
+          is_active: boolean | null
+          qr_image_url: string
+          updated_at: string | null
+        }
+        Insert: {
+          account_name?: string | null
+          account_number?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          display_order?: number | null
+          gateway: string
+          gateway_name: string
+          id?: string
+          instructions?: string | null
+          is_active?: boolean | null
+          qr_image_url: string
+          updated_at?: string | null
+        }
+        Update: {
+          account_name?: string | null
+          account_number?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          display_order?: number | null
+          gateway?: string
+          gateway_name?: string
+          id?: string
+          instructions?: string | null
+          is_active?: boolean | null
+          qr_image_url?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       payment_transactions: {
         Row: {
           amount: number
@@ -1694,6 +1739,79 @@ export type Database = {
           },
           {
             foreignKeyName: "payment_transactions_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payment_verification_requests: {
+        Row: {
+          amount: number
+          created_at: string | null
+          gateway: string
+          id: string
+          rejection_reason: string | null
+          remarks: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          screenshot_url: string | null
+          status: string | null
+          student_fee_id: string
+          student_id: string
+          transaction_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string | null
+          gateway: string
+          id?: string
+          rejection_reason?: string | null
+          remarks?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          screenshot_url?: string | null
+          status?: string | null
+          student_fee_id: string
+          student_id: string
+          transaction_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string | null
+          gateway?: string
+          id?: string
+          rejection_reason?: string | null
+          remarks?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          screenshot_url?: string | null
+          status?: string | null
+          student_fee_id?: string
+          student_id?: string
+          transaction_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_verification_requests_student_fee_id_fkey"
+            columns: ["student_fee_id"]
+            isOneToOne: false
+            referencedRelation: "student_fees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_verification_requests_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "attendance_summary"
+            referencedColumns: ["student_id"]
+          },
+          {
+            foreignKeyName: "payment_verification_requests_student_id_fkey"
             columns: ["student_id"]
             isOneToOne: false
             referencedRelation: "students"

@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
-import { Wallet, AlertTriangle, CheckCircle, ArrowRight, IndianRupee } from "lucide-react";
+import { Wallet, AlertTriangle, CheckCircle, ArrowRight, IndianRupee, Clock } from "lucide-react";
 import { format, isPast } from "date-fns";
 
 interface FeeSummaryCardProps {
@@ -23,12 +23,14 @@ interface PendingFee {
 
 const FeeSummaryCard = ({ studentId, onViewAll }: FeeSummaryCardProps) => {
   const [pendingFees, setPendingFees] = useState<PendingFee[]>([]);
+  const [pendingVerifications, setPendingVerifications] = useState(0);
   const [totalDue, setTotalDue] = useState(0);
   const [overdueCount, setOverdueCount] = useState(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchPendingFees();
+    fetchPendingVerifications();
   }, [studentId]);
 
   const fetchPendingFees = async () => {
@@ -54,6 +56,15 @@ const FeeSummaryCard = ({ studentId, onViewAll }: FeeSummaryCardProps) => {
       setOverdueCount(fees.filter((f) => f.status === "overdue").length);
     }
     setLoading(false);
+  };
+
+  const fetchPendingVerifications = async () => {
+    const { count } = await supabase
+      .from("payment_verification_requests")
+      .select("*", { count: "exact", head: true })
+      .eq("student_id", studentId)
+      .eq("status", "pending");
+    setPendingVerifications(count || 0);
   };
 
   const feeTypeLabels: Record<string, string> = {
@@ -86,12 +97,20 @@ const FeeSummaryCard = ({ studentId, onViewAll }: FeeSummaryCardProps) => {
             <Wallet className="w-5 h-5 text-amber-600" />
             Fee Summary
           </CardTitle>
-          {overdueCount > 0 && (
-            <Badge variant="destructive" className="flex items-center gap-1">
-              <AlertTriangle className="w-3 h-3" />
-              {overdueCount} Overdue
-            </Badge>
-          )}
+          <div className="flex gap-2">
+            {pendingVerifications > 0 && (
+              <Badge variant="secondary" className="flex items-center gap-1">
+                <Clock className="w-3 h-3" />
+                {pendingVerifications} Pending Verification
+              </Badge>
+            )}
+            {overdueCount > 0 && (
+              <Badge variant="destructive" className="flex items-center gap-1">
+                <AlertTriangle className="w-3 h-3" />
+                {overdueCount} Overdue
+              </Badge>
+            )}
+          </div>
         </div>
       </CardHeader>
       <CardContent className="pt-4">
