@@ -263,7 +263,7 @@ const StudentResultsCard = ({
                 <div className="flex items-center justify-between">
                   {/* Left Logo */}
                   <div className="w-20 h-20 rounded-full p-1 shadow-lg bg-primary-foreground py-0 my-0 px-0 mx-0">
-                    <img alt="Nepal Emblem" className="w-full h-full rounded-full object-cover" src="/lovable-uploads/8c1de945-5861-4174-b15c-61d57628fc8b.jpg" />
+                    <img alt="Nepal Emblem" className="w-full h-full rounded-full object-cover" src="/lovable-uploads/38ad744a-c202-436b-8e4f-41ee1a86e590.jpg" />
                   </div>
                   
                   {/* Center Content */}
