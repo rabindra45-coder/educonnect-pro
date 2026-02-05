@@ -114,7 +114,7 @@ const SEECertificateTemplate = forwardRef<HTMLDivElement, SEECertificateTemplate
 
           {/* Certificate Content */}
           <div className="space-y-5 text-base leading-relaxed py-[20px] pl-[29px] pt-[17px] my-0 mr-0 mb-0 pr-0 pb-px mx-[68px] px-[88px]">
-            <p className="italic text-left">
+            <p className="italic text-center">
               <span className="font-medium">This is to certify that</span>
               <span className="border-b-2 border-dotted border-black font-bold uppercase ml-2 pb-1 inline-block min-w-[250px]">
                 {student.full_name || "RABINDRA PANDIT"}
