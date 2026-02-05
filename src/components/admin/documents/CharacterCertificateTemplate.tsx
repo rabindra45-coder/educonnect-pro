@@ -164,7 +164,7 @@ const CharacterCertificateTemplate = forwardRef<HTMLDivElement, CharacterCertifi
 
             <p className="italic text-lg">
               Dist.{" "}
-              <span className="font-bold border-b-2 border-dotted border-black text-center">{data.district || ".................."}</span>
+              <span className="font-bold border-b-2 border-dotted border-black">{data.district || ".................."}</span>
               {" "}passed the S.E.E. /annual examination of class{" "}
               <span className="font-bold border-b-2 border-dotted border-black">{student.class || "10"}</span>
               {" "}held
