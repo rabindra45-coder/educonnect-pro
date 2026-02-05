@@ -159,7 +159,7 @@ const CharacterCertificateTemplate = forwardRef<HTMLDivElement, CharacterCertifi
               an inhabitant of ............ Municipality{" "}
               <span className="font-bold border-b-2 border-dotted border-black">{data.municipality || ".................."}</span>
               {" "}Ward No.{" "}
-              <span className="font-bold border-b-2 border-dotted border-black">{data.ward_no || "..."}</span>
+              <span className="font-bold border-b-2 border-dotted border-black text-center">{data.ward_no || "..."}</span>
             </p>
 
             <p className="italic text-lg">
