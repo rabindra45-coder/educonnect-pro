@@ -1,16 +1,16 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { User, Bell, Calendar, FileText, Eye, Loader2, ScanFace, CreditCard, FolderOpen, TrendingUp, Wallet, Book, UserCheck, BookOpen, MessageSquare } from "lucide-react";
+import { Helmet } from "react-helmet-async";
+import { User, Bell, Calendar, FileText, Loader2, CreditCard, FolderOpen, Wallet, Book, UserCheck, BookOpen, MessageSquare, TrendingUp, Sparkles } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 
 // Components
-import StudentHeader from "@/components/student/StudentHeader";
+import StudentSidebar from "@/components/student/StudentSidebar";
 import WelcomeBanner from "@/components/student/WelcomeBanner";
 import QuickStats from "@/components/student/QuickStats";
 import ProfileCard from "@/components/student/ProfileCard";
@@ -476,7 +476,11 @@ const StudentDashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-subtle">
+  <div className="min-h-screen bg-muted/30 flex flex-col lg:flex-row">
+    <Helmet>
+      <title>Student Portal | Dashboard</title>
+    </Helmet>
+
       <PasswordChangeDialog
         open={showPasswordDialog}
         onOpenChange={setShowPasswordDialog}
@@ -508,14 +512,20 @@ const StudentDashboard = () => {
         onSuccess={() => setHasFaceData(true)}
       />
 
-      <StudentHeader
-        studentName={studentInfo?.full_name || profile?.full_name || "Student"}
-        photoUrl={studentInfo?.photo_url || null}
+    <StudentSidebar
+      activeTab={activeTab}
+      onTabChange={setActiveTab}
+      studentName={studentInfo?.full_name || "Student"}
+      studentClass={studentInfo?.class || "-"}
+      photoUrl={studentInfo?.photo_url}
         onPasswordChange={() => setShowPasswordDialog(true)}
         onSignOut={signOut}
+      unreadMessages={unreadMessages}
+      pendingFees={pendingFeesAmount > 0}
       />
 
-      <main className="container mx-auto px-4 py-6 sm:py-8 space-y-6">
+    <main className="flex-1 lg:overflow-auto pt-14 lg:pt-0">
+      <div className="p-4 sm:p-6 space-y-6">
         {!studentInfo ? (
           <NoStudentRecordCard
             userEmail={user?.email}
@@ -523,42 +533,28 @@ const StudentDashboard = () => {
           />
         ) : (
           <>
-            <WelcomeBanner
-              studentName={studentInfo.full_name}
-              registrationNumber={studentInfo.registration_number}
-              className={studentInfo.class}
-              section={studentInfo.section}
-              status={studentInfo.status}
-              photoUrl={studentInfo.photo_url}
-            />
+          {activeTab === "overview" && (
+            <div className="space-y-6">
+              <WelcomeBanner
+                studentName={studentInfo.full_name}
+                registrationNumber={studentInfo.registration_number}
+                className={studentInfo.class}
+                section={studentInfo.section}
+                status={studentInfo.status}
+                photoUrl={studentInfo.photo_url}
+              />
 
-            <QuickStats
-              currentClass={studentInfo.class}
-              rollNumber={studentInfo.roll_number}
-              upcomingEvents={upcomingEvents.length}
-              notices={notices.length}
-              examResults={examResults.length}
-              homeworkCount={homeworkCount}
-              unreadMessages={unreadMessages}
-              pendingFees={pendingFeesAmount}
-            />
+              <QuickStats
+                currentClass={studentInfo.class}
+                rollNumber={studentInfo.roll_number}
+                upcomingEvents={upcomingEvents.length}
+                notices={notices.length}
+                examResults={examResults.length}
+                homeworkCount={homeworkCount}
+                unreadMessages={unreadMessages}
+                pendingFees={pendingFeesAmount}
+              />
 
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-              <TabsList className="flex flex-wrap gap-1 h-auto p-1 lg:inline-flex bg-card border">
-                <TabsTrigger value="overview" className="gap-2"><User className="w-4 h-4 hidden sm:inline" />Overview</TabsTrigger>
-                <TabsTrigger value="homework" className="gap-2"><BookOpen className="w-4 h-4 hidden sm:inline" />Homework</TabsTrigger>
-                <TabsTrigger value="messages" className="gap-2"><MessageSquare className="w-4 h-4 hidden sm:inline" />Messages</TabsTrigger>
-                <TabsTrigger value="idcard" className="gap-2"><CreditCard className="w-4 h-4 hidden sm:inline" />ID Card</TabsTrigger>
-                <TabsTrigger value="attendance" className="gap-2"><UserCheck className="w-4 h-4 hidden sm:inline" />Attendance</TabsTrigger>
-                <TabsTrigger value="fees" className="gap-2"><Wallet className="w-4 h-4 hidden sm:inline" />Fees</TabsTrigger>
-                <TabsTrigger value="library" className="gap-2"><Book className="w-4 h-4 hidden sm:inline" />Library</TabsTrigger>
-                <TabsTrigger value="documents" className="gap-2"><FolderOpen className="w-4 h-4 hidden sm:inline" />Documents</TabsTrigger>
-                <TabsTrigger value="notices" className="gap-2"><Bell className="w-4 h-4 hidden sm:inline" />Notices</TabsTrigger>
-                <TabsTrigger value="calendar" className="gap-2"><Calendar className="w-4 h-4 hidden sm:inline" />Calendar</TabsTrigger>
-                <TabsTrigger value="results" className="gap-2"><FileText className="w-4 h-4 hidden sm:inline" />Results</TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="overview" className="space-y-6">
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                   <ProfileCard
                     studentInfo={studentInfo}
@@ -569,12 +565,10 @@ const StudentDashboard = () => {
                     onSetupFaceLogin={() => setShowFaceRegistration(true)}
                   />
                   <div className="lg:col-span-2 space-y-6">
-                    {/* Fee Summary at the top */}
                     <FeeSummaryCard
                       studentId={studentInfo.id}
                       onViewAll={() => setActiveTab("fees")}
                     />
-                    {/* Messages and Homework Preview */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <StudentMessagesCard 
                         studentId={studentInfo.id} 
@@ -595,21 +589,45 @@ const StudentDashboard = () => {
                     <ActivityLogCard activities={activities} />
                   </div>
                 </div>
-              </TabsContent>
+            </div>
+          )}
 
-              <TabsContent value="homework">
+          {activeTab === "homework" && (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h1 className="text-2xl font-bold flex items-center gap-2">
+                  <BookOpen className="w-6 h-6 text-primary" />
+                  Homework
+                </h1>
+              </div>
                 <StudentHomeworkCard
                   studentId={studentInfo.id}
                   studentClass={studentInfo.class}
                   section={studentInfo.section}
                 />
-              </TabsContent>
+            </div>
+          )}
 
-              <TabsContent value="messages">
+          {activeTab === "messages" && (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h1 className="text-2xl font-bold flex items-center gap-2">
+                  <MessageSquare className="w-6 h-6 text-primary" />
+                  Messages
+                </h1>
+              </div>
                 <StudentMessagesCard studentId={studentInfo.id} />
-              </TabsContent>
+            </div>
+          )}
 
-              <TabsContent value="idcard">
+          {activeTab === "idcard" && (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h1 className="text-2xl font-bold flex items-center gap-2">
+                  <CreditCard className="w-6 h-6 text-primary" />
+                  Student ID Card
+                </h1>
+              </div>
                 <div className="max-w-md mx-auto">
                   {schoolSettings && (
                     <StudentIDCard
@@ -618,98 +636,153 @@ const StudentDashboard = () => {
                     />
                   )}
                 </div>
-              </TabsContent>
+            </div>
+          )}
 
-              <TabsContent value="attendance">
+          {activeTab === "attendance" && (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h1 className="text-2xl font-bold flex items-center gap-2">
+                  <UserCheck className="w-6 h-6 text-primary" />
+                  Attendance Record
+                </h1>
+              </div>
                 <StudentAttendanceCard studentId={studentInfo.id} />
-              </TabsContent>
+            </div>
+          )}
 
-              <TabsContent value="fees">
+          {activeTab === "fees" && (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h1 className="text-2xl font-bold flex items-center gap-2">
+                  <Wallet className="w-6 h-6 text-primary" />
+                  Fees & Payments
+                </h1>
+              </div>
                 <StudentFeesCard
                   studentId={studentInfo.id}
                   studentName={studentInfo.full_name}
                   className={studentInfo.class}
                 />
-              </TabsContent>
+            </div>
+          )}
 
-              <TabsContent value="library">
+          {activeTab === "library" && (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h1 className="text-2xl font-bold flex items-center gap-2">
+                  <Book className="w-6 h-6 text-primary" />
+                  Library
+                </h1>
+              </div>
                 <StudentLibraryCard
                   studentId={studentInfo.id}
                   studentName={studentInfo.full_name}
                   registrationNumber={studentInfo.registration_number}
                   studentClass={studentInfo.class}
                 />
-              </TabsContent>
+            </div>
+          )}
 
-              <TabsContent value="documents">
+          {activeTab === "documents" && (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h1 className="text-2xl font-bold flex items-center gap-2">
+                  <FolderOpen className="w-6 h-6 text-primary" />
+                  Documents
+                </h1>
+              </div>
                 <StudentDocumentsCard documents={studentDocuments} />
-              </TabsContent>
+            </div>
+          )}
 
-          <TabsContent value="notices">
-            <Card>
-              <CardHeader><CardTitle className="flex items-center gap-2"><Bell className="w-5 h-5" />All Notices</CardTitle></CardHeader>
-              <CardContent>
-                {notices.length === 0 ? (
-                  <p className="text-center py-12 text-muted-foreground">No notices available.</p>
-                ) : (
-                  <div className="space-y-4">
-                    {notices.map((notice) => (
-                      <div key={notice.id} className="p-4 rounded-lg border bg-card hover:shadow-md transition-shadow">
-                        <div className="flex items-center gap-2 mb-2">
-                          {notice.is_pinned && <Badge variant="secondary">📌 Pinned</Badge>}
-                          {notice.category && <Badge variant="outline">{notice.category}</Badge>}
-                        </div>
-                        <h3 className="font-semibold text-lg">{notice.title}</h3>
-                        <p className="text-muted-foreground mt-2">{notice.content}</p>
-                        <p className="text-xs text-muted-foreground mt-4">Published on {formatDate(notice.created_at)}</p>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="calendar">
-            <Card>
-              <CardHeader><CardTitle className="flex items-center gap-2"><Calendar className="w-5 h-5" />Academic Calendar</CardTitle></CardHeader>
-              <CardContent>
-                {upcomingEvents.length === 0 ? (
-                  <p className="text-center py-12 text-muted-foreground">No upcoming events.</p>
-                ) : (
-                  <div className="space-y-4">
-                    {upcomingEvents.map((event) => (
-                      <div key={event.id} className="flex gap-4 p-4 rounded-lg border bg-card">
-                        <div className="text-center min-w-[60px] py-2 px-3 rounded-lg bg-primary/10">
-                          <p className="text-2xl font-bold text-primary">{new Date(event.event_date).getDate()}</p>
-                          <p className="text-xs text-muted-foreground uppercase">{new Date(event.event_date).toLocaleString("en", { month: "short" })}</p>
-                        </div>
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
-                            <h3 className="font-semibold">{event.title}</h3>
-                            <Badge variant="outline">{event.event_type}</Badge>
+          {activeTab === "notices" && (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h1 className="text-2xl font-bold flex items-center gap-2">
+                  <Bell className="w-6 h-6 text-primary" />
+                  Notices
+                </h1>
+              </div>
+              <Card>
+                <CardContent className="p-4 sm:p-6">
+                  {notices.length === 0 ? (
+                    <p className="text-center py-12 text-muted-foreground">No notices available.</p>
+                  ) : (
+                    <div className="grid gap-4">
+                      {notices.map((notice) => (
+                        <div key={notice.id} className="p-4 rounded-xl border bg-card hover:shadow-md transition-all hover:border-primary/30">
+                          <div className="flex flex-wrap items-center gap-2 mb-2">
+                            {notice.is_pinned && <Badge variant="secondary" className="bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">📌 Pinned</Badge>}
+                            {notice.category && <Badge variant="outline">{notice.category}</Badge>}
                           </div>
-                          {event.description && <p className="text-sm text-muted-foreground">{event.description}</p>}
+                          <h3 className="font-semibold text-lg">{notice.title}</h3>
+                          <p className="text-muted-foreground mt-2 line-clamp-3">{notice.content}</p>
+                          <p className="text-xs text-muted-foreground mt-4">Published on {formatDate(notice.created_at)}</p>
                         </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+          )}
 
-          <TabsContent value="results">
-            <StudentResultsCard
-              studentId={studentInfo.id}
-              studentName={studentInfo.full_name}
-              className={studentInfo.class}
-              registrationNumber={studentInfo.registration_number}
-            />
-          </TabsContent>
-            </Tabs>
+          {activeTab === "calendar" && (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h1 className="text-2xl font-bold flex items-center gap-2">
+                  <Calendar className="w-6 h-6 text-primary" />
+                  Academic Calendar
+                </h1>
+              </div>
+              <Card>
+                <CardContent className="p-4 sm:p-6">
+                  {upcomingEvents.length === 0 ? (
+                    <p className="text-center py-12 text-muted-foreground">No upcoming events.</p>
+                  ) : (
+                    <div className="grid gap-4">
+                      {upcomingEvents.map((event) => (
+                        <div key={event.id} className="flex gap-4 p-4 rounded-xl border bg-card hover:shadow-md transition-all hover:border-primary/30">
+                          <div className="text-center min-w-[60px] py-2 px-3 rounded-xl bg-primary/10">
+                            <p className="text-2xl font-bold text-primary">{new Date(event.event_date).getDate()}</p>
+                            <p className="text-xs text-muted-foreground uppercase font-medium">{new Date(event.event_date).toLocaleString("en", { month: "short" })}</p>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex flex-wrap items-center gap-2 mb-1">
+                              <h3 className="font-semibold">{event.title}</h3>
+                              <Badge variant="outline">{event.event_type}</Badge>
+                            </div>
+                            {event.description && <p className="text-sm text-muted-foreground line-clamp-2">{event.description}</p>}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
+          {activeTab === "results" && (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h1 className="text-2xl font-bold flex items-center gap-2">
+                  <FileText className="w-6 h-6 text-primary" />
+                  Exam Results
+                </h1>
+              </div>
+              <StudentResultsCard
+                studentId={studentInfo.id}
+                studentName={studentInfo.full_name}
+                className={studentInfo.class}
+                registrationNumber={studentInfo.registration_number}
+              />
+            </div>
+          )}
           </>
         )}
+      </div>
       </main>
     </div>
   );
