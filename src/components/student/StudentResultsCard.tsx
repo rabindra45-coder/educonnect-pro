@@ -262,8 +262,8 @@ const StudentResultsCard = ({
               <div className="bg-gradient-to-r from-primary via-primary/90 to-primary p-4">
                 <div className="flex items-center justify-between">
                   {/* Left Logo */}
-                  <div className="w-20 h-20 bg-white rounded-full p-1 shadow-lg">
-                    <img src={nepalEmblem} alt="Nepal Emblem" className="w-full h-full object-contain" />
+                  <div className="w-20 h-20 rounded-full p-1 shadow-lg bg-primary-foreground py-0 px-0 my-0">
+                    <img src={nepalEmblem} alt="Nepal Emblem" className="w-20 h-20 rounded-full p-1 shadow-lg bg-primary-foreground" />
                   </div>
                   
                   {/* Center Content */}
