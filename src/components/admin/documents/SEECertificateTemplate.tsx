@@ -114,9 +114,9 @@ const SEECertificateTemplate = forwardRef<HTMLDivElement, SEECertificateTemplate
 
           {/* Certificate Content */}
           <div className="space-y-5 text-base leading-relaxed px-[50px] py-[20px] pl-[29px] pt-[17px] my-0 mx-[10px] mr-0 mb-0 pr-0 pb-px">
-            <p className="italic text-left">
+            <p className="italic text-center">
               <span className="font-medium">This is to certify that</span>
-              <span className="border-b-2 border-dotted border-black font-bold uppercase ml-2 pb-1 inline-block min-w-[250px] text-center">
+              <span className="border-b-2 border-dotted border-black font-bold uppercase ml-2 pb-1 inline-block min-w-[250px]">
                 {student.full_name || "RABINDRA PANDIT"}
               </span>
               <span className="ml-1">, a student</span>
@@ -131,7 +131,7 @@ const SEECertificateTemplate = forwardRef<HTMLDivElement, SEECertificateTemplate
 
             <p className="italic">
               Roll
-              <span className="border-b-2 border-dotted border-black font-bold uppercase mx-2 pb-1 inline-block min-w-[200px] text-center">
+              <span className="border-b-2 border-dotted border-black font-bold uppercase mx-2 pb-1 inline-block min-w-[200px]">
                 {data.roll || "SARLAHI"}
               </span>
               <span>, has duly completed the</span>
@@ -154,7 +154,7 @@ const SEECertificateTemplate = forwardRef<HTMLDivElement, SEECertificateTemplate
 
             <p className="italic">
               office, {getGenderPronoun()} date of birth is
-              <span className="border-b-2 border-dotted border-black font-bold mx-2 pb-1 inline-block min-w-[200px] text-center">
+              <span className="border-b-2 border-dotted border-black font-bold mx-2 pb-1 inline-block min-w-[200px]">
                 {data.dob_bs || "2064-08-10"} BS ({data.dob_ad || "2007-11-26"} AD)
               </span>
             </p>
@@ -163,7 +163,7 @@ const SEECertificateTemplate = forwardRef<HTMLDivElement, SEECertificateTemplate
           {/* Symbol Number and Issue Date */}
           <div className="mt-10 px-6 space-y-3 text-base">
             <p>
-              Symbol No.: <span className="font-bold text-lg text-center">{data.symbol_no || "02209717 C"}</span>
+              Symbol No.: <span className="font-bold text-lg">{data.symbol_no || "02209717 C"}</span>
             </p>
             <p>
               Date of Issue: <span className="font-bold">{data.issued_date || format(new Date(), "dd-MMMM-yyyy")}</span>
