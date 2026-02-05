@@ -3,7 +3,6 @@ import { format } from "date-fns";
 import nebLogo from "@/assets/neb-logo.png";
 import nepalEmblem from "@/assets/nepal-govt-emblem.png";
 import nandlalSignature from "@/assets/nandlal-signature.png";
-
 interface Student {
   id: string;
   registration_number: string;
@@ -15,7 +14,6 @@ interface Student {
   date_of_birth: string | null;
   address: string | null;
 }
-
 interface SchoolSettings {
   school_name: string;
   school_address: string | null;
@@ -23,7 +21,6 @@ interface SchoolSettings {
   logo_url: string | null;
   principal_name: string | null;
 }
-
 interface SubjectMark {
   code: string;
   type: string;
@@ -34,7 +31,6 @@ interface SubjectMark {
   final_grade: string;
   remarks: string;
 }
-
 interface GradeSheetData {
   sr_no: string;
   symbol_no: string;
@@ -48,56 +44,159 @@ interface GradeSheetData {
   dob_bs?: string;
   dob_ad?: string;
 }
-
 interface GradeSheetTemplateProps {
   student: Student;
   schoolSettings: SchoolSettings;
   data: GradeSheetData;
 }
-
-const DEFAULT_SUBJECTS: SubjectMark[] = [
-  { code: "1011", type: "COMP.", subject: "ENGLISH (TH)", credit_hour: 3.75, grade: "", grade_point: 0, final_grade: "", remarks: "" },
-  { code: "1012", type: "COMP.", subject: "ENGLISH (IN)", credit_hour: 1.25, grade: "", grade_point: 0, final_grade: "", remarks: "" },
-  { code: "1021", type: "COMP.", subject: "NEPALI (TH)", credit_hour: 3.75, grade: "", grade_point: 0, final_grade: "", remarks: "" },
-  { code: "1022", type: "COMP.", subject: "NEPALI (IN)", credit_hour: 1.25, grade: "", grade_point: 0, final_grade: "", remarks: "" },
-  { code: "1031", type: "COMP.", subject: "MATHEMATICS (TH)", credit_hour: 3.75, grade: "", grade_point: 0, final_grade: "", remarks: "" },
-  { code: "1032", type: "COMP.", subject: "MATHEMATICS (IN)", credit_hour: 1.25, grade: "", grade_point: 0, final_grade: "", remarks: "" },
-  { code: "1041", type: "COMP.", subject: "SCIENCE AND TECHNOLOGY (TH)", credit_hour: 3.75, grade: "", grade_point: 0, final_grade: "", remarks: "" },
-  { code: "1042", type: "COMP.", subject: "SCIENCE AND TECHNOLOGY (IN)", credit_hour: 1.25, grade: "", grade_point: 0, final_grade: "", remarks: "" },
-  { code: "1051", type: "COMP.", subject: "SOCIAL STUDIES (TH)", credit_hour: 3.00, grade: "", grade_point: 0, final_grade: "", remarks: "" },
-  { code: "1052", type: "COMP.", subject: "SOCIAL STUDIES (IN)", credit_hour: 1.00, grade: "", grade_point: 0, final_grade: "", remarks: "" },
-  { code: "2021", type: "OPT.I", subject: "ADDITIONAL MATHEMATICS (TH)", credit_hour: 3.00, grade: "", grade_point: 0, final_grade: "", remarks: "" },
-  { code: "2022", type: "OPT.I", subject: "ADDITIONAL MATHEMATICS (IN)", credit_hour: 1.00, grade: "", grade_point: 0, final_grade: "", remarks: "" },
-  { code: "3011", type: "OPT.II", subject: "OFFICE MGMT & ACCOUNT (TH)", credit_hour: 3.00, grade: "", grade_point: 0, final_grade: "", remarks: "" },
-  { code: "3012", type: "OPT.II", subject: "OFFICE MGMT & ACCOUNT (IN)", credit_hour: 1.00, grade: "", grade_point: 0, final_grade: "", remarks: "" },
-];
-
-const GradeSheetTemplate = forwardRef<HTMLDivElement, GradeSheetTemplateProps>(
-  ({ student, schoolSettings, data }, ref) => {
-    const subjects = data.subjects.length > 0 ? data.subjects : DEFAULT_SUBJECTS;
-    
-    const calculateTotal = () => {
-      return subjects.reduce((sum, s) => sum + s.credit_hour, 0);
-    };
-
-    const formatBSDate = (dateStr: string | null) => {
-      if (!dateStr) return "............................";
-      return dateStr;
-    };
-
-    return (
-      <div
-        ref={ref}
-        className="bg-white w-[800px] min-h-[1100px] mx-auto shadow-lg relative"
-        style={{
-          fontFamily: "'Times New Roman', serif",
-          fontSize: "12px",
-          backgroundImage: `
+const DEFAULT_SUBJECTS: SubjectMark[] = [{
+  code: "1011",
+  type: "COMP.",
+  subject: "ENGLISH (TH)",
+  credit_hour: 3.75,
+  grade: "",
+  grade_point: 0,
+  final_grade: "",
+  remarks: ""
+}, {
+  code: "1012",
+  type: "COMP.",
+  subject: "ENGLISH (IN)",
+  credit_hour: 1.25,
+  grade: "",
+  grade_point: 0,
+  final_grade: "",
+  remarks: ""
+}, {
+  code: "1021",
+  type: "COMP.",
+  subject: "NEPALI (TH)",
+  credit_hour: 3.75,
+  grade: "",
+  grade_point: 0,
+  final_grade: "",
+  remarks: ""
+}, {
+  code: "1022",
+  type: "COMP.",
+  subject: "NEPALI (IN)",
+  credit_hour: 1.25,
+  grade: "",
+  grade_point: 0,
+  final_grade: "",
+  remarks: ""
+}, {
+  code: "1031",
+  type: "COMP.",
+  subject: "MATHEMATICS (TH)",
+  credit_hour: 3.75,
+  grade: "",
+  grade_point: 0,
+  final_grade: "",
+  remarks: ""
+}, {
+  code: "1032",
+  type: "COMP.",
+  subject: "MATHEMATICS (IN)",
+  credit_hour: 1.25,
+  grade: "",
+  grade_point: 0,
+  final_grade: "",
+  remarks: ""
+}, {
+  code: "1041",
+  type: "COMP.",
+  subject: "SCIENCE AND TECHNOLOGY (TH)",
+  credit_hour: 3.75,
+  grade: "",
+  grade_point: 0,
+  final_grade: "",
+  remarks: ""
+}, {
+  code: "1042",
+  type: "COMP.",
+  subject: "SCIENCE AND TECHNOLOGY (IN)",
+  credit_hour: 1.25,
+  grade: "",
+  grade_point: 0,
+  final_grade: "",
+  remarks: ""
+}, {
+  code: "1051",
+  type: "COMP.",
+  subject: "SOCIAL STUDIES (TH)",
+  credit_hour: 3.00,
+  grade: "",
+  grade_point: 0,
+  final_grade: "",
+  remarks: ""
+}, {
+  code: "1052",
+  type: "COMP.",
+  subject: "SOCIAL STUDIES (IN)",
+  credit_hour: 1.00,
+  grade: "",
+  grade_point: 0,
+  final_grade: "",
+  remarks: ""
+}, {
+  code: "2021",
+  type: "OPT.I",
+  subject: "ADDITIONAL MATHEMATICS (TH)",
+  credit_hour: 3.00,
+  grade: "",
+  grade_point: 0,
+  final_grade: "",
+  remarks: ""
+}, {
+  code: "2022",
+  type: "OPT.I",
+  subject: "ADDITIONAL MATHEMATICS (IN)",
+  credit_hour: 1.00,
+  grade: "",
+  grade_point: 0,
+  final_grade: "",
+  remarks: ""
+}, {
+  code: "3011",
+  type: "OPT.II",
+  subject: "OFFICE MGMT & ACCOUNT (TH)",
+  credit_hour: 3.00,
+  grade: "",
+  grade_point: 0,
+  final_grade: "",
+  remarks: ""
+}, {
+  code: "3012",
+  type: "OPT.II",
+  subject: "OFFICE MGMT & ACCOUNT (IN)",
+  credit_hour: 1.00,
+  grade: "",
+  grade_point: 0,
+  final_grade: "",
+  remarks: ""
+}];
+const GradeSheetTemplate = forwardRef<HTMLDivElement, GradeSheetTemplateProps>(({
+  student,
+  schoolSettings,
+  data
+}, ref) => {
+  const subjects = data.subjects.length > 0 ? data.subjects : DEFAULT_SUBJECTS;
+  const calculateTotal = () => {
+    return subjects.reduce((sum, s) => sum + s.credit_hour, 0);
+  };
+  const formatBSDate = (dateStr: string | null) => {
+    if (!dateStr) return "............................";
+    return dateStr;
+  };
+  return <div ref={ref} className="bg-white w-[800px] min-h-[1100px] mx-auto shadow-lg relative" style={{
+    fontFamily: "'Times New Roman', serif",
+    fontSize: "12px",
+    backgroundImage: `
             linear-gradient(rgba(255,255,255,0.97), rgba(255,255,255,0.97)),
             url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239C92AC' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")
-          `,
-        }}
-      >
+          `
+  }}>
         {/* Decorative Border */}
         <div className="absolute inset-0 border-[3px] border-blue-900 m-2 pointer-events-none" />
         <div className="absolute inset-0 border border-blue-700 m-3 pointer-events-none" />
@@ -115,40 +214,42 @@ const GradeSheetTemplate = forwardRef<HTMLDivElement, GradeSheetTemplateProps>(
             <div className="flex justify-center items-center gap-6 mb-3">
               {/* Nepal Government Emblem */}
               <div className="w-20 h-20">
-                <img 
-                  src={nepalEmblem} 
-                  alt="Nepal Government" 
-                  className="w-full h-full object-contain"
-                />
+                <img alt="Nepal Government" className="w-full h-full object-contain" src="/lovable-uploads/0a5d8cd3-7a54-49e9-8648-561a6c54fd21.png" />
               </div>
               
               <div className="text-center">
-                <p className="text-sm font-semibold" style={{ fontFamily: "'Noto Sans Devanagari', sans-serif" }}>नेपाल सरकार</p>
+                <p className="text-sm font-semibold" style={{
+              fontFamily: "'Noto Sans Devanagari', sans-serif"
+            }}>नेपाल सरकार</p>
                 <p className="font-bold text-lg tracking-wide">GOVERNMENT OF NEPAL</p>
-                <p className="text-sm font-semibold text-red-700" style={{ fontFamily: "'Noto Sans Devanagari', sans-serif" }}>राष्ट्रिय परीक्षा बोर्ड</p>
+                <p className="text-sm font-semibold text-red-700" style={{
+              fontFamily: "'Noto Sans Devanagari', sans-serif"
+            }}>राष्ट्रिय परीक्षा बोर्ड</p>
                 <p className="font-bold text-lg text-red-700 tracking-wide">NATIONAL EXAMINATIONS BOARD</p>
               </div>
               
               {/* NEB Logo */}
               <div className="w-20 h-20">
-                <img 
-                  src={nebLogo} 
-                  alt="NEB" 
-                  className="w-full h-full object-contain"
-                />
+                <img alt="NEB" className="w-full h-full object-contain" src="/lovable-uploads/bf84aeb1-f6d3-4b6b-bc64-2224dedab535.jpg" />
               </div>
             </div>
             
             <div className="mt-2">
-              <p className="text-sm font-semibold text-red-700" style={{ fontFamily: "'Noto Sans Devanagari', sans-serif" }}>माध्यमिक शिक्षा परीक्षा, कक्षा-१०</p>
+              <p className="text-sm font-semibold text-red-700" style={{
+            fontFamily: "'Noto Sans Devanagari', sans-serif"
+          }}>माध्यमिक शिक्षा परीक्षा, कक्षा-१०</p>
               <p className="font-bold text-red-800 tracking-wide">SECONDARY EDUCATION EXAMINATION, GRADE-10</p>
             </div>
             
             <div className="mt-4 mb-2">
-              <h1 className="text-3xl font-bold tracking-[0.2em] text-blue-900" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.1)' }}>
+              <h1 className="text-3xl font-bold tracking-[0.2em] text-blue-900" style={{
+            textShadow: '1px 1px 2px rgba(0,0,0,0.1)'
+          }}>
                 GRADE-SHEET
               </h1>
-              <p className="text-lg font-semibold text-blue-800" style={{ fontFamily: "'Noto Sans Devanagari', sans-serif" }}>ग्रेड-सीट</p>
+              <p className="text-lg font-semibold text-blue-800" style={{
+            fontFamily: "'Noto Sans Devanagari', sans-serif"
+          }}>ग्रेड-सीट</p>
             </div>
           </div>
 
@@ -202,16 +303,15 @@ const GradeSheetTemplate = forwardRef<HTMLDivElement, GradeSheetTemplateProps>(
                 <tr className="bg-blue-50">
                   <th className="border border-black p-1.5 w-14 font-bold">CODE</th>
                   <th className="border border-black p-1.5 text-left font-bold" colSpan={2}>SUBJECTS</th>
-                  <th className="border border-black p-1.5 w-20 font-bold">CREDIT<br/>HOUR</th>
+                  <th className="border border-black p-1.5 w-20 font-bold">CREDIT<br />HOUR</th>
                   <th className="border border-black p-1.5 w-14 font-bold">GRADE</th>
-                  <th className="border border-black p-1.5 w-16 font-bold">GRADE<br/>POINT</th>
-                  <th className="border border-black p-1.5 w-14 font-bold">FINAL<br/>GRADE</th>
+                  <th className="border border-black p-1.5 w-16 font-bold">GRADE<br />POINT</th>
+                  <th className="border border-black p-1.5 w-14 font-bold">FINAL<br />GRADE</th>
                   <th className="border border-black p-1.5 w-20 font-bold">REMARKS</th>
                 </tr>
               </thead>
               <tbody>
-                {subjects.map((subject, index) => (
-                  <tr key={index} className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}>
+                {subjects.map((subject, index) => <tr key={index} className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}>
                     <td className="border border-black p-1 text-center font-medium">{subject.code}</td>
                     <td className="border border-black p-1 w-14 text-center">{subject.type}</td>
                     <td className="border border-black p-1 font-medium">{subject.subject}</td>
@@ -220,8 +320,7 @@ const GradeSheetTemplate = forwardRef<HTMLDivElement, GradeSheetTemplateProps>(
                     <td className="border border-black p-1 text-center">{subject.grade_point || ""}</td>
                     <td className="border border-black p-1 text-center font-bold text-blue-800">{subject.final_grade}</td>
                     <td className="border border-black p-1 text-center text-red-600">{subject.remarks}</td>
-                  </tr>
-                ))}
+                  </tr>)}
                 {/* Total Row */}
                 <tr className="font-bold bg-blue-100">
                   <td className="border border-black p-1.5 text-center" colSpan={3}>TOTAL</td>
@@ -249,11 +348,7 @@ const GradeSheetTemplate = forwardRef<HTMLDivElement, GradeSheetTemplateProps>(
               <p className="mt-2">DATE OF ISSUE: <span className="font-bold">{data.issued_date || format(new Date(), "dd-MMMM-yyyy")}</span></p>
             </div>
             <div className="text-center">
-              <img 
-                src={nandlalSignature} 
-                alt="Controller Signature" 
-                className="h-14 mx-auto object-contain"
-              />
+              <img src={nandlalSignature} alt="Controller Signature" className="h-14 mx-auto object-contain" />
               <div className="border-t-2 border-black pt-1 px-8">
                 <p className="italic text-sm">Nanda Lal Pandel</p>
                 <p className="font-bold text-sm">CONTROLLER OF EXAMINATIONS</p>
@@ -263,15 +358,11 @@ const GradeSheetTemplate = forwardRef<HTMLDivElement, GradeSheetTemplateProps>(
 
           {/* Page Number */}
           <div className="text-center text-xs mt-6 text-gray-500">
-            Page 2300 OF 2451
+            ​Page 2300 OF 2451
           </div>
         </div>
-      </div>
-    );
-  }
-);
-
+      </div>;
+});
 GradeSheetTemplate.displayName = "GradeSheetTemplate";
-
 export { DEFAULT_SUBJECTS };
 export default GradeSheetTemplate;
