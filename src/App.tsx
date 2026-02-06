@@ -48,6 +48,8 @@ import AccountantDashboard from "./pages/accountant/AccountantDashboard";
 import AccountantLogin from "./pages/accountant/AccountantLogin";
 import TeacherDashboard from "./pages/teacher/TeacherDashboard";
 import TeacherLogin from "./pages/teacher/TeacherLogin";
+import ParentDashboard from "./pages/parent/ParentDashboard";
+import ParentLogin from "./pages/parent/ParentLogin";
 
 const queryClient = new QueryClient();
 
@@ -102,6 +104,8 @@ const App = () => (
               <Route path="/accountant/login" element={<AccountantLogin />} />
               <Route path="/teacher" element={<TeacherDashboard />} />
               <Route path="/teacher/login" element={<TeacherLogin />} />
+              <Route path="/parent" element={<ParentDashboard />} />
+              <Route path="/parent/login" element={<ParentLogin />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
