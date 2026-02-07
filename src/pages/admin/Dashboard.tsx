@@ -9,12 +9,16 @@ import {
   Clock,
   CheckCircle,
   XCircle,
-  Activity
+  Activity,
+  UserPlus,
+  Loader2
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface Stats {
@@ -39,6 +43,8 @@ interface ActivityLog {
 
 const Dashboard = () => {
   const { profile, hasAnyAdminRole, hasRole } = useAuth();
+  const { toast } = useToast();
+  const [isCreatingParents, setIsCreatingParents] = useState(false);
   const [stats, setStats] = useState<Stats>({
     totalStudents: 0,
     totalTeachers: 0,
@@ -131,6 +137,31 @@ const Dashboard = () => {
     }
   };
 
+  const handleBulkCreateParents = async () => {
+    setIsCreatingParents(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("create-parents-bulk", {
+        body: {},
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Parent Accounts Created!",
+        description: `Created: ${data.created}, Skipped: ${data.skipped}, Errors: ${data.errors}. Emails sent to new parents.`,
+      });
+    } catch (error: any) {
+      console.error("Error creating parents:", error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to create parent accounts",
+        variant: "destructive",
+      });
+    } finally {
+      setIsCreatingParents(false);
+    }
+  };
+
   const statCards = [
     {
       title: "Total Students",
@@ -183,13 +214,30 @@ const Dashboard = () => {
     <AdminLayout>
       <div className="space-y-6">
         {/* Header */}
-        <div>
-          <h1 className="text-3xl font-display font-bold text-foreground">
-            Welcome back, {profile?.full_name?.split(" ")[0] || "Admin"}!
-          </h1>
-          <p className="text-muted-foreground mt-1">
-            Here's what's happening at your school today.
-          </p>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-display font-bold text-foreground">
+              Welcome back, {profile?.full_name?.split(" ")[0] || "Admin"}!
+            </h1>
+            <p className="text-muted-foreground mt-1">
+              Here's what's happening at your school today.
+            </p>
+          </div>
+          {hasRole("super_admin") && (
+            <Button
+              onClick={handleBulkCreateParents}
+              disabled={isCreatingParents}
+              variant="outline"
+              className="gap-2"
+            >
+              {isCreatingParents ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <UserPlus className="w-4 h-4" />
+              )}
+              {isCreatingParents ? "Creating Parents..." : "Create All Parent Accounts"}
+            </Button>
+          )}
         </div>
 
         {/* Stats Grid */}
