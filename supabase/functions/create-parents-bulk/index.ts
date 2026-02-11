@@ -24,7 +24,7 @@ const handler = async (req: Request): Promise<Response> => {
     const resendKey = Deno.env.get("RESEND_API_KEY");
     const resend = resendKey ? new Resend(resendKey) : null;
 
-    // Get all active students with guardian info
+    // Get all students with guardian email
     const { data: students, error: studentsError } = await supabase
       .from("students")
       .select("id, user_id, full_name, guardian_name, guardian_email, guardian_phone, address, class")
@@ -40,98 +40,101 @@ const handler = async (req: Request): Promise<Response> => {
     let errors = 0;
     const results: any[] = [];
 
+    // Group students by guardian_email so one parent can have multiple children
+    const guardianMap = new Map<string, typeof students>();
     for (const student of students || []) {
-      if (!student.guardian_email || !student.user_id) {
-        skipped++;
-        continue;
+      if (!student.guardian_email) continue;
+      const email = student.guardian_email.toLowerCase().trim();
+      if (!guardianMap.has(email)) {
+        guardianMap.set(email, []);
       }
+      guardianMap.get(email)!.push(student);
+    }
 
+    console.log(`Found ${guardianMap.size} unique guardian emails`);
+
+    for (const [guardianEmail, guardianStudents] of guardianMap) {
       try {
-        const userId = student.user_id;
+        const firstStudent = guardianStudents[0];
 
-        // Check if parent role already exists
+        // Check if a parent account already exists for this email
+        const { data: existingUsers } = await supabase.auth.admin.listUsers();
+        const existingUser = existingUsers?.users?.find(
+          (u) => u.email?.toLowerCase() === guardianEmail
+        );
+
+        let parentUserId: string;
+
+        if (existingUser) {
+          parentUserId = existingUser.id;
+          console.log(`User already exists for ${guardianEmail}: ${parentUserId}`);
+        } else {
+          // Create a NEW auth user for the parent with guardian email
+          const { data: newUser, error: createError } = await supabase.auth.admin.createUser({
+            email: guardianEmail,
+            password: DEFAULT_PASSWORD,
+            email_confirm: true,
+            user_metadata: {
+              full_name: firstStudent.guardian_name || "Guardian",
+              must_change_password: true,
+            },
+          });
+
+          if (createError) {
+            console.error(`Error creating user for ${guardianEmail}:`, createError);
+            errors++;
+            continue;
+          }
+
+          parentUserId = newUser.user!.id;
+          console.log(`Created new user for ${guardianEmail}: ${parentUserId}`);
+        }
+
+        // Ensure parent role exists
         const { data: existingRole } = await supabase
           .from("user_roles")
           .select("id")
-          .eq("user_id", userId)
+          .eq("user_id", parentUserId)
           .eq("role", "parent")
           .maybeSingle();
 
-        if (existingRole) {
-          // Already has parent role, just ensure linkage
-          const { data: parentProfile } = await supabase
-            .from("parents")
-            .select("id")
-            .eq("user_id", userId)
-            .maybeSingle();
+        if (!existingRole) {
+          await supabase
+            .from("user_roles")
+            .insert({ user_id: parentUserId, role: "parent" });
 
-          if (parentProfile) {
-            // Ensure parent-student link exists
-            const { data: existingLink } = await supabase
-              .from("parent_students")
-              .select("id")
-              .eq("parent_id", parentProfile.id)
-              .eq("student_id", student.id)
-              .maybeSingle();
-
-            if (!existingLink) {
-              await supabase.from("parent_students").insert({
-                parent_id: parentProfile.id,
-                student_id: student.id,
-                relationship: "guardian",
-                is_primary: true,
-              });
-              console.log(`Linked existing parent ${parentProfile.id} to student ${student.id}`);
-            }
-          }
-          skipped++;
-          continue;
+          // Wait for trigger to create parent profile
+          await new Promise((r) => setTimeout(r, 500));
         }
-
-        // Assign parent role (trigger creates parent profile)
-        const { error: roleError } = await supabase
-          .from("user_roles")
-          .insert({ user_id: userId, role: "parent" });
-
-        if (roleError) {
-          console.error(`Error assigning parent role for ${student.guardian_email}:`, roleError);
-          errors++;
-          continue;
-        }
-
-        // Brief wait for trigger
-        await new Promise((r) => setTimeout(r, 300));
 
         // Get or create parent profile
         let parentId: string | null = null;
         const { data: parentProfile } = await supabase
           .from("parents")
           .select("id")
-          .eq("user_id", userId)
+          .eq("user_id", parentUserId)
           .maybeSingle();
 
         if (parentProfile) {
           parentId = parentProfile.id;
-          // Update with guardian details
           await supabase
             .from("parents")
             .update({
-              full_name: student.guardian_name || "Guardian",
-              email: student.guardian_email,
-              phone: student.guardian_phone || null,
-              address: student.address || null,
+              full_name: firstStudent.guardian_name || "Guardian",
+              email: guardianEmail,
+              phone: firstStudent.guardian_phone || null,
+              address: firstStudent.address || null,
             })
             .eq("id", parentId);
         } else {
-          // Create manually if trigger didn't fire
           const { data: newParent } = await supabase
             .from("parents")
             .insert({
-              user_id: userId,
-              full_name: student.guardian_name || "Guardian",
-              email: student.guardian_email,
-              phone: student.guardian_phone || null,
-              address: student.address || null,
+              user_id: parentUserId,
+              full_name: firstStudent.guardian_name || "Guardian",
+              email: guardianEmail,
+              phone: firstStudent.guardian_phone || null,
+              address: firstStudent.address || null,
             })
             .select("id")
             .single();
@@ -139,8 +142,15 @@ const handler = async (req: Request): Promise<Response> => {
           if (newParent) parentId = newParent.id;
         }
 
-        // Link parent to student
-        if (parentId) {
+        if (!parentId) {
+          console.error(`Failed to get parent profile for ${guardianEmail}`);
+          errors++;
+          continue;
+        }
+
+        // Link parent to ALL their children
+        const childrenNames: string[] = [];
+        for (const student of guardianStudents) {
           const { data: existingLink } = await supabase
             .from("parent_students")
             .select("id")
@@ -155,16 +165,18 @@ const handler = async (req: Request): Promise<Response> => {
               relationship: "guardian",
               is_primary: true,
             });
+            console.log(`Linked parent ${parentId} to student ${student.full_name}`);
           }
+          childrenNames.push(`${student.full_name} (Class ${student.class})`);
         }
 
         // Send welcome email
-        if (resend && student.guardian_email) {
+        if (resend && !existingUser) {
           try {
             await resend.emails.send({
               from: "Shree Durga Saraswati Janata SS <onboarding@resend.dev>",
-              to: [student.guardian_email],
-              subject: `🎓 Parent Portal Access - ${student.full_name}`,
+              to: [guardianEmail],
+              subject: `🎓 Parent Portal Access - Your Children's School`,
               html: `
                 <!DOCTYPE html>
                 <html>
@@ -189,30 +201,30 @@ const handler = async (req: Request): Promise<Response> => {
                       <p style="margin:5px 0 0;opacity:0.9;font-size:14px;">श्री दुर्गा सरस्वती जनता माध्यमिक विद्यालय</p>
                     </div>
                     <div class="content">
-                      <p>Dear <strong>${student.guardian_name || "Guardian"}</strong>,</p>
-                      <p>We are pleased to provide you access to the <strong>Parent Portal</strong> where you can monitor <strong>${student.full_name}</strong>'s academic progress, attendance, fees, and more.</p>
+                      <p>Dear <strong>${firstStudent.guardian_name || "Guardian"}</strong>,</p>
+                      <p>We are pleased to provide you access to the <strong>Parent Portal</strong> where you can monitor your children's academic progress, attendance, fees, and more.</p>
                       
                       <div class="credentials">
                         <h3>🔐 Your Login Credentials</h3>
                         <div class="cred-row">
                           <span class="cred-label">Email:</span><br>
-                          <span class="cred-value">${student.guardian_email}</span>
+                          <span class="cred-value">${guardianEmail}</span>
                         </div>
                         <div class="cred-row">
                           <span class="cred-label">Password:</span><br>
                           <span class="cred-value">${DEFAULT_PASSWORD}</span>
                         </div>
                         <div class="cred-row" style="border:none;">
-                          <span class="cred-label">Student:</span><br>
-                          <span class="cred-value">${student.full_name} (Class ${student.class})</span>
+                          <span class="cred-label">Children:</span><br>
+                          <span class="cred-value">${childrenNames.join(", ")}</span>
                         </div>
                       </div>
 
                       <div class="warning">
-                        ⚠️ <strong>Important:</strong> Please change your password after your first login.
+                        ⚠️ <strong>Important:</strong> Please change your password after your first login for security.
                       </div>
 
-                      <p>Access the Parent Portal to stay connected with your child's education journey.</p>
+                      <p>Access the Parent Portal to stay connected with your children's education journey.</p>
                     </div>
                     <div class="footer">
                       <p>© ${new Date().getFullYear()} Shree Durga Saraswati Janata Secondary School</p>
@@ -221,30 +233,33 @@ const handler = async (req: Request): Promise<Response> => {
                 </body></html>
               `,
             });
-            console.log(`Email sent to ${student.guardian_email}`);
+            console.log(`Email sent to ${guardianEmail}`);
           } catch (emailErr) {
-            console.error(`Email failed for ${student.guardian_email}:`, emailErr);
+            console.error(`Email failed for ${guardianEmail}:`, emailErr);
           }
         }
 
-        created++;
-        results.push({
-          student: student.full_name,
-          guardian: student.guardian_name,
-          email: student.guardian_email,
-          status: "created",
-        });
+        if (existingUser) {
+          skipped++;
+        } else {
+          created++;
+        }
 
-        console.log(`Parent created for student: ${student.full_name} (${student.guardian_email})`);
+        results.push({
+          guardian: firstStudent.guardian_name,
+          email: guardianEmail,
+          children: childrenNames,
+          status: existingUser ? "already_existed" : "created",
+        });
       } catch (innerError: any) {
-        console.error(`Error processing student ${student.full_name}:`, innerError);
+        console.error(`Error processing guardian ${guardianEmail}:`, innerError);
         errors++;
       }
     }
 
     const summary = {
       success: true,
-      total: students?.length || 0,
+      totalGuardians: guardianMap.size,
       created,
       skipped,
       errors,
