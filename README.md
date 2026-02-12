@@ -1,4 +1,5 @@
-# Welcome to your Lovable project
+# Welcome to My First and Advance Page.<img width="1912" height="909" alt="Screenshot 2026-02-12 142156" src="https://github.com/user-attachments/assets/787b4486-d9e0-4ea1-b173-7c08d2ee7de8" />
+
 
 ## Project info
 ## Project View
@@ -48,9 +49,6 @@ This project is built with:
 - shadcn-ui
 - Tailwind CSS
 
-Thanks For Looking.
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+Thanks For Looking.![Uploading Screenshot 2026-02-12 142156.png…]()
+<img width="1904" height="901" alt="Screenshot 2026-02-12 142403" src="https://github.com/user-attachments/assets/ad3f1716-c38f-4db7-bd7e-5bed6d683326" />
+<img width="1904" height="901" alt="image" src="https://github.com/user-attachments/assets/6d0e9e3c-3fa9-4804-9cc3-a00b0f5d2ce2" />
