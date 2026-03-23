@@ -18,8 +18,34 @@ serve(async (req: Request) => {
   }
 
   try {
+    // Authenticate the caller
+    const authHeader = req.headers.get("authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+
+    // Verify user with anon client
+    const anonClient = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } },
+    });
+    const { data: claimsData, error: claimsError } = await anonClient.auth.getClaims(
+      authHeader.replace("Bearer ", "")
+    );
+    if (claimsError || !claimsData?.claims) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Use service client for DB operations
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     const { gateway, transaction_id, gateway_response }: VerifyRequest = await req.json();
@@ -40,25 +66,42 @@ serve(async (req: Request) => {
 
     switch (gateway) {
       case "esewa":
-        // Verify eSewa payment
+        // Verify eSewa payment server-side
         if (gateway_response?.oid && gateway_response?.refId) {
-          // In production, verify with eSewa API
-          // For now, we'll trust the callback
-          verified = gateway_response.oid === transaction_id;
-          verificationData = {
-            refId: gateway_response.refId,
-            oid: gateway_response.oid,
-          };
+          try {
+            const esewaVerifyUrl = `https://uat.esewa.com.np/epay/transrec`;
+            const verifyParams = new URLSearchParams({
+              amt: transaction.amount.toString(),
+              scd: Deno.env.get("ESEWA_MERCHANT_CODE") || "EPAYTEST",
+              pid: transaction_id,
+              rid: gateway_response.refId,
+            });
+            const esewaRes = await fetch(`${esewaVerifyUrl}?${verifyParams.toString()}`);
+            const esewaText = await esewaRes.text();
+            verified = esewaText.includes("Success");
+            verificationData = {
+              refId: gateway_response.refId,
+              oid: gateway_response.oid,
+              serverVerified: true,
+            };
+          } catch (e) {
+            console.error("eSewa verification failed:", e);
+            verified = false;
+          }
         }
         break;
 
       case "khalti":
-        // Verify Khalti payment
+        // Verify Khalti payment server-side only
         if (gateway_response?.pidx) {
+          const khaltiSecretKey = Deno.env.get("KHALTI_SECRET_KEY");
+          if (!khaltiSecretKey) {
+            throw new Error("Khalti payment verification not configured");
+          }
           const lookupResponse = await fetch("https://a.khalti.com/api/v2/epayment/lookup/", {
             method: "POST",
             headers: {
-              "Authorization": `Key ${Deno.env.get("KHALTI_SECRET_KEY") || "test_secret_key"}`,
+              "Authorization": `Key ${khaltiSecretKey}`,
               "Content-Type": "application/json",
             },
             body: JSON.stringify({ pidx: gateway_response.pidx }),
@@ -69,18 +112,17 @@ serve(async (req: Request) => {
             verified = lookupData.status === "Completed";
             verificationData = lookupData;
           } else {
-            // For testing purposes, accept mock payments
-            verified = gateway_response.status === "mock" || gateway_response.status === "success";
-            verificationData = { mock: true };
+            verified = false;
+            verificationData = { error: "Khalti lookup failed" };
           }
         }
         break;
 
       case "imepay":
-        // Verify IME Pay payment
-        // In production, implement IME Pay verification
-        verified = gateway_response?.status === "success" || gateway_response?.status === "mock";
-        verificationData = { mock: true };
+        // IME Pay requires proper server-side verification
+        // Block until properly implemented
+        verified = false;
+        verificationData = { error: "IME Pay verification not yet implemented" };
         break;
 
       default:
@@ -134,7 +176,7 @@ serve(async (req: Request) => {
         .from("payment_transactions")
         .update({
           status: "failed",
-          response_payload: gateway_response,
+          response_payload: verificationData,
           updated_at: new Date().toISOString(),
         })
         .eq("id", transaction.id);
@@ -153,7 +195,7 @@ serve(async (req: Request) => {
   } catch (error: any) {
     console.error("Payment verification error:", error);
     return new Response(
-      JSON.stringify({ success: false, error: error.message }),
+      JSON.stringify({ success: false, error: "Payment verification failed" }),
       {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },

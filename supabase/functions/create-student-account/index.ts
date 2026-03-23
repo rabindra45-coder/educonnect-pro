@@ -20,7 +20,12 @@ interface CreateStudentRequest {
   applicationNumber: string;
 }
 
-const DEFAULT_PASSWORD = "12345678";
+function generateRandomPassword(length = 12): string {
+  const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%";
+  const array = new Uint8Array(length);
+  crypto.getRandomValues(array);
+  return Array.from(array, (b) => chars[b % chars.length]).join("");
+}
 
 async function sendWelcomeEmail(
   guardianEmail: string,
@@ -30,6 +35,7 @@ async function sendWelcomeEmail(
   applicationNumber: string,
   applyingForClass: string,
   role: string,
+  password: string,
 ) {
   const resendKey = Deno.env.get("RESEND_API_KEY");
   if (!resendKey) {
@@ -38,7 +44,6 @@ async function sendWelcomeEmail(
   }
 
   const resend = new Resend(resendKey);
-  const portalUrl = role === "parent" ? "/parent/login" : "/login";
   const portalName = role === "parent" ? "Parent Portal" : "Student Portal";
 
   try {
@@ -64,10 +69,6 @@ async function sendWelcomeEmail(
             .cred-label { color: #666; font-size: 14px; }
             .cred-value { font-weight: bold; color: #1e3a5f; font-size: 14px; }
             .warning { background: #fff3cd; border: 1px solid #ffc107; border-radius: 6px; padding: 12px; margin: 15px 0; font-size: 13px; }
-            .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 15px 0; }
-            .info-item { background: white; padding: 10px; border-radius: 6px; }
-            .info-item label { font-size: 11px; color: #888; text-transform: uppercase; }
-            .info-item p { margin: 2px 0 0; font-weight: 600; font-size: 14px; }
             .footer { text-align: center; padding: 20px; color: #888; font-size: 12px; background: #f0f0f0; }
           </style>
         </head>
@@ -79,27 +80,8 @@ async function sendWelcomeEmail(
             </div>
             <div class="content">
               <p>Dear <strong>${guardianName}</strong>,</p>
-              <p>Congratulations! 🎉 The admission application for <strong>${studentName}</strong> has been <span style="color: green; font-weight: bold;">APPROVED</span>.</p>
+              <p>Congratulations! 🎉 The admission for <strong>${studentName}</strong> has been <span style="color: green; font-weight: bold;">APPROVED</span>.</p>
               
-              <div class="info-grid">
-                <div class="info-item">
-                  <label>Student Name</label>
-                  <p>${studentName}</p>
-                </div>
-                <div class="info-item">
-                  <label>Class</label>
-                  <p>${applyingForClass}</p>
-                </div>
-                <div class="info-item">
-                  <label>Registration No.</label>
-                  <p>${registrationNumber}</p>
-                </div>
-                <div class="info-item">
-                  <label>Application No.</label>
-                  <p>${applicationNumber}</p>
-                </div>
-              </div>
-
               <div class="credentials">
                 <h3>🔐 Your ${portalName} Login Credentials</h3>
                 <div class="cred-item">
@@ -108,7 +90,7 @@ async function sendWelcomeEmail(
                 </div>
                 <div class="cred-item">
                   <span class="cred-label">Password:</span>
-                  <span class="cred-value">${DEFAULT_PASSWORD}</span>
+                  <span class="cred-value">${password}</span>
                 </div>
                 <div class="cred-item" style="border-bottom:none;">
                   <span class="cred-label">Portal:</span>
@@ -120,8 +102,6 @@ async function sendWelcomeEmail(
                 ⚠️ <strong>Important:</strong> Please change your password after your first login for security purposes.
               </div>
 
-              <p>You can now access the <strong>${portalName}</strong> to monitor ${role === "parent" ? "your child's" : ""} academic progress, attendance, fee status, and more.</p>
-              
               <p>Welcome to our school family! 🏫</p>
             </div>
             <div class="footer">
@@ -147,9 +127,50 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
+    // Authenticate the caller - must be an admin
+    const authHeader = req.headers.get("authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
+    }
+
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+
+    // Verify caller identity
+    const anonClient = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } },
+    });
+    const { data: claimsData, error: claimsError } = await anonClient.auth.getClaims(
+      authHeader.replace("Bearer ", "")
+    );
+    if (claimsError || !claimsData?.claims) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
+    }
+
+    const callerId = claimsData.claims.sub as string;
+
+    // Check caller has admin role using service client
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
+    const { data: callerRole } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", callerId)
+      .in("role", ["super_admin", "admin"])
+      .maybeSingle();
+
+    if (!callerRole) {
+      return new Response(JSON.stringify({ error: "Forbidden: Admin role required" }), {
+        status: 403,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
+    }
 
     const {
       admissionId,
@@ -164,30 +185,34 @@ const handler = async (req: Request): Promise<Response> => {
       applicationNumber,
     }: CreateStudentRequest = await req.json();
 
-    console.log("Processing admission:", { admissionId, studentName, guardianEmail, applyingForClass });
+    console.log("Processing admission:", { admissionId, studentName, applyingForClass });
 
     if (!guardianEmail) {
       throw new Error("Guardian email is required to create student account");
     }
 
+    // Generate a random password for new accounts
+    const generatedPassword = generateRandomPassword();
+
     // ── 1. Create or find auth user ──
     let userId: string;
+    let isNewUser = false;
     const { data: existingUsers } = await supabase.auth.admin.listUsers();
     const existingUser = existingUsers?.users?.find((u) => u.email === guardianEmail);
 
     if (existingUser) {
-      console.log("User already exists, updating password");
+      console.log("User already exists");
       userId = existingUser.id;
-      await supabase.auth.admin.updateUserById(userId, { password: DEFAULT_PASSWORD });
     } else {
       const { data: authData, error: authError } = await supabase.auth.admin.createUser({
         email: guardianEmail,
-        password: DEFAULT_PASSWORD,
+        password: generatedPassword,
         email_confirm: true,
         user_metadata: { full_name: studentName, must_change_password: true },
       });
       if (authError) throw new Error(`Failed to create user account: ${authError.message}`);
       userId = authData.user.id;
+      isNewUser = true;
       console.log("New user created:", userId);
     }
 
@@ -204,7 +229,6 @@ const handler = async (req: Request): Promise<Response> => {
         .from("user_roles")
         .insert({ user_id: userId, role: "student" });
       if (roleError) throw new Error(`Failed to assign student role: ${roleError.message}`);
-      console.log("Student role assigned");
     }
 
     // ── 3. Update profile ──
@@ -223,7 +247,6 @@ const handler = async (req: Request): Promise<Response> => {
 
     if (existingStudent) {
       studentId = existingStudent.id;
-      console.log("Student record already exists:", studentId);
     } else {
       const { data: newStudent, error: studentError } = await supabase
         .from("students")
@@ -245,14 +268,12 @@ const handler = async (req: Request): Promise<Response> => {
         .single();
 
       if (studentError) {
-        console.error("Error adding student:", studentError);
         throw new Error(`Failed to create student record: ${studentError.message}`);
       }
       studentId = newStudent.id;
-      console.log("Student record created:", studentId);
     }
 
-    // ── 5. Assign parent role (trigger auto-creates parent profile) ──
+    // ── 5. Assign parent role ──
     const { data: existingParentRole } = await supabase
       .from("user_roles")
       .select("*")
@@ -266,15 +287,12 @@ const handler = async (req: Request): Promise<Response> => {
         .insert({ user_id: userId, role: "parent" });
       if (parentRoleError) {
         console.error("Error assigning parent role:", parentRoleError);
-      } else {
-        console.log("Parent role assigned");
       }
     }
 
-    // Wait briefly for trigger to create parent profile
     await new Promise((resolve) => setTimeout(resolve, 500));
 
-    // ── 6. Update parent profile with guardian details ──
+    // ── 6. Update parent profile ──
     const { data: parentProfile } = await supabase
       .from("parents")
       .select("id")
@@ -292,7 +310,6 @@ const handler = async (req: Request): Promise<Response> => {
         })
         .eq("id", parentProfile.id);
 
-      // ── 7. Link parent to student ──
       const { data: existingLink } = await supabase
         .from("parent_students")
         .select("id")
@@ -301,22 +318,14 @@ const handler = async (req: Request): Promise<Response> => {
         .maybeSingle();
 
       if (!existingLink) {
-        const { error: linkError } = await supabase
-          .from("parent_students")
-          .insert({
-            parent_id: parentProfile.id,
-            student_id: studentId,
-            relationship: "guardian",
-            is_primary: true,
-          });
-        if (linkError) {
-          console.error("Error linking parent to student:", linkError);
-        } else {
-          console.log("Parent linked to student");
-        }
+        await supabase.from("parent_students").insert({
+          parent_id: parentProfile.id,
+          student_id: studentId,
+          relationship: "guardian",
+          is_primary: true,
+        });
       }
     } else {
-      console.log("Parent profile not found after trigger, creating manually");
       const { data: newParent, error: manualParentErr } = await supabase
         .from("parents")
         .insert({
@@ -336,11 +345,10 @@ const handler = async (req: Request): Promise<Response> => {
           relationship: "guardian",
           is_primary: true,
         });
-        console.log("Parent profile created manually and linked");
       }
     }
 
-    // ── 8. Create welcome notice ──
+    // ── 7. Create welcome notice (without credentials) ──
     const { data: schoolSettings } = await supabase
       .from("school_settings")
       .select("school_name")
@@ -350,20 +358,21 @@ const handler = async (req: Request): Promise<Response> => {
 
     await supabase.from("notices").insert({
       title: `🎉 Welcome ${studentName} - Admission Approved!`,
-      content: `Dear ${guardianName},\n\nCongratulations! The admission for ${studentName} has been approved.\n\n**Details:**\n- Student: ${studentName}\n- Class: ${applyingForClass}\n- Registration: ${registrationNumber}\n- Application: ${applicationNumber}\n\n**Login Credentials (Student & Parent Portal):**\n- Email: ${guardianEmail}\n- Password: ${DEFAULT_PASSWORD}\n\n⚠️ Please change your password after first login.\n\nWelcome to ${schoolName}!`,
+      content: `Dear ${guardianName},\n\nCongratulations! The admission for ${studentName} has been approved.\n\n**Details:**\n- Student: ${studentName}\n- Class: ${applyingForClass}\n- Registration: ${registrationNumber}\n- Application: ${applicationNumber}\n\nLogin credentials have been sent to your registered email address.\n\nWelcome to ${schoolName}!`,
       category: "Admission",
       is_published: true,
       is_pinned: false,
     });
 
-    // ── 9. Send welcome emails ──
-    await Promise.all([
-      sendWelcomeEmail(guardianEmail, guardianName, studentName, registrationNumber, applicationNumber, applyingForClass, "parent"),
-      sendWelcomeEmail(guardianEmail, guardianName, studentName, registrationNumber, applicationNumber, applyingForClass, "student"),
-    ]);
+    // ── 8. Send welcome emails (only for new users) ──
+    if (isNewUser) {
+      await Promise.all([
+        sendWelcomeEmail(guardianEmail, guardianName, studentName, registrationNumber, applicationNumber, applyingForClass, "parent", generatedPassword),
+        sendWelcomeEmail(guardianEmail, guardianName, studentName, registrationNumber, applicationNumber, applyingForClass, "student", generatedPassword),
+      ]);
+    }
 
-    console.log("=== ACCOUNT CREATED ===");
-    console.log(`Student: ${studentName} | Email: ${guardianEmail} | Reg: ${registrationNumber}`);
+    console.log(`Account created for: ${studentName} | Reg: ${registrationNumber}`);
 
     return new Response(
       JSON.stringify({
@@ -371,7 +380,6 @@ const handler = async (req: Request): Promise<Response> => {
         userId,
         studentId,
         registrationNumber,
-        defaultPassword: DEFAULT_PASSWORD,
         message: "Student & Parent accounts created. Credentials emailed.",
       }),
       { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } },

@@ -109,7 +109,7 @@ const FaceLoginDialog = ({ open, onOpenChange, onSuccess }: FaceLoginDialogProps
       }
 
       // Slightly faster than 500ms for responsiveness, but still light enough.
-      faceDetectionIntervalRef.current = setTimeout(tick, 300) as unknown as NodeJS.Timeout;
+      faceDetectionIntervalRef.current = setTimeout(tick, 300);
     };
 
     tick();

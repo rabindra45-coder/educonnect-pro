@@ -209,239 +209,103 @@ const StudentAuth = () => {
 
             {/* Form Container */}
             <div className="px-6 pb-6">
-              <AnimatePresence mode="wait">
-                {isLogin ? (
-                  <motion.div
-                    key="login"
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: 20 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    {/* Login Info */}
-                    <div className="flex items-start gap-3 mb-6 p-4 rounded-xl bg-primary/5 border border-primary/10">
-                      <GraduationCap className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                      <p className="text-sm text-muted-foreground">
-                        Login with credentials sent after admission approval, or sign up for a new account.
-                      </p>
+              <div>
+                {/* Login Info */}
+                <div className="flex items-start gap-3 mb-6 p-4 rounded-xl bg-primary/5 border border-primary/10">
+                  <GraduationCap className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+                  <p className="text-sm text-muted-foreground">
+                    Login with credentials sent after admission approval.
+                  </p>
+                </div>
+
+                <form onSubmit={loginForm.handleSubmit(handleLogin)} className="space-y-5">
+                  <div className="space-y-2">
+                    <Label htmlFor="email" className="text-sm font-medium">
+                      Email Address
+                    </Label>
+                    <div className="relative">
+                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                      <Input
+                        id="email"
+                        type="email"
+                        placeholder="student@example.com"
+                        {...loginForm.register("email")}
+                        className="pl-10 h-12 rounded-xl bg-muted/50 border-muted-foreground/20 focus:border-primary"
+                      />
                     </div>
+                    {loginForm.formState.errors.email && (
+                      <p className="text-destructive text-xs">{loginForm.formState.errors.email.message}</p>
+                    )}
+                  </div>
 
-                    <form onSubmit={loginForm.handleSubmit(handleLogin)} className="space-y-5">
-                      <div className="space-y-2">
-                        <Label htmlFor="email" className="text-sm font-medium">
-                          Email Address
-                        </Label>
-                        <div className="relative">
-                          <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                          <Input
-                            id="email"
-                            type="email"
-                            placeholder="student@example.com"
-                            {...loginForm.register("email")}
-                            className="pl-10 h-12 rounded-xl bg-muted/50 border-muted-foreground/20 focus:border-primary"
-                          />
-                        </div>
-                        {loginForm.formState.errors.email && (
-                          <p className="text-destructive text-xs">{loginForm.formState.errors.email.message}</p>
-                        )}
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="password" className="text-sm font-medium">
-                          Password
-                        </Label>
-                        <div className="relative">
-                          <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                          <Input
-                            id="password"
-                            type={showPassword ? "text" : "password"}
-                            placeholder="••••••••"
-                            {...loginForm.register("password")}
-                            className="pl-10 pr-10 h-12 rounded-xl bg-muted/50 border-muted-foreground/20 focus:border-primary"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => setShowPassword(!showPassword)}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                          >
-                            {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                          </button>
-                        </div>
-                        {loginForm.formState.errors.password && (
-                          <p className="text-destructive text-xs">{loginForm.formState.errors.password.message}</p>
-                        )}
-                      </div>
-
-                      <Button
-                        type="submit"
-                        className="w-full h-12 rounded-xl text-base font-semibold shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-all"
-                        disabled={isSubmitting}
-                      >
-                        {isSubmitting ? (
-                          <span className="flex items-center gap-2">
-                            <motion.div
-                              animate={{ rotate: 360 }}
-                              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                              className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full"
-                            />
-                            Signing in...
-                          </span>
-                        ) : (
-                          <span className="flex items-center gap-2">
-                            Sign In
-                            <ArrowRight className="w-5 h-5" />
-                          </span>
-                        )}
-                      </Button>
-
-                      <div className="relative my-4">
-                        <div className="absolute inset-0 flex items-center">
-                          <span className="w-full border-t border-muted-foreground/20" />
-                        </div>
-                        <div className="relative flex justify-center text-xs uppercase">
-                          <span className="bg-card px-2 text-muted-foreground">Or</span>
-                        </div>
-                      </div>
-
-                      <Button
+                  <div className="space-y-2">
+                    <Label htmlFor="password" className="text-sm font-medium">
+                      Password
+                    </Label>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                      <Input
+                        id="password"
+                        type={showPassword ? "text" : "password"}
+                        placeholder="••••••••"
+                        {...loginForm.register("password")}
+                        className="pl-10 pr-10 h-12 rounded-xl bg-muted/50 border-muted-foreground/20 focus:border-primary"
+                      />
+                      <button
                         type="button"
-                        variant="outline"
-                        className="w-full h-12 rounded-xl text-base font-medium"
-                        onClick={() => setShowFaceLogin(true)}
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                       >
-                        <ScanFace className="w-5 h-5 mr-2" />
-                        Login with Face
-                      </Button>
-                    </form>
-                  </motion.div>
-                ) : (
-                  <motion.div
-                    key="signup"
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -20 }}
-                    transition={{ duration: 0.2 }}
+                        {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                      </button>
+                    </div>
+                    {loginForm.formState.errors.password && (
+                      <p className="text-destructive text-xs">{loginForm.formState.errors.password.message}</p>
+                    )}
+                  </div>
+
+                  <Button
+                    type="submit"
+                    className="w-full h-12 rounded-xl text-base font-semibold shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-all"
+                    disabled={isSubmitting}
                   >
-                    <form onSubmit={signupForm.handleSubmit(handleSignup)} className="space-y-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="fullName" className="text-sm font-medium">
-                          Full Name
-                        </Label>
-                        <div className="relative">
-                          <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                          <Input
-                            id="fullName"
-                            type="text"
-                            placeholder="Your full name"
-                            {...signupForm.register("fullName")}
-                            className="pl-10 h-12 rounded-xl bg-muted/50 border-muted-foreground/20 focus:border-primary"
-                          />
-                        </div>
-                        {signupForm.formState.errors.fullName && (
-                          <p className="text-destructive text-xs">{signupForm.formState.errors.fullName.message}</p>
-                        )}
-                      </div>
+                    {isSubmitting ? (
+                      <span className="flex items-center gap-2">
+                        <motion.div
+                          animate={{ rotate: 360 }}
+                          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                          className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full"
+                        />
+                        Signing in...
+                      </span>
+                    ) : (
+                      <span className="flex items-center gap-2">
+                        Sign In
+                        <ArrowRight className="w-5 h-5" />
+                      </span>
+                    )}
+                  </Button>
 
-                      <div className="space-y-2">
-                        <Label htmlFor="signupEmail" className="text-sm font-medium">
-                          Email Address
-                        </Label>
-                        <div className="relative">
-                          <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                          <Input
-                            id="signupEmail"
-                            type="email"
-                            placeholder="student@example.com"
-                            {...signupForm.register("email")}
-                            className="pl-10 h-12 rounded-xl bg-muted/50 border-muted-foreground/20 focus:border-primary"
-                          />
-                        </div>
-                        {signupForm.formState.errors.email && (
-                          <p className="text-destructive text-xs">{signupForm.formState.errors.email.message}</p>
-                        )}
-                      </div>
+                  <div className="relative my-4">
+                    <div className="absolute inset-0 flex items-center">
+                      <span className="w-full border-t border-muted-foreground/20" />
+                    </div>
+                    <div className="relative flex justify-center text-xs uppercase">
+                      <span className="bg-card px-2 text-muted-foreground">Or</span>
+                    </div>
+                  </div>
 
-                      <div className="space-y-2">
-                        <Label htmlFor="signupPassword" className="text-sm font-medium">
-                          Password
-                        </Label>
-                        <div className="relative">
-                          <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                          <Input
-                            id="signupPassword"
-                            type={showPassword ? "text" : "password"}
-                            placeholder="••••••••"
-                            {...signupForm.register("password")}
-                            className="pl-10 pr-10 h-12 rounded-xl bg-muted/50 border-muted-foreground/20 focus:border-primary"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => setShowPassword(!showPassword)}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                          >
-                            {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                          </button>
-                        </div>
-                        {signupForm.formState.errors.password && (
-                          <p className="text-destructive text-xs">{signupForm.formState.errors.password.message}</p>
-                        )}
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="confirmPassword" className="text-sm font-medium">
-                          Confirm Password
-                        </Label>
-                        <div className="relative">
-                          <CheckCircle2 className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                          <Input
-                            id="confirmPassword"
-                            type={showConfirmPassword ? "text" : "password"}
-                            placeholder="••••••••"
-                            {...signupForm.register("confirmPassword")}
-                            className="pl-10 pr-10 h-12 rounded-xl bg-muted/50 border-muted-foreground/20 focus:border-primary"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                          >
-                            {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                          </button>
-                        </div>
-                        {signupForm.formState.errors.confirmPassword && (
-                          <p className="text-destructive text-xs">{signupForm.formState.errors.confirmPassword.message}</p>
-                        )}
-                      </div>
-
-                      <Button
-                        type="submit"
-                        className="w-full h-12 rounded-xl text-base font-semibold shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-all"
-                        disabled={isSubmitting}
-                      >
-                        {isSubmitting ? (
-                          <span className="flex items-center gap-2">
-                            <motion.div
-                              animate={{ rotate: 360 }}
-                              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                              className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full"
-                            />
-                            Creating Account...
-                          </span>
-                        ) : (
-                          <span className="flex items-center gap-2">
-                            Create Account
-                            <ArrowRight className="w-5 h-5" />
-                          </span>
-                        )}
-                      </Button>
-
-                      <p className="text-xs text-muted-foreground text-center pt-2">
-                        By signing up, you'll have access to the student portal for notices and academic information.
-                      </p>
-                    </form>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full h-12 rounded-xl text-base font-medium"
+                    onClick={() => setShowFaceLogin(true)}
+                  >
+                    <ScanFace className="w-5 h-5 mr-2" />
+                    Login with Face
+                  </Button>
+                </form>
+              </div>
 
               {/* Divider */}
               <div className="relative my-6">
