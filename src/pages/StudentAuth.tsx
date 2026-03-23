@@ -8,7 +8,6 @@ import {
   Eye,
   EyeOff,
   LogIn,
-  UserPlus,
   GraduationCap,
   Home,
   BookOpen,
@@ -18,8 +17,6 @@ import {
   ArrowRight,
   Mail,
   Lock,
-  User,
-  CheckCircle2,
   ScanFace,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -36,18 +33,7 @@ const loginSchema = z.object({
   password: z.string().min(6, "Password must be at least 6 characters").max(128, "Password too long"),
 });
 
-const signupSchema = z.object({
-  fullName: z.string().trim().min(2, "Name must be at least 2 characters").max(100, "Name too long"),
-  email: z.string().trim().email("Invalid email address").max(255, "Email too long"),
-  password: z.string().min(6, "Password must be at least 6 characters").max(128, "Password too long"),
-  confirmPassword: z.string(),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ["confirmPassword"],
-});
-
 type LoginForm = z.infer<typeof loginSchema>;
-type SignupForm = z.infer<typeof signupSchema>;
 
 const features = [
   { icon: BookOpen, title: "View Notices", description: "Stay updated with school announcements" },
@@ -56,9 +42,7 @@ const features = [
 ];
 
 const StudentAuth = () => {
-  const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showFaceLogin, setShowFaceLogin] = useState(false);
   const { user, signIn, hasRole, isLoading } = useAuth();
