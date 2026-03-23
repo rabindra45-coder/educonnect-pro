@@ -7,7 +7,12 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const DEFAULT_PASSWORD = "12345678";
+function generateRandomPassword(length = 12): string {
+  const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%";
+  const array = new Uint8Array(length);
+  crypto.getRandomValues(array);
+  return Array.from(array, (b) => chars[b % chars.length]).join("");
+}
 
 const handler = async (req: Request): Promise<Response> => {
   console.log("create-parents-bulk function called");
@@ -17,14 +22,53 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
+    // Authenticate the caller - must be an admin
+    const authHeader = req.headers.get("authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
+    }
+
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+
+    const anonClient = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } },
+    });
+    const { data: claimsData, error: claimsError } = await anonClient.auth.getClaims(
+      authHeader.replace("Bearer ", "")
+    );
+    if (claimsError || !claimsData?.claims) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
+    }
+
+    const callerId = claimsData.claims.sub as string;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+    // Verify admin role
+    const { data: callerRole } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", callerId)
+      .in("role", ["super_admin", "admin"])
+      .maybeSingle();
+
+    if (!callerRole) {
+      return new Response(JSON.stringify({ error: "Forbidden: Admin role required" }), {
+        status: 403,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
+    }
 
     const resendKey = Deno.env.get("RESEND_API_KEY");
     const resend = resendKey ? new Resend(resendKey) : null;
 
-    // Get all students with guardian email
     const { data: students, error: studentsError } = await supabase
       .from("students")
       .select("id, user_id, full_name, guardian_name, guardian_email, guardian_phone, address, class")
@@ -33,14 +77,11 @@ const handler = async (req: Request): Promise<Response> => {
 
     if (studentsError) throw new Error(`Failed to fetch students: ${studentsError.message}`);
 
-    console.log(`Found ${students?.length || 0} students with guardian emails`);
-
     let created = 0;
     let skipped = 0;
     let errors = 0;
     const results: any[] = [];
 
-    // Group students by guardian_email so one parent can have multiple children
     const guardianMap = new Map<string, typeof students>();
     for (const student of students || []) {
       if (!student.guardian_email) continue;
@@ -51,28 +92,25 @@ const handler = async (req: Request): Promise<Response> => {
       guardianMap.get(email)!.push(student);
     }
 
-    console.log(`Found ${guardianMap.size} unique guardian emails`);
-
     for (const [guardianEmail, guardianStudents] of guardianMap) {
       try {
         const firstStudent = guardianStudents[0];
 
-        // Check if a parent account already exists for this email
         const { data: existingUsers } = await supabase.auth.admin.listUsers();
         const existingUser = existingUsers?.users?.find(
           (u) => u.email?.toLowerCase() === guardianEmail
         );
 
         let parentUserId: string;
+        let generatedPassword: string | null = null;
 
         if (existingUser) {
           parentUserId = existingUser.id;
-          console.log(`User already exists for ${guardianEmail}: ${parentUserId}`);
         } else {
-          // Create a NEW auth user for the parent with guardian email
+          generatedPassword = generateRandomPassword();
           const { data: newUser, error: createError } = await supabase.auth.admin.createUser({
             email: guardianEmail,
-            password: DEFAULT_PASSWORD,
+            password: generatedPassword,
             email_confirm: true,
             user_metadata: {
               full_name: firstStudent.guardian_name || "Guardian",
@@ -87,10 +125,8 @@ const handler = async (req: Request): Promise<Response> => {
           }
 
           parentUserId = newUser.user!.id;
-          console.log(`Created new user for ${guardianEmail}: ${parentUserId}`);
         }
 
-        // Ensure parent role exists
         const { data: existingRole } = await supabase
           .from("user_roles")
           .select("id")
@@ -102,12 +138,9 @@ const handler = async (req: Request): Promise<Response> => {
           await supabase
             .from("user_roles")
             .insert({ user_id: parentUserId, role: "parent" });
-
-          // Wait for trigger to create parent profile
           await new Promise((r) => setTimeout(r, 500));
         }
 
-        // Get or create parent profile
         let parentId: string | null = null;
         const { data: parentProfile } = await supabase
           .from("parents")
@@ -143,12 +176,10 @@ const handler = async (req: Request): Promise<Response> => {
         }
 
         if (!parentId) {
-          console.error(`Failed to get parent profile for ${guardianEmail}`);
           errors++;
           continue;
         }
 
-        // Link parent to ALL their children
         const childrenNames: string[] = [];
         for (const student of guardianStudents) {
           const { data: existingLink } = await supabase
@@ -165,13 +196,12 @@ const handler = async (req: Request): Promise<Response> => {
               relationship: "guardian",
               is_primary: true,
             });
-            console.log(`Linked parent ${parentId} to student ${student.full_name}`);
           }
           childrenNames.push(`${student.full_name} (Class ${student.class})`);
         }
 
-        // Send welcome email
-        if (resend && !existingUser) {
+        // Send welcome email only for new users
+        if (resend && !existingUser && generatedPassword) {
           try {
             await resend.emails.send({
               from: "Shree Durga Saraswati Janata SS <onboarding@resend.dev>",
@@ -202,7 +232,7 @@ const handler = async (req: Request): Promise<Response> => {
                     </div>
                     <div class="content">
                       <p>Dear <strong>${firstStudent.guardian_name || "Guardian"}</strong>,</p>
-                      <p>We are pleased to provide you access to the <strong>Parent Portal</strong> where you can monitor your children's academic progress, attendance, fees, and more.</p>
+                      <p>We are pleased to provide you access to the <strong>Parent Portal</strong>.</p>
                       
                       <div class="credentials">
                         <h3>🔐 Your Login Credentials</h3>
@@ -212,7 +242,7 @@ const handler = async (req: Request): Promise<Response> => {
                         </div>
                         <div class="cred-row">
                           <span class="cred-label">Password:</span><br>
-                          <span class="cred-value">${DEFAULT_PASSWORD}</span>
+                          <span class="cred-value">${generatedPassword}</span>
                         </div>
                         <div class="cred-row" style="border:none;">
                           <span class="cred-label">Children:</span><br>
@@ -223,8 +253,6 @@ const handler = async (req: Request): Promise<Response> => {
                       <div class="warning">
                         ⚠️ <strong>Important:</strong> Please change your password after your first login for security.
                       </div>
-
-                      <p>Access the Parent Portal to stay connected with your children's education journey.</p>
                     </div>
                     <div class="footer">
                       <p>© ${new Date().getFullYear()} Shree Durga Saraswati Janata Secondary School</p>
@@ -233,7 +261,6 @@ const handler = async (req: Request): Promise<Response> => {
                 </body></html>
               `,
             });
-            console.log(`Email sent to ${guardianEmail}`);
           } catch (emailErr) {
             console.error(`Email failed for ${guardianEmail}:`, emailErr);
           }
@@ -257,18 +284,14 @@ const handler = async (req: Request): Promise<Response> => {
       }
     }
 
-    const summary = {
+    return new Response(JSON.stringify({
       success: true,
       totalGuardians: guardianMap.size,
       created,
       skipped,
       errors,
       results,
-    };
-
-    console.log("Bulk parent creation summary:", summary);
-
-    return new Response(JSON.stringify(summary), {
+    }), {
       status: 200,
       headers: { "Content-Type": "application/json", ...corsHeaders },
     });

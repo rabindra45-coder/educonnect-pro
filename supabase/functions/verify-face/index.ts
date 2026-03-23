@@ -21,9 +21,12 @@ serve(async (req) => {
       );
     }
 
-    if (!verified) {
+    // SECURITY: Never trust client-supplied "verified" flag alone.
+    // The face comparison happens client-side using face-api.js, but we 
+    // validate that the request includes a confidence score above threshold.
+    if (!verified || typeof confidence !== "number" || confidence < 40) {
       return new Response(
-        JSON.stringify({ success: false, message: "Face verification failed" }),
+        JSON.stringify({ success: false, message: "Face verification failed or confidence too low" }),
         { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
@@ -40,6 +43,21 @@ serve(async (req) => {
     if (!user) {
       return new Response(
         JSON.stringify({ success: false, message: "No account found with this email" }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Verify the user actually has face data registered
+    const { data: faceData, error: faceError } = await supabase
+      .from("student_face_data")
+      .select("id")
+      .eq("user_id", user.id)
+      .eq("is_active", true)
+      .single();
+
+    if (faceError || !faceData) {
+      return new Response(
+        JSON.stringify({ success: false, message: "Face login not set up for this account" }),
         { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
@@ -64,7 +82,7 @@ serve(async (req) => {
   } catch (error) {
     console.error("verify-face error:", error);
     return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }),
+      JSON.stringify({ error: "Verification failed" }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }

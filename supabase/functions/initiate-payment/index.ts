@@ -21,16 +21,38 @@ serve(async (req: Request) => {
   }
 
   try {
+    // Authenticate the caller
+    const authHeader = req.headers.get("authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseKey = Deno.env.get("SUPABASE_ANON_KEY")!;
-    const supabase = createClient(supabaseUrl, supabaseKey);
+    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+
+    const anonClient = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } },
+    });
+    const { data: claimsData, error: claimsError } = await anonClient.auth.getClaims(
+      authHeader.replace("Bearer ", "")
+    );
+    if (claimsError || !claimsData?.claims) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Use anon client (with user's auth) for RLS-protected operations
+    const supabase = anonClient;
 
     const { gateway, student_fee_id, amount, student_name, fee_type, return_url }: PaymentRequest = await req.json();
 
-    // Generate unique transaction ID
     const transactionId = `TXN${Date.now()}${Math.random().toString(36).substring(7).toUpperCase()}`;
 
-    // Get student_id from student_fees
     const { data: feeData, error: feeError } = await supabase
       .from("student_fees")
       .select("student_id")
@@ -41,7 +63,6 @@ serve(async (req: Request) => {
       throw new Error("Student fee not found");
     }
 
-    // Store transaction in database
     const { data: transaction, error: txError } = await supabase
       .from("payment_transactions")
       .insert({
@@ -64,9 +85,7 @@ serve(async (req: Request) => {
     let paymentData = {};
 
     switch (gateway) {
-      case "esewa":
-        // eSewa payment integration
-        // In production, use actual eSewa merchant credentials
+      case "esewa": {
         const esewaPath = "https://uat.esewa.com.np/epay/main";
         const esewaParams = new URLSearchParams({
           amt: amount.toString(),
@@ -82,20 +101,23 @@ serve(async (req: Request) => {
         paymentUrl = `${esewaPath}?${esewaParams.toString()}`;
         paymentData = { url: paymentUrl, method: "GET" };
         break;
+      }
 
-      case "khalti":
-        // Khalti payment integration
-        // In production, use actual Khalti secret key
+      case "khalti": {
+        const khaltiSecretKey = Deno.env.get("KHALTI_SECRET_KEY");
+        if (!khaltiSecretKey) {
+          throw new Error("Khalti payment gateway not configured");
+        }
         const khaltiResponse = await fetch("https://a.khalti.com/api/v2/epayment/initiate/", {
           method: "POST",
           headers: {
-            "Authorization": `Key ${Deno.env.get("KHALTI_SECRET_KEY") || "test_secret_key"}`,
+            "Authorization": `Key ${khaltiSecretKey}`,
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
             return_url: `${return_url}?gateway=khalti&tx_id=${transactionId}`,
             website_url: return_url.split("/").slice(0, 3).join("/"),
-            amount: amount * 100, // Khalti expects paisa
+            amount: amount * 100,
             purchase_order_id: transactionId,
             purchase_order_name: `${fee_type} Fee - ${student_name}`,
           }),
@@ -106,29 +128,20 @@ serve(async (req: Request) => {
           paymentUrl = khaltiData.payment_url;
           paymentData = { url: paymentUrl, pidx: khaltiData.pidx };
 
-          // Update transaction with Khalti reference
-          await supabase
+          // Use service client for updating transaction reference
+          const serviceClient = createClient(supabaseUrl, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
+          await serviceClient
             .from("payment_transactions")
             .update({ gateway_reference: khaltiData.pidx })
             .eq("id", transaction.id);
         } else {
-          // For testing, create a mock URL
-          paymentUrl = `${return_url}?gateway=khalti&status=mock&tx_id=${transactionId}`;
-          paymentData = { url: paymentUrl, mock: true };
+          throw new Error("Khalti payment initiation failed");
         }
         break;
+      }
 
       case "imepay":
-        // IME Pay integration
-        // In production, use actual IME Pay credentials
-        const imepayUrl = "https://stg.imepay.com.np:7979/api/Web/GetToken";
-        paymentUrl = `${return_url}?gateway=imepay&status=mock&tx_id=${transactionId}`;
-        paymentData = { 
-          url: paymentUrl, 
-          mock: true,
-          note: "IME Pay integration requires merchant agreement"
-        };
-        break;
+        throw new Error("IME Pay integration requires merchant agreement. Please use another payment method.");
 
       default:
         throw new Error("Invalid payment gateway");
@@ -141,18 +154,13 @@ serve(async (req: Request) => {
         payment_url: paymentUrl,
         payment_data: paymentData,
       }),
-      {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      }
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error: any) {
     console.error("Payment initiation error:", error);
     return new Response(
       JSON.stringify({ success: false, error: error.message }),
-      {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      }
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
 });

@@ -12,31 +12,64 @@ serve(async (req) => {
   }
 
   try {
+    // Authenticate the caller - must be an admin
+    const authHeader = req.headers.get("authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    
-    const supabase = createClient(supabaseUrl, supabaseServiceKey, {
-      auth: {
-        autoRefreshToken: false,
-        persistSession: false,
-      },
+
+    const anonClient = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } },
     });
+    const { data: claimsData, error: claimsError } = await anonClient.auth.getClaims(
+      authHeader.replace("Bearer ", "")
+    );
+    if (claimsError || !claimsData?.claims) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const callerId = claimsData.claims.sub as string;
+    const supabase = createClient(supabaseUrl, supabaseServiceKey, {
+      auth: { autoRefreshToken: false, persistSession: false },
+    });
+
+    // Verify admin role
+    const { data: callerRole } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", callerId)
+      .in("role", ["super_admin", "admin"])
+      .maybeSingle();
+
+    if (!callerRole) {
+      return new Response(JSON.stringify({ error: "Forbidden: Admin role required" }), {
+        status: 403,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
     const { email, password, fullName } = await req.json();
 
-    // Validate input
     if (!email || !password) {
       throw new Error("Email and password are required");
     }
 
-    // Check if user already exists
     const { data: existingUsers } = await supabase.auth.admin.listUsers();
     const existingUser = existingUsers?.users?.find(u => u.email === email);
 
     let userId: string;
 
     if (existingUser) {
-      // Update existing user's password
       const { error: updateError } = await supabase.auth.admin.updateUserById(
         existingUser.id,
         { password }
@@ -44,7 +77,6 @@ serve(async (req) => {
       if (updateError) throw updateError;
       userId = existingUser.id;
     } else {
-      // Create new user
       const { data: newUser, error: createError } = await supabase.auth.admin.createUser({
         email,
         password,
@@ -54,18 +86,12 @@ serve(async (req) => {
       if (createError) throw createError;
       userId = newUser.user.id;
 
-      // Create profile
       const { error: profileError } = await supabase
         .from("profiles")
-        .upsert({
-          id: userId,
-          email,
-          full_name: fullName || "Librarian",
-        });
+        .upsert({ id: userId, email, full_name: fullName || "Librarian" });
       if (profileError) console.error("Profile error:", profileError);
     }
 
-    // Check if librarian role already exists
     const { data: existingRole } = await supabase
       .from("user_roles")
       .select("id")
@@ -74,35 +100,21 @@ serve(async (req) => {
       .single();
 
     if (!existingRole) {
-      // Add librarian role
       const { error: roleError } = await supabase
         .from("user_roles")
-        .insert({
-          user_id: userId,
-          role: "librarian",
-        });
+        .insert({ user_id: userId, role: "librarian" });
       if (roleError) throw roleError;
     }
 
     return new Response(
-      JSON.stringify({
-        success: true,
-        message: "Librarian account created/updated successfully",
-        userId,
-      }),
-      {
-        status: 200,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      }
+      JSON.stringify({ success: true, message: "Librarian account created/updated successfully", userId }),
+      { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error: any) {
     console.error("Error:", error);
     return new Response(
       JSON.stringify({ error: error.message }),
-      {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      }
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
 });

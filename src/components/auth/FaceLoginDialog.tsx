@@ -44,8 +44,8 @@ const FaceLoginDialog = ({ open, onOpenChange, onSuccess }: FaceLoginDialogProps
   const [storedFaceUrl, setStoredFaceUrl] = useState<string | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const faceDetectionIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const faceDetectionIntervalRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { toast } = useToast();
 
   // Load face detection models when dialog opens
@@ -109,7 +109,7 @@ const FaceLoginDialog = ({ open, onOpenChange, onSuccess }: FaceLoginDialogProps
       }
 
       // Slightly faster than 500ms for responsiveness, but still light enough.
-      faceDetectionIntervalRef.current = setTimeout(tick, 300) as unknown as NodeJS.Timeout;
+      faceDetectionIntervalRef.current = setTimeout(tick, 300);
     };
 
     tick();
