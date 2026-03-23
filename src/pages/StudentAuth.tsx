@@ -201,32 +201,10 @@ const StudentAuth = () => {
 
           {/* Auth Card */}
           <div className="bg-card rounded-3xl shadow-2xl border border-border/50 overflow-hidden">
-            {/* Tab Switcher */}
-            <div className="relative flex bg-muted/50 p-1.5 m-4 rounded-xl">
-              <motion.div
-                layoutId="activeTab"
-                className="absolute inset-y-1.5 w-[calc(50%-3px)] bg-card rounded-lg shadow-sm"
-                animate={{ x: isLogin ? 0 : "100%" }}
-                transition={{ type: "spring", stiffness: 300, damping: 30 }}
-              />
-              <button
-                onClick={() => setIsLogin(true)}
-                className={`relative z-10 flex-1 flex items-center justify-center gap-2 py-3 text-sm font-medium transition-colors rounded-lg ${
-                  isLogin ? "text-foreground" : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                <LogIn className="w-4 h-4" />
-                Sign In
-              </button>
-              <button
-                onClick={() => setIsLogin(false)}
-                className={`relative z-10 flex-1 flex items-center justify-center gap-2 py-3 text-sm font-medium transition-colors rounded-lg ${
-                  !isLogin ? "text-foreground" : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                <UserPlus className="w-4 h-4" />
-                Sign Up
-              </button>
+            {/* Header */}
+            <div className="flex items-center justify-center gap-2 py-4 m-4 rounded-xl bg-muted/50">
+              <LogIn className="w-4 h-4" />
+              <span className="text-sm font-medium">Student Sign In</span>
             </div>
 
             {/* Form Container */}
