@@ -1,0 +1,1 @@
+DROP POLICY IF EXISTS "Anyone can verify student by ID" ON public.students;
