@@ -1,5 +1,4 @@
-import { motion } from "framer-motion";
-import { useInView } from "framer-motion";
+import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -7,60 +6,51 @@ import { Link } from "react-router-dom";
 
 const CTASection = () => {
   const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: "-100px" });
+  const isInView = useInView(ref, { once: true, margin: "-80px" });
 
   return (
-    <section className="py-8 xs:py-10 sm:py-16 md:py-20 bg-background" ref={ref}>
-      <div className="container mx-auto px-3 xs:px-4">
+    <section className="py-16 sm:py-20 md:py-24 bg-muted/50" ref={ref}>
+      <div className="container mx-auto px-4">
         <motion.div
-          className="relative bg-gradient-primary rounded-xl xs:rounded-2xl sm:rounded-3xl p-4 xs:p-6 sm:p-10 md:p-16 overflow-hidden"
-          initial={{ opacity: 0, y: 30 }}
+          className="relative bg-primary rounded-2xl sm:rounded-3xl px-6 py-12 sm:px-12 sm:py-16 md:px-16 md:py-20 overflow-hidden text-center"
+          initial={{ opacity: 0, y: 25 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.8 }}
+          transition={{ duration: 0.6 }}
         >
-          {/* Background Decorations */}
-          <div className="absolute top-0 right-0 w-32 xs:w-40 sm:w-64 h-32 xs:h-40 sm:h-64 bg-primary-foreground/5 rounded-full blur-3xl"></div>
-          <div className="absolute bottom-0 left-0 w-24 xs:w-32 sm:w-48 h-24 xs:h-32 sm:h-48 bg-secondary/10 rounded-full blur-2xl"></div>
+          {/* Decorative */}
+          <div className="absolute top-0 right-0 w-48 h-48 bg-secondary/10 rounded-full blur-3xl" />
+          <div className="absolute bottom-0 left-0 w-36 h-36 bg-primary-foreground/5 rounded-full blur-2xl" />
 
-          <div className="relative z-10 max-w-3xl mx-auto text-center">
-            <motion.h2
-              className="font-display text-lg xs:text-xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-primary-foreground mb-3 xs:mb-4 sm:mb-6"
-              initial={{ opacity: 0, y: 20 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.6, delay: 0.2 }}
-            >
-              Ready to Begin Your{" "}
-              <span className="text-secondary">Journey</span> With Us?
-            </motion.h2>
-
-            <motion.p
-              className="text-xs xs:text-sm sm:text-base md:text-lg text-primary-foreground/80 mb-4 xs:mb-5 sm:mb-8 max-w-2xl mx-auto"
-              initial={{ opacity: 0, y: 20 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.6, delay: 0.3 }}
-            >
-              Admissions are now open for the academic year 2081/82. Join our community 
-              of learners and unlock your potential with quality education.
-            </motion.p>
-
+          <div className="relative z-10 max-w-2xl mx-auto">
             <motion.div
-              className="flex flex-row gap-2 xs:gap-3 sm:gap-4 justify-center"
-              initial={{ opacity: 0, y: 20 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.6, delay: 0.4 }}
+              className="flex items-center justify-center gap-3 mb-4"
+              initial={{ opacity: 0 }}
+              animate={isInView ? { opacity: 1 } : {}}
+              transition={{ delay: 0.2 }}
             >
-              <Button variant="hero" size="default" className="text-xs xs:text-sm sm:text-base px-3 xs:px-4 sm:px-6 py-2 xs:py-2.5 sm:py-3 h-auto touch-manipulation" asChild>
-                <Link to="/admission">
-                  Apply Now
-                  <ArrowRight className="w-3.5 h-3.5 xs:w-4 xs:h-4 sm:w-5 sm:h-5 ml-1 xs:ml-1.5 sm:ml-2" />
-                </Link>
-              </Button>
-              <Button variant="hero-outline" size="default" className="text-xs xs:text-sm sm:text-base px-3 xs:px-4 sm:px-6 py-2 xs:py-2.5 sm:py-3 h-auto touch-manipulation" asChild>
-                <Link to="/contact">
-                  Contact Us
-                </Link>
-              </Button>
+              <div className="w-6 h-px bg-secondary" />
+              <span className="text-secondary text-[10px] font-semibold uppercase tracking-widest">Admissions Open</span>
+              <div className="w-6 h-px bg-secondary" />
             </motion.div>
+
+            <h2 className="font-display text-2xl sm:text-3xl md:text-4xl text-primary-foreground mb-4 sm:mb-6 leading-tight">
+              Ready to Begin Your <span className="italic text-secondary">Journey</span> With Us?
+            </h2>
+
+            <p className="text-sm sm:text-base text-primary-foreground/70 mb-8 max-w-lg mx-auto leading-relaxed">
+              Admissions are now open for the academic year 2081/82. Join our community of learners and unlock your potential.
+            </p>
+
+            <div className="flex gap-3 justify-center">
+              <Button size="lg" className="bg-secondary text-secondary-foreground hover:bg-secondary-light font-semibold text-sm h-11 px-7" asChild>
+                <Link to="/admission">
+                  Apply Now <ArrowRight className="w-4 h-4 ml-1.5" />
+                </Link>
+              </Button>
+              <Button variant="ghost" size="lg" className="text-primary-foreground border border-primary-foreground/20 hover:bg-primary-foreground/10 text-sm h-11 px-7" asChild>
+                <Link to="/contact">Contact Us</Link>
+              </Button>
+            </div>
           </div>
         </motion.div>
       </div>
