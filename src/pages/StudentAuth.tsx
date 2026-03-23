@@ -69,6 +69,40 @@ const StudentAuth = () => {
     defaultValues: { email: "", password: "" },
   });
 
+  const handleLogin = async (data: LoginForm) => {
+    setIsSubmitting(true);
+    const { error } = await signIn(data.email, data.password);
+    setIsSubmitting(false);
+
+    if (error) {
+      toast({
+        title: "Login Failed",
+        description: error.message === "Invalid login credentials"
+          ? "Invalid email or password. Please try again."
+          : error.message,
+        variant: "destructive",
+      });
+    } else {
+      try {
+        const { data: { user: loggedInUser } } = await supabase.auth.getUser();
+        if (loggedInUser) {
+          await supabase.functions.invoke("log-login", {
+            body: {
+              userId: loggedInUser.id,
+              email: data.email,
+              fullName: loggedInUser.user_metadata?.full_name,
+              loginMethod: "password",
+              userAgent: navigator.userAgent,
+              timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+            },
+          });
+        }
+      } catch (logError) {
+        console.error("Error logging login:", logError);
+      }
+    }
+  };
+
   return (
     <div className="min-h-screen flex">
       {/* Left Panel - Branding & Features */}
