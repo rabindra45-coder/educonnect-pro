@@ -12,14 +12,16 @@ const defaultImages = [classroomImg, sportsImg, libraryImg];
 
 const FacilitiesSection = () => {
   const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: "-80px" });
+  const isInView = useInView(ref, { once: true, amount: 0.1 });
   const [facilities, setFacilities] = useState<Facility[]>([]);
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
     supabase.from("facilities").select("*").eq("is_active", true).order("display_order")
-      .then(({ data }) => { if (data) setFacilities(data); });
+      .then(({ data }) => { if (data) setFacilities(data); setLoaded(true); });
   }, []);
 
+  if (!loaded) return null;
   if (facilities.length === 0) return null;
 
   return (
