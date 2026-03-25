@@ -8,14 +8,14 @@ import {
   TableCell,
   TableHead,
   TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+  TableRow } from
+"@/components/ui/table";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+  DialogTitle } from
+"@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { DollarSign, CreditCard, Receipt, Download, AlertCircle, CheckCircle, Clock, QrCode } from "lucide-react";
@@ -58,7 +58,7 @@ const statusColors: Record<string, string> = {
   pending: "bg-yellow-100 text-yellow-800",
   paid: "bg-green-100 text-green-800",
   partial: "bg-blue-100 text-blue-800",
-  overdue: "bg-red-100 text-red-800",
+  overdue: "bg-red-100 text-red-800"
 };
 
 const feeTypeLabels: Record<string, string> = {
@@ -88,14 +88,14 @@ const StudentFeesCard = ({ studentId, studentName, className }: StudentFeesCardP
 
   const fetchFees = async () => {
     setLoading(true);
-    const { data, error } = await supabase
-      .from("student_fees")
-      .select(`
+    const { data, error } = await supabase.
+    from("student_fees").
+    select(`
         *,
         fee_structures!inner(fee_type, frequency)
-      `)
-      .eq("student_id", studentId)
-      .order("due_date", { ascending: false });
+      `).
+    eq("student_id", studentId).
+    order("due_date", { ascending: false });
 
     if (!error) {
       setFees(data || []);
@@ -104,20 +104,20 @@ const StudentFeesCard = ({ studentId, studentName, className }: StudentFeesCardP
   };
 
   const fetchPayments = async () => {
-    const { data } = await supabase
-      .from("fee_payments")
-      .select("*")
-      .eq("student_id", studentId)
-      .order("paid_at", { ascending: false });
+    const { data } = await supabase.
+    from("fee_payments").
+    select("*").
+    eq("student_id", studentId).
+    order("paid_at", { ascending: false });
     setPayments(data || []);
   };
 
   const fetchPendingVerifications = async () => {
-    const { data } = await supabase
-      .from("payment_verification_requests")
-      .select("*")
-      .eq("student_id", studentId)
-      .order("created_at", { ascending: false });
+    const { data } = await supabase.
+    from("payment_verification_requests").
+    select("*").
+    eq("student_id", studentId).
+    order("created_at", { ascending: false });
     setPendingVerifications(data || []);
   };
 
@@ -155,7 +155,7 @@ const StudentFeesCard = ({ studentId, studentName, className }: StudentFeesCardP
       const dataUrl = await toPng(receiptRef.current, {
         quality: 1,
         pixelRatio: 2,
-        backgroundColor: "#ffffff",
+        backgroundColor: "#ffffff"
       });
 
       const link = document.createElement("a");
@@ -168,7 +168,7 @@ const StudentFeesCard = ({ studentId, studentName, className }: StudentFeesCardP
     }
   };
 
-  const totalDue = fees.filter(f => f.status !== "paid").reduce((s, f) => s + f.balance, 0);
+  const totalDue = fees.filter((f) => f.status !== "paid").reduce((s, f) => s + f.balance, 0);
   const totalPaid = fees.reduce((s, f) => s + f.paid_amount, 0);
 
   if (loading) {
@@ -177,8 +177,8 @@ const StudentFeesCard = ({ studentId, studentName, className }: StudentFeesCardP
         <CardContent className="py-8 text-center text-muted-foreground">
           Loading fees...
         </CardContent>
-      </Card>
-    );
+      </Card>);
+
   }
 
   return (
@@ -229,15 +229,15 @@ const StudentFeesCard = ({ studentId, studentName, className }: StudentFeesCardP
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {fees.filter(f => f.status !== "paid").length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
+          {fees.filter((f) => f.status !== "paid").length === 0 ?
+          <div className="text-center py-8 text-muted-foreground">
               <CheckCircle className="w-12 h-12 mx-auto mb-4 text-green-500" />
               <p>All fees are paid! 🎉</p>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {fees.filter(f => f.status !== "paid").map((fee) => (
-                <div key={fee.id} className="border rounded-lg p-4">
+            </div> :
+
+          <div className="space-y-4">
+              {fees.filter((f) => f.status !== "paid").map((fee) =>
+            <div key={fee.id} className="border rounded-lg p-4">
                   <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
                       <div className="flex items-center gap-2">
@@ -254,40 +254,40 @@ const StudentFeesCard = ({ studentId, studentName, className }: StudentFeesCardP
                       </p>
                       <div className="mt-2 flex gap-4 text-sm">
                         <span>Amount: रू {fee.amount.toLocaleString()}</span>
-                        {fee.late_fee > 0 && (
-                          <span className="text-red-600">Late Fee: रू {fee.late_fee.toLocaleString()}</span>
-                        )}
-                        {fee.discount > 0 && (
-                          <span className="text-green-600">Discount: रू {fee.discount.toLocaleString()}</span>
-                        )}
+                        {fee.late_fee > 0 &&
+                    <span className="text-red-600">Late Fee: रू {fee.late_fee.toLocaleString()}</span>
+                    }
+                        {fee.discount > 0 &&
+                    <span className="text-green-600">Discount: रू {fee.discount.toLocaleString()}</span>
+                    }
                       </div>
                     </div>
                     <div className="text-right">
                       <p className="text-2xl font-bold text-orange-600">रू {fee.balance.toLocaleString()}</p>
                       <p className="text-sm text-muted-foreground">Balance Due</p>
-                      {hasPendingVerification(fee.id) ? (
-                        <div className="mt-2">
+                      {hasPendingVerification(fee.id) ?
+                  <div className="mt-2">
                           <Badge className="bg-yellow-100 text-yellow-800">
                             <Clock className="w-3 h-3 mr-1" />
                             Payment Pending Verification
                           </Badge>
-                        </div>
-                      ) : (
-                        <Button
-                          size="sm"
-                          className="mt-2"
-                          onClick={() => openPaymentDialog(fee)}
-                        >
+                        </div> :
+
+                  <Button
+                    size="sm"
+                    className="mt-2"
+                    onClick={() => openPaymentDialog(fee)}>
+                    
                           <QrCode className="w-4 h-4 mr-2" />
                           Pay Online
                         </Button>
-                      )}
+                  }
                     </div>
                   </div>
                 </div>
-              ))}
+            )}
             </div>
-          )}
+          }
         </CardContent>
       </Card>
 
@@ -300,13 +300,13 @@ const StudentFeesCard = ({ studentId, studentName, className }: StudentFeesCardP
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {payments.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
+          {payments.length === 0 ?
+          <div className="text-center py-8 text-muted-foreground">
               <Receipt className="w-12 h-12 mx-auto mb-4 opacity-50" />
               <p>No payment records yet.</p>
-            </div>
-          ) : (
-            <Table>
+            </div> :
+
+          <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>Date</TableHead>
@@ -318,11 +318,11 @@ const StudentFeesCard = ({ studentId, studentName, className }: StudentFeesCardP
               </TableHeader>
               <TableBody>
                 {payments.map((payment) => {
-                  const relatedFee = fees.find(f => 
-                    fees.some(sf => sf.id === f.id)
-                  );
-                  return (
-                    <TableRow key={payment.id}>
+                const relatedFee = fees.find((f) =>
+                fees.some((sf) => sf.id === f.id)
+                );
+                return (
+                  <TableRow key={payment.id}>
                       <TableCell>{format(new Date(payment.paid_at), "MMM dd, yyyy")}</TableCell>
                       <TableCell className="font-mono text-sm">{payment.receipt_number}</TableCell>
                       <TableCell className="capitalize">{payment.payment_method.replace("_", " ")}</TableCell>
@@ -331,19 +331,19 @@ const StudentFeesCard = ({ studentId, studentName, className }: StudentFeesCardP
                       </TableCell>
                       <TableCell>
                         <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => relatedFee && viewReceipt(payment, relatedFee)}
-                        >
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => relatedFee && viewReceipt(payment, relatedFee)}>
+                        
                           <Download className="w-4 h-4" />
                         </Button>
                       </TableCell>
-                    </TableRow>
-                  );
-                })}
+                    </TableRow>);
+
+              })}
               </TableBody>
             </Table>
-          )}
+          }
         </CardContent>
       </Card>
 
@@ -353,12 +353,12 @@ const StudentFeesCard = ({ studentId, studentName, className }: StudentFeesCardP
           <DialogHeader>
             <DialogTitle>Payment Receipt</DialogTitle>
           </DialogHeader>
-          {selectedPayment && (
-            <div className="space-y-4">
+          {selectedPayment &&
+          <div className="space-y-4">
               <div ref={receiptRef} className="bg-white p-6 border rounded-lg">
                 <div className="text-center border-b pb-4 mb-4">
                   <h2 className="text-lg font-bold">Shree Durga Saraswati Janata Secondary School</h2>
-                  <p className="text-sm text-muted-foreground">Dumarwana, Saptari, Nepal</p>
+                  <p className="text-sm text-muted-foreground">Barahathawa, sarlahi, Nepal</p>
                   <p className="text-xs mt-2 font-medium">PAYMENT RECEIPT</p>
                 </div>
 
@@ -402,7 +402,7 @@ const StudentFeesCard = ({ studentId, studentName, className }: StudentFeesCardP
                 Download Receipt
               </Button>
             </div>
-          )}
+          }
         </DialogContent>
       </Dialog>
 
@@ -412,10 +412,10 @@ const StudentFeesCard = ({ studentId, studentName, className }: StudentFeesCardP
         onOpenChange={setIsPaymentDialogOpen}
         fee={payingFee}
         studentId={studentId}
-        onSuccess={handlePaymentSuccess}
-      />
-    </div>
-  );
+        onSuccess={handlePaymentSuccess} />
+      
+    </div>);
+
 };
 
 export default StudentFeesCard;
