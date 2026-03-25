@@ -1,4 +1,4 @@
-import { motion, useInView } from "framer-motion";
+import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Star, Quote } from "lucide-react";
@@ -9,40 +9,84 @@ interface Testimonial {
 }
 
 const TestimonialsSection = () => {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: "-80px" });
+  const sectionRef = useRef(null);
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start end", "end start"],
+  });
+  const decorY = useTransform(scrollYProgress, [0, 1], [50, -50]);
 
   useEffect(() => {
     supabase.from("testimonials").select("*").eq("is_active", true).order("display_order")
-      .then(({ data, error }) => { if (data) setTestimonials(data); setIsLoading(false); });
+      .then(({ data }) => { if (data) setTestimonials(data); setIsLoading(false); });
   }, []);
+
+  // Auto rotate
+  useEffect(() => {
+    if (testimonials.length <= 1) return;
+    const timer = setInterval(() => setActiveIndex(p => (p + 1) % testimonials.length), 6000);
+    return () => clearInterval(timer);
+  }, [testimonials.length]);
 
   if (!isLoading && testimonials.length === 0) return null;
 
   return (
-    <section className="py-16 sm:py-20 md:py-24 bg-primary relative overflow-hidden" ref={ref}>
-      {/* Subtle pattern */}
-      <div className="absolute inset-0 opacity-[0.03]">
-        <div className="absolute top-20 left-20 w-40 h-40 border border-primary-foreground rounded-full" />
-        <div className="absolute bottom-20 right-20 w-64 h-64 border border-primary-foreground rounded-full" />
-      </div>
+    <section ref={sectionRef} className="py-20 sm:py-24 md:py-32 bg-primary relative overflow-hidden">
+      {/* Animated background elements */}
+      <motion.div className="absolute inset-0 pointer-events-none" style={{ y: decorY }}>
+        <motion.div
+          className="absolute top-20 left-[10%] w-48 h-48 border border-primary-foreground/5 rounded-full"
+          animate={{ scale: [1, 1.1, 1], opacity: [0.3, 0.5, 0.3] }}
+          transition={{ duration: 8, repeat: Infinity }}
+        />
+        <motion.div
+          className="absolute bottom-20 right-[15%] w-72 h-72 border border-secondary/10 rounded-full"
+          animate={{ scale: [1, 1.05, 1], rotate: [0, 180, 360] }}
+          transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
+        />
+        <motion.div
+          className="absolute top-[40%] right-[5%] w-3 h-3 rounded-full bg-secondary/30"
+          animate={{ y: [0, -30, 0], opacity: [0.3, 0.7, 0.3] }}
+          transition={{ duration: 4, repeat: Infinity }}
+        />
+        <motion.div
+          className="absolute top-[20%] left-[30%] w-2 h-2 rounded-full bg-primary-foreground/20"
+          animate={{ y: [0, 20, 0], x: [0, 10, 0] }}
+          transition={{ duration: 5, repeat: Infinity }}
+        />
+      </motion.div>
 
       <div className="container mx-auto px-4 relative z-10">
         {/* Header */}
         <motion.div
-          className="text-center mb-10 sm:mb-14"
-          initial={{ opacity: 0, y: 20 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.5 }}
+          className="text-center mb-12 sm:mb-16"
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
         >
-          <div className="flex items-center justify-center gap-3 mb-3">
-            <div className="w-8 h-px bg-secondary" />
+          <div className="flex items-center justify-center gap-3 mb-4">
+            <motion.div
+              className="w-10 h-px bg-secondary"
+              initial={{ width: 0 }}
+              whileInView={{ width: 40 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8 }}
+            />
             <span className="text-xs font-semibold uppercase tracking-widest text-secondary">Testimonials</span>
-            <div className="w-8 h-px bg-secondary" />
+            <motion.div
+              className="w-10 h-px bg-secondary"
+              initial={{ width: 0 }}
+              whileInView={{ width: 40 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8 }}
+            />
           </div>
-          <h2 className="font-display text-2xl sm:text-3xl md:text-4xl text-primary-foreground">
+          <h2 className="font-display text-3xl sm:text-4xl md:text-5xl text-primary-foreground">
             What Our <span className="italic text-secondary">Community</span> Says
           </h2>
         </motion.div>
@@ -52,36 +96,84 @@ const TestimonialsSection = () => {
           {testimonials.map((t, i) => (
             <motion.div
               key={t.id}
-              className="bg-primary-foreground/[0.06] backdrop-blur-sm rounded-xl p-6 sm:p-7 border border-primary-foreground/[0.08]"
-              initial={{ opacity: 0, y: 25 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.5, delay: i * 0.1 }}
+              className={`relative rounded-2xl p-6 sm:p-8 border transition-all duration-500 ${
+                i === activeIndex
+                  ? "bg-primary-foreground/10 border-secondary/30 shadow-lg shadow-secondary/10"
+                  : "bg-primary-foreground/[0.04] border-primary-foreground/[0.08]"
+              }`}
+              initial={{ opacity: 0, y: 30, scale: 0.95 }}
+              whileInView={{ opacity: 1, y: 0, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: i * 0.12 }}
+              whileHover={{ y: -5, scale: 1.02 }}
+              onHoverStart={() => setActiveIndex(i)}
             >
-              <Quote className="w-7 h-7 text-secondary/40 mb-4" />
-              <div className="flex gap-0.5 mb-3">
+              {/* Quote icon */}
+              <motion.div
+                animate={i === activeIndex ? { scale: 1.2, rotate: 10 } : { scale: 1, rotate: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <Quote className={`w-8 h-8 mb-5 transition-colors duration-300 ${
+                  i === activeIndex ? "text-secondary/60" : "text-secondary/25"
+                }`} />
+              </motion.div>
+
+              <div className="flex gap-0.5 mb-4">
                 {[...Array(t.rating)].map((_, j) => (
-                  <Star key={j} className="w-3.5 h-3.5 fill-secondary text-secondary" />
+                  <motion.div
+                    key={j}
+                    initial={{ opacity: 0, scale: 0 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: 0.5 + j * 0.05 }}
+                  >
+                    <Star className="w-3.5 h-3.5 fill-secondary text-secondary" />
+                  </motion.div>
                 ))}
               </div>
-              <p className="text-primary-foreground/85 leading-relaxed mb-5 text-sm italic line-clamp-4">
+
+              <p className="text-primary-foreground/80 leading-relaxed mb-6 text-sm italic line-clamp-5">
                 "{t.content}"
               </p>
-              <div className="flex items-center gap-3">
+
+              <div className="flex items-center gap-3 pt-4 border-t border-primary-foreground/10">
                 {t.photo_url ? (
-                  <img src={t.photo_url} alt={t.name} className="w-10 h-10 rounded-full object-cover" />
+                  <motion.img
+                    src={t.photo_url}
+                    alt={t.name}
+                    className="w-11 h-11 rounded-full object-cover ring-2 ring-secondary/20"
+                    whileHover={{ scale: 1.1 }}
+                  />
                 ) : (
-                  <div className="w-10 h-10 rounded-full bg-secondary/20 flex items-center justify-center text-secondary font-semibold text-sm">
+                  <div className="w-11 h-11 rounded-full bg-secondary/20 flex items-center justify-center text-secondary font-semibold text-sm">
                     {t.name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2)}
                   </div>
                 )}
                 <div>
                   <h4 className="text-sm font-semibold text-primary-foreground">{t.name}</h4>
-                  <p className="text-xs text-primary-foreground/60">{t.role}</p>
+                  <p className="text-xs text-primary-foreground/50">{t.role}</p>
                 </div>
               </div>
             </motion.div>
           ))}
         </div>
+
+        {/* Navigation dots */}
+        {testimonials.length > 1 && (
+          <div className="flex justify-center gap-2 mt-10">
+            {testimonials.map((_, i) => (
+              <motion.button
+                key={i}
+                className={`rounded-full transition-all ${
+                  i === activeIndex ? "w-6 h-2 bg-secondary" : "w-2 h-2 bg-primary-foreground/20"
+                }`}
+                onClick={() => setActiveIndex(i)}
+                whileHover={{ scale: 1.3 }}
+                aria-label={`Testimonial ${i + 1}`}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );
