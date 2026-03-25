@@ -1,7 +1,6 @@
-import { motion, useInView } from "framer-motion";
-import { useRef, useEffect, useState } from "react";
+import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowRight } from "lucide-react";
 import classroomImg from "@/assets/classroom.jpg";
 import sportsImg from "@/assets/sports.jpg";
 import libraryImg from "@/assets/library.jpg";
@@ -11,8 +10,6 @@ interface Facility { id: string; title: string; description: string; image_url: 
 const defaultImages = [classroomImg, sportsImg, libraryImg];
 
 const FacilitiesSection = () => {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, amount: 0.1 });
   const [facilities, setFacilities] = useState<Facility[]>([]);
   const [loaded, setLoaded] = useState(false);
 
@@ -21,17 +18,16 @@ const FacilitiesSection = () => {
       .then(({ data }) => { if (data) setFacilities(data); setLoaded(true); });
   }, []);
 
-  if (!loaded) return null;
-  if (facilities.length === 0) return null;
+  if (!loaded || facilities.length === 0) return null;
 
   return (
-    <section className="py-16 sm:py-20 md:py-24 bg-muted/50" ref={ref}>
+    <section className="py-16 sm:py-20 md:py-24 bg-muted/50">
       <div className="container mx-auto px-4">
-        {/* Header */}
         <motion.div
           className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-10 sm:mb-14"
           initial={{ opacity: 0, y: 20 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.1 }}
           transition={{ duration: 0.5 }}
         >
           <div>
@@ -48,14 +44,14 @@ const FacilitiesSection = () => {
           </p>
         </motion.div>
 
-        {/* Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
           {facilities.map((f, i) => (
             <motion.div
               key={f.id}
               className="group relative rounded-xl overflow-hidden bg-card cursor-pointer"
               initial={{ opacity: 0, y: 25 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.1 }}
               transition={{ duration: 0.5, delay: i * 0.1 }}
             >
               <div className="relative h-52 sm:h-60 overflow-hidden">
