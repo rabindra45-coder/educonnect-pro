@@ -71,7 +71,7 @@ const ParentLogin = () => {
             Back to Main Site
           </Link>
           <div className="flex justify-center mb-4">
-            <img src={schoolLogo} alt="School Logo" className="w-20 h-20 object-contain" />
+            <img alt="School Logo" className="w-20 h-20 object-contain" src="/lovable-uploads/3fb1114e-22bb-4ec3-9c84-ca910d624274.png" />
           </div>
           <h1 className="text-2xl font-bold text-foreground">Parent Portal</h1>
           <p className="text-muted-foreground">Milestone College Guardian Management System</p>
