@@ -94,7 +94,7 @@ const Footer = () => {
             <ul className="space-y-3">
               <li className="flex items-start gap-2.5">
                 <MapPin className="w-4 h-4 text-secondary flex-shrink-0 mt-0.5" />
-                <span className="text-sm opacity-70">Barahathawa-10, Sarlahi, Madhesh Province, Nepal</span>
+                <span className="text-sm opacity-70">Balkumar,Lalitpur, Bagmati Province, Nepal</span>
               </li>
               <li className="flex items-center gap-2.5">
                 <Phone className="w-4 h-4 text-secondary flex-shrink-0" />
@@ -102,7 +102,7 @@ const Footer = () => {
               </li>
               <li className="flex items-center gap-2.5">
                 <Mail className="w-4 h-4 text-secondary flex-shrink-0" />
-                <a href="mailto:info@sdsjss.edu.np" className="text-sm opacity-70 hover:opacity-100 transition-opacity">info@sdsjss.edu.np</a>
+                <a className="text-sm opacity-70 hover:opacity-100 transition-opacity" href="mailto:info@milestonecollege.edu.np">info@miles.edu.np</a>
               </li>
               <li className="flex items-center gap-2.5">
                 <Clock className="w-4 h-4 text-secondary flex-shrink-0" />
