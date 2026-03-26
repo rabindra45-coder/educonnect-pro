@@ -144,7 +144,7 @@ const StudentAuth = () => {
             
             <div className="flex items-center gap-4 mb-6">
               <div className="w-20 h-20 bg-white rounded-2xl p-3 shadow-2xl">
-                <img src={schoolLogo} alt="School Logo" className="w-full h-full object-contain" />
+                <img alt="School Logo" className="w-full h-full object-contain" src="/lovable-uploads/a44266fb-533a-4dea-917a-8d4a683c3a90.png" />
               </div>
               <div>
                 <h1 className="font-display text-2xl xl:text-3xl font-bold text-white leading-tight">
