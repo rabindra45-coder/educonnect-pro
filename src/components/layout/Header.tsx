@@ -12,7 +12,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 const navItems = [
   { name: "Home", path: "/" },
   { name: "About", path: "/about", dropdown: [
-    { name: "School History", path: "/about#history" },
+    { name: "College History", path: "/about#history" },
     { name: "Vision & Mission", path: "/about#vision" },
     { name: "Leadership", path: "/about#leadership" },
     { name: "Infrastructure", path: "/about#infrastructure" },
@@ -70,7 +70,7 @@ const Header = () => {
                 <span>info@sdsjss.edu.np</span>
               </a>
             </div>
-            <span className="opacity-60 uppercase tracking-widest text-[10px]">Shree Durga Saraswati Janata Secondary School</span>
+            <span className="opacity-60 uppercase tracking-widest text-[10px]">Milestone International S.S & College</span>
           </div>
         </div>
       </div>
@@ -93,10 +93,10 @@ const Header = () => {
               />
               <div className="hidden xs:block">
                 <h1 className="font-display text-sm md:text-base font-normal text-foreground leading-tight">
-                  Shree Durga Saraswati
+                  Milestone International
                 </h1>
                 <p className="text-[10px] md:text-xs text-muted-foreground tracking-wide">
-                  Janata Secondary School
+                  S.S & College
                 </p>
               </div>
             </Link>
