@@ -1,10 +1,10 @@
 import { Link, useLocation } from "react-router-dom";
-import { 
-  LayoutDashboard, 
-  Users, 
-  GraduationCap, 
-  Megaphone, 
-  FileText, 
+import {
+  LayoutDashboard,
+  Users,
+  GraduationCap,
+  Megaphone,
+  FileText,
   Settings,
   LogOut,
   UserCog,
@@ -19,8 +19,8 @@ import {
   BookOpen,
   Wallet,
   UserCheck,
-  BarChart3
-} from "lucide-react";
+  BarChart3 } from
+"lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
@@ -33,25 +33,25 @@ const AdminSidebar = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   const navItems = [
-    { name: "Dashboard", path: "/admin", icon: LayoutDashboard },
-    { name: "Notices", path: "/admin/notices", icon: Megaphone },
-    { name: "Content", path: "/admin/content", icon: Layers },
-    { name: "Gallery", path: "/admin/gallery", icon: Image },
-    { name: "Students", path: "/admin/students", icon: GraduationCap },
-    { name: "Attendance", path: "/admin/attendance", icon: UserCheck },
-    { name: "Attendance Reports", path: "/admin/attendance-reports", icon: BarChart3 },
-    { name: "Documents", path: "/admin/documents", icon: FolderOpen },
-    { name: "Exams", path: "/admin/exams", icon: ClipboardList },
-    { name: "Subjects", path: "/admin/subjects", icon: BookOpen },
-    { name: "Fees", path: "/admin/fees", icon: Wallet },
-    { name: "Teachers", path: "/admin/teachers", icon: Users },
-    { name: "Admissions", path: "/admin/admissions", icon: FileText },
-    { name: "Chats", path: "/admin/chats", icon: MessageCircle },
-    ...(hasRole("super_admin") ? [
-      { name: "User Management", path: "/admin/users", icon: UserCog },
-    ] : []),
-    { name: "Settings", path: "/admin/settings", icon: Settings },
-  ];
+  { name: "Dashboard", path: "/admin", icon: LayoutDashboard },
+  { name: "Notices", path: "/admin/notices", icon: Megaphone },
+  { name: "Content", path: "/admin/content", icon: Layers },
+  { name: "Gallery", path: "/admin/gallery", icon: Image },
+  { name: "Students", path: "/admin/students", icon: GraduationCap },
+  { name: "Attendance", path: "/admin/attendance", icon: UserCheck },
+  { name: "Attendance Reports", path: "/admin/attendance-reports", icon: BarChart3 },
+  { name: "Documents", path: "/admin/documents", icon: FolderOpen },
+  { name: "Exams", path: "/admin/exams", icon: ClipboardList },
+  { name: "Subjects", path: "/admin/subjects", icon: BookOpen },
+  { name: "Fees", path: "/admin/fees", icon: Wallet },
+  { name: "Teachers", path: "/admin/teachers", icon: Users },
+  { name: "Admissions", path: "/admin/admissions", icon: FileText },
+  { name: "Chats", path: "/admin/chats", icon: MessageCircle },
+  ...(hasRole("super_admin") ? [
+  { name: "User Management", path: "/admin/users", icon: UserCog }] :
+  []),
+  { name: "Settings", path: "/admin/settings", icon: Settings }];
+
 
   const getRoleBadge = () => {
     if (hasRole("super_admin")) return "Super Admin";
@@ -66,34 +66,34 @@ const AdminSidebar = () => {
       className={cn(
         "bg-card border-r border-border h-screen flex flex-col transition-all duration-300",
         isCollapsed ? "w-20" : "w-64"
-      )}
-    >
+      )}>
+      
       {/* Logo */}
       <div className="p-4 border-b border-border">
         <Link to="/admin" className="flex items-center gap-3">
           <img
-            src={schoolLogo}
+
             alt="School Logo"
-            className="w-12 h-12 object-contain"
-          />
-          {!isCollapsed && (
-            <div className="overflow-hidden">
+            className="w-12 h-12 object-contain" src="/lovable-uploads/6a060f55-67c8-4243-ac6f-4320029beca2.png" />
+          
+          {!isCollapsed &&
+          <div className="overflow-hidden">
               <h1 className="font-display text-sm font-bold text-foreground leading-tight truncate">
-                SDSJSS
+                Milestone College
               </h1>
               <p className="text-xs text-muted-foreground">Admin Panel</p>
             </div>
-          )}
+          }
         </Link>
         {/* Link to main site */}
-        <Link 
-          to="/" 
+        <Link
+          to="/"
           className={cn(
             "flex items-center gap-2 mt-3 text-xs text-muted-foreground hover:text-primary transition-colors",
             isCollapsed && "justify-center"
           )}
-          title="Go to main website"
-        >
+          title="Go to main website">
+          
           <Home className="w-4 h-4" />
           {!isCollapsed && <span>Visit Website</span>}
         </Link>
@@ -109,23 +109,23 @@ const AdminSidebar = () => {
               to={item.path}
               className={cn(
                 "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200",
-                isActive
-                  ? "bg-primary text-primary-foreground"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                isActive ?
+                "bg-primary text-primary-foreground" :
+                "text-muted-foreground hover:text-foreground hover:bg-muted"
               )}
-              title={isCollapsed ? item.name : undefined}
-            >
+              title={isCollapsed ? item.name : undefined}>
+              
               <item.icon className="w-5 h-5 flex-shrink-0" />
               {!isCollapsed && <span>{item.name}</span>}
-            </Link>
-          );
+            </Link>);
+
         })}
       </nav>
 
       {/* User Profile */}
       <div className="p-4 border-t border-border">
-        {!isCollapsed && (
-          <div className="mb-3">
+        {!isCollapsed &&
+        <div className="mb-3">
             <p className="text-sm font-medium text-foreground truncate">
               {profile?.full_name || "User"}
             </p>
@@ -133,15 +133,15 @@ const AdminSidebar = () => {
               {getRoleBadge()}
             </span>
           </div>
-        )}
+        }
         <div className="flex items-center gap-2">
           <Button
             variant="ghost"
             size="sm"
             onClick={signOut}
             className={cn("text-muted-foreground hover:text-destructive", isCollapsed && "w-full")}
-            title="Sign out"
-          >
+            title="Sign out">
+            
             <LogOut className="w-4 h-4" />
             {!isCollapsed && <span className="ml-2">Sign Out</span>}
           </Button>
@@ -151,16 +151,16 @@ const AdminSidebar = () => {
       {/* Collapse Toggle */}
       <button
         onClick={() => setIsCollapsed(!isCollapsed)}
-        className="absolute top-20 -right-3 w-6 h-6 bg-card border border-border rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground shadow-sm"
-      >
-        {isCollapsed ? (
-          <ChevronRight className="w-4 h-4" />
-        ) : (
-          <ChevronLeft className="w-4 h-4" />
-        )}
+        className="absolute top-20 -right-3 w-6 h-6 bg-card border border-border rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground shadow-sm">
+        
+        {isCollapsed ?
+        <ChevronRight className="w-4 h-4" /> :
+
+        <ChevronLeft className="w-4 h-4" />
+        }
       </button>
-    </aside>
-  );
+    </aside>);
+
 };
 
 export default AdminSidebar;
