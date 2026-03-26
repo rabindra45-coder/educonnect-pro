@@ -102,7 +102,7 @@ const Footer = () => {
               </li>
               <li className="flex items-center gap-2.5">
                 <Mail className="w-4 h-4 text-secondary flex-shrink-0" />
-                <a className="text-sm opacity-70 hover:opacity-100 transition-opacity" href="mailto:info@milestonecollege.edu.np">info@miles.edu.np</a>
+                <a className="text-sm opacity-70 hover:opacity-100 transition-opacity" href="mailto:info@milestonecollege.edu.np">info@milestonecollege.edu.np</a>
               </li>
               <li className="flex items-center gap-2.5">
                 <Clock className="w-4 h-4 text-secondary flex-shrink-0" />
