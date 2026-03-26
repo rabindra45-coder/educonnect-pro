@@ -12,7 +12,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 const navItems = [
   { name: "Home", path: "/" },
   { name: "About", path: "/about", dropdown: [
-    { name: "School History", path: "/about#history" },
+    { name: "College History", path: "/about#history" },
     { name: "Vision & Mission", path: "/about#vision" },
     { name: "Leadership", path: "/about#leadership" },
     { name: "Infrastructure", path: "/about#infrastructure" },
