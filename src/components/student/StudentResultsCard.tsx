@@ -285,7 +285,7 @@ const StudentResultsCard = ({
                   
                   {/* Right Logo */}
                   <div className="w-20 h-20 bg-white rounded-full p-1 shadow-lg my-0 mx-0 px-0 py-0">
-                    <img src={schoolLogo} alt="School Logo" className="w-full h-full object-contain rounded-full" />
+                    <img alt="School Logo" className="w-full h-full object-contain rounded-full" src="/lovable-uploads/eebaa196-3753-441a-9c7d-004bd9efb613.png" />
                   </div>
                 </div>
               </div>
