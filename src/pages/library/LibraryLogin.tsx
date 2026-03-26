@@ -23,17 +23,17 @@ const LibraryLogin = () => {
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
-        password,
+        password
       });
 
       if (error) throw error;
 
       // Check if user has librarian role
-      const { data: roleData, error: roleError } = await supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", data.user.id)
-        .in("role", ["super_admin", "admin", "librarian"]);
+      const { data: roleData, error: roleError } = await supabase.
+      from("user_roles").
+      select("role").
+      eq("user_id", data.user.id).
+      in("role", ["super_admin", "admin", "librarian"]);
 
       if (roleError) throw roleError;
 
@@ -42,21 +42,21 @@ const LibraryLogin = () => {
         toast({
           title: "Access Denied",
           description: "You don't have permission to access the library portal.",
-          variant: "destructive",
+          variant: "destructive"
         });
         return;
       }
 
       toast({
         title: "Welcome!",
-        description: "Successfully logged in to Library Portal.",
+        description: "Successfully logged in to Library Portal."
       });
       navigate("/library");
     } catch (error: any) {
       toast({
         title: "Login Failed",
         description: error.message,
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setIsLoading(false);
@@ -72,10 +72,10 @@ const LibraryLogin = () => {
             Back to Main Site
           </Link>
           <div className="flex justify-center mb-4">
-            <img src={schoolLogo} alt="School Logo" className="w-20 h-20 object-contain" />
+            <img alt="School Logo" className="w-20 h-20 object-contain" src="/lovable-uploads/563dfcf9-341e-4a5e-a148-6690241f47ac.png" />
           </div>
           <h1 className="text-2xl font-bold text-foreground">Library Portal</h1>
-          <p className="text-muted-foreground">SDSJSS Digital Library Management</p>
+          <p className="text-muted-foreground">Milestone College Digital Library Management</p>
         </div>
 
         <Card className="shadow-xl">
@@ -96,8 +96,8 @@ const LibraryLogin = () => {
                   placeholder="librarian@school.edu.np"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
+                  required />
+                
               </div>
               <div className="space-y-2">
                 <Label htmlFor="password">Password</Label>
@@ -107,18 +107,18 @@ const LibraryLogin = () => {
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
+                  required />
+                
               </div>
               <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? (
-                  <>
+                {isLoading ?
+                <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                     Logging in...
-                  </>
-                ) : (
-                  "Login to Library Portal"
-                )}
+                  </> :
+
+                "Login to Library Portal"
+                }
               </Button>
             </form>
 
@@ -130,8 +130,8 @@ const LibraryLogin = () => {
           </CardContent>
         </Card>
       </div>
-    </div>
-  );
+    </div>);
+
 };
 
 export default LibraryLogin;
