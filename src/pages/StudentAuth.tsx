@@ -151,7 +151,7 @@ const StudentAuth = () => {
                   Student Portal
                 </h1>
                 <p className="text-white/70 text-sm">
-                  श्री दुर्गा सरस्वती जनता मा. वि.
+                  माइलस्टोन इन्टरनेशनल मा. वि.
                 </p>
               </div>
             </div>
