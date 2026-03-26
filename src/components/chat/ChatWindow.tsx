@@ -9,8 +9,8 @@ import {
   DialogDescription,
   DialogFooter,
   DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+  DialogTitle } from
+"@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { ChatMessage } from "@/hooks/useChatbot";
 
@@ -29,7 +29,7 @@ const ChatWindow = ({
   sendMessage,
   shareWithAdmin,
   clearChat,
-  conversationId,
+  conversationId
 }: ChatWindowProps) => {
   const [input, setInput] = useState("");
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
@@ -73,72 +73,72 @@ const ChatWindow = ({
     <div className="flex flex-col h-[420px]">
       {/* Messages Area */}
       <ScrollArea className="flex-1 p-4" ref={scrollRef}>
-        {messages.length === 0 ? (
-          <div className="text-center py-8 text-muted-foreground">
-            <p className="text-sm mb-2">👋 Welcome to SDSJSS!</p>
+        {messages.length === 0 ?
+        <div className="text-center py-8 text-muted-foreground">
+            <p className="text-sm mb-2">👋 Welcome to Milestone College!</p>
             <p className="text-xs">
               Ask me anything about admissions, academics, facilities, or events.
             </p>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {messages.map((message) => (
-              <div
-                key={message.id}
-                className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
-              >
+          </div> :
+
+        <div className="space-y-4">
+            {messages.map((message) =>
+          <div
+            key={message.id}
+            className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}>
+            
                 <div
-                  className={`max-w-[80%] rounded-2xl px-4 py-2 text-sm ${
-                    message.role === "user"
-                      ? "bg-primary text-primary-foreground rounded-br-sm"
-                      : "bg-muted text-foreground rounded-bl-sm"
-                  }`}
-                >
+              className={`max-w-[80%] rounded-2xl px-4 py-2 text-sm ${
+              message.role === "user" ?
+              "bg-primary text-primary-foreground rounded-br-sm" :
+              "bg-muted text-foreground rounded-bl-sm"}`
+              }>
+              
                   <p className="whitespace-pre-wrap break-words">{message.content}</p>
                   <span className="text-[10px] opacity-60 mt-1 block">
-                    {message.timestamp.toLocaleTimeString([], { 
-                      hour: "2-digit", 
-                      minute: "2-digit" 
-                    })}
+                    {message.timestamp.toLocaleTimeString([], {
+                  hour: "2-digit",
+                  minute: "2-digit"
+                })}
                   </span>
                 </div>
               </div>
-            ))}
-            {isLoading && messages[messages.length - 1]?.role !== "assistant" && (
-              <div className="flex justify-start">
+          )}
+            {isLoading && messages[messages.length - 1]?.role !== "assistant" &&
+          <div className="flex justify-start">
                 <div className="bg-muted rounded-2xl rounded-bl-sm px-4 py-3">
                   <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
                 </div>
               </div>
-            )}
+          }
           </div>
-        )}
+        }
       </ScrollArea>
 
       {/* Action Buttons */}
-      {messages.length > 0 && (
-        <div className="px-4 py-2 border-t border-border flex gap-2">
+      {messages.length > 0 &&
+      <div className="px-4 py-2 border-t border-border flex gap-2">
           <Button
-            variant="outline"
-            size="sm"
-            className="text-xs flex-1"
-            onClick={() => setShareDialogOpen(true)}
-            disabled={!conversationId}
-          >
+          variant="outline"
+          size="sm"
+          className="text-xs flex-1"
+          onClick={() => setShareDialogOpen(true)}
+          disabled={!conversationId}>
+          
             <Share2 className="h-3 w-3 mr-1" />
             Share with Admin
           </Button>
           <Button
-            variant="ghost"
-            size="sm"
-            className="text-xs text-muted-foreground"
-            onClick={clearChat}
-          >
+          variant="ghost"
+          size="sm"
+          className="text-xs text-muted-foreground"
+          onClick={clearChat}>
+          
             <Trash2 className="h-3 w-3 mr-1" />
             Clear
           </Button>
         </div>
-      )}
+      }
 
       {/* Input Area */}
       <div className="p-4 border-t border-border">
@@ -150,19 +150,19 @@ const ChatWindow = ({
             onKeyDown={handleKeyDown}
             placeholder="Type your message..."
             disabled={isLoading}
-            className="flex-1"
-          />
+            className="flex-1" />
+          
           <Button
             onClick={handleSend}
             disabled={!input.trim() || isLoading}
             size="icon"
-            className="shrink-0"
-          >
-            {isLoading ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <Send className="h-4 w-4" />
-            )}
+            className="shrink-0">
+            
+            {isLoading ?
+            <Loader2 className="h-4 w-4 animate-spin" /> :
+
+            <Send className="h-4 w-4" />
+            }
           </Button>
         </div>
       </div>
@@ -180,27 +180,27 @@ const ChatWindow = ({
             placeholder="Why is this chat important? (optional)"
             value={shareReason}
             onChange={(e) => setShareReason(e.target.value)}
-            rows={3}
-          />
+            rows={3} />
+          
           <DialogFooter>
             <Button variant="outline" onClick={() => setShareDialogOpen(false)}>
               Cancel
             </Button>
             <Button onClick={handleShare} disabled={isSharing}>
-              {isSharing ? (
-                <>
+              {isSharing ?
+              <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                   Sharing...
-                </>
-              ) : (
-                "Share with Admin"
-              )}
+                </> :
+
+              "Share with Admin"
+              }
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
-  );
+    </div>);
+
 };
 
 export default ChatWindow;
