@@ -45,7 +45,7 @@ const Footer = () => {
               <img src={schoolLogo} alt="SDSJSS Logo" className="w-12 h-12 object-contain bg-white/90 rounded-lg p-1" />
               <div>
                 <h3 className="font-display text-base leading-tight">Milestone International</h3>
-                <p className="text-xs opacity-70">Janata Secondary School</p>
+                <p className="text-xs opacity-70">SS & College </p>
               </div>
             </Link>
             <p className="text-sm opacity-70 leading-relaxed mb-5 max-w-xs">
