@@ -139,7 +139,7 @@ const AIAssistant = () => {
           ).join("\n")}`
         : "";
 
-      const systemPrompt = `You are an AI Academic Assistant for Shree Durga Saraswati Janata Secondary School (SDSJSS). 
+      const systemPrompt = `You are an AI Academic Assistant for Milestone International S.S & College. 
 You help parents understand their children's academic performance and provide personalized advice.
 Keep responses concise and actionable. Use English and Nepali when helpful.
 ${contextStr}`;
