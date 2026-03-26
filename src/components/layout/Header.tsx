@@ -70,7 +70,7 @@ const Header = () => {
                 <span>info@sdsjss.edu.np</span>
               </a>
             </div>
-            <span className="opacity-60 uppercase tracking-widest text-[10px]">Shree Durga Saraswati Janata Secondary School</span>
+            <span className="opacity-60 uppercase tracking-widest text-[10px]">Milestone International S.S & College</span>
           </div>
         </div>
       </div>
