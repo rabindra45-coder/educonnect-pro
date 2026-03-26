@@ -213,7 +213,7 @@ const StudentResultsCard = ({
                 <SelectValue placeholder="Select exam" />
               </SelectTrigger>
               <SelectContent>
-                {exams.map(exam => <SelectItem key={exam.id} value={exam.id}>
+                {exams.map((exam) => <SelectItem key={exam.id} value={exam.id}>
                     {exam.title} ({exam.academic_year})
                   </SelectItem>)}
               </SelectContent>
@@ -272,7 +272,7 @@ const StudentResultsCard = ({
                     <h1 className="text-white text-2xl font-bold tracking-wide" style={{
                   fontFamily: "'Playfair Display', serif"
                 }}>
-                      श्री दुर्गा सरस्वती जनता माध्यमिक विद्यालय
+                      माइलस्टोन इन्टरनेशनल माध्यमिक विद्यालय 
                     </h1>
                     <h2 className="text-white/95 text-lg font-semibold mt-1">
                       Shree Durga Saraswati Janata Secondary School
