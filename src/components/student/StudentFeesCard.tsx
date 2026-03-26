@@ -357,8 +357,8 @@ const StudentFeesCard = ({ studentId, studentName, className }: StudentFeesCardP
           <div className="space-y-4">
               <div ref={receiptRef} className="bg-white p-6 border rounded-lg">
                 <div className="text-center border-b pb-4 mb-4">
-                  <h2 className="text-lg font-bold">Shree Durga Saraswati Janata Secondary School</h2>
-                  <p className="text-sm text-muted-foreground">Barahathawa, sarlahi, Nepal</p>
+                  <h2 className="text-lg font-bold">MileStone International SS & College      </h2>
+                  <p className="text-sm text-muted-foreground">Balkumari, Lalitpur, Nepal</p>
                   <p className="text-xs mt-2 font-medium">PAYMENT RECEIPT</p>
                 </div>
 
