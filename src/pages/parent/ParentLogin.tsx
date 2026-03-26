@@ -23,16 +23,16 @@ const ParentLogin = () => {
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
-        password,
+        password
       });
 
       if (error) throw error;
 
-      const { data: roleData, error: roleError } = await supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", data.user.id)
-        .in("role", ["super_admin", "admin", "parent"]);
+      const { data: roleData, error: roleError } = await supabase.
+      from("user_roles").
+      select("role").
+      eq("user_id", data.user.id).
+      in("role", ["super_admin", "admin", "parent"]);
 
       if (roleError) throw roleError;
 
@@ -41,21 +41,21 @@ const ParentLogin = () => {
         toast({
           title: "Access Denied",
           description: "You don't have permission to access the parent portal.",
-          variant: "destructive",
+          variant: "destructive"
         });
         return;
       }
 
       toast({
         title: "Welcome!",
-        description: "Successfully logged in to Parent Portal.",
+        description: "Successfully logged in to Parent Portal."
       });
       navigate("/parent");
     } catch (error: any) {
       toast({
         title: "Login Failed",
         description: error.message,
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setIsLoading(false);
@@ -74,7 +74,7 @@ const ParentLogin = () => {
             <img src={schoolLogo} alt="School Logo" className="w-20 h-20 object-contain" />
           </div>
           <h1 className="text-2xl font-bold text-foreground">Parent Portal</h1>
-          <p className="text-muted-foreground">SDSJSS Guardian Management System</p>
+          <p className="text-muted-foreground">Milestone College Guardian Management System</p>
         </div>
 
         <Card className="shadow-xl">
@@ -98,8 +98,8 @@ const ParentLogin = () => {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="pl-10"
-                    required
-                  />
+                    required />
+                  
                 </div>
               </div>
 
@@ -111,19 +111,19 @@ const ParentLogin = () => {
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
+                  required />
+                
               </div>
 
               <Button type="submit" className="w-full bg-teal-600 hover:bg-teal-700" disabled={isLoading}>
-                {isLoading ? (
-                  <>
+                {isLoading ?
+                <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                     Logging in...
-                  </>
-                ) : (
-                  "Login to Parent Portal"
-                )}
+                  </> :
+
+                "Login to Parent Portal"
+                }
               </Button>
             </form>
 
@@ -136,8 +136,8 @@ const ParentLogin = () => {
           </CardContent>
         </Card>
       </div>
-    </div>
-  );
+    </div>);
+
 };
 
 export default ParentLogin;
