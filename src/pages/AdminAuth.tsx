@@ -14,17 +14,17 @@ import schoolLogo from "@/assets/logo.png";
 
 const loginSchema = z.object({
   email: z.string().email("Invalid email address"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
+  password: z.string().min(6, "Password must be at least 6 characters")
 });
 
 const signupSchema = z.object({
   fullName: z.string().min(2, "Full name must be at least 2 characters"),
   email: z.string().email("Invalid email address"),
   password: z.string().min(6, "Password must be at least 6 characters"),
-  confirmPassword: z.string(),
+  confirmPassword: z.string()
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Passwords don't match",
-  path: ["confirmPassword"],
+  path: ["confirmPassword"]
 });
 
 type LoginForm = z.infer<typeof loginSchema>;
@@ -46,12 +46,12 @@ const AdminAuth = () => {
 
   const loginForm = useForm<LoginForm>({
     resolver: zodResolver(loginSchema),
-    defaultValues: { email: "", password: "" },
+    defaultValues: { email: "", password: "" }
   });
 
   const signupForm = useForm<SignupForm>({
     resolver: zodResolver(signupSchema),
-    defaultValues: { fullName: "", email: "", password: "", confirmPassword: "" },
+    defaultValues: { fullName: "", email: "", password: "", confirmPassword: "" }
   });
 
   const handleLogin = async (data: LoginForm) => {
@@ -62,15 +62,15 @@ const AdminAuth = () => {
     if (error) {
       toast({
         title: "Login Failed",
-        description: error.message === "Invalid login credentials" 
-          ? "Invalid email or password. Please try again."
-          : error.message,
-        variant: "destructive",
+        description: error.message === "Invalid login credentials" ?
+        "Invalid email or password. Please try again." :
+        error.message,
+        variant: "destructive"
       });
     } else {
       toast({
         title: "Welcome back!",
-        description: "You have successfully logged in.",
+        description: "You have successfully logged in."
       });
       navigate("/admin");
     }
@@ -89,12 +89,12 @@ const AdminAuth = () => {
       toast({
         title: "Signup Failed",
         description: message,
-        variant: "destructive",
+        variant: "destructive"
       });
     } else {
       toast({
         title: "Account Created!",
-        description: "Your account has been created successfully. Please wait for admin approval to access the admin panel.",
+        description: "Your account has been created successfully. Please wait for admin approval to access the admin panel."
       });
       navigate("/admin");
     }
@@ -106,23 +106,23 @@ const AdminAuth = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="w-full max-w-md"
-      >
+        className="w-full max-w-md">
+        
         <div className="bg-card rounded-2xl shadow-2xl border border-border overflow-hidden">
           {/* Header */}
           <div className="bg-primary p-6 text-center">
             <div className="flex justify-center mb-4">
               <img
-                src={schoolLogo}
+
                 alt="School Logo"
-                className="w-20 h-20 object-contain bg-white rounded-full p-2"
-              />
+                className="w-20 h-20 object-contain bg-white rounded-full p-2" src="/lovable-uploads/c2ded1b7-6ab4-459a-bc6e-46d0763cf69e.png" />
+              
             </div>
             <h1 className="font-display text-2xl font-bold text-primary-foreground">
               Admin Portal
             </h1>
             <p className="text-primary-foreground/80 text-sm mt-1">
-              Shree Durga Saraswati Janata Secondary School
+              ​Milestone International SS & College  
             </p>
           </div>
 
@@ -131,22 +131,22 @@ const AdminAuth = () => {
             <button
               onClick={() => setIsLogin(true)}
               className={`flex-1 py-3 text-sm font-medium transition-colors ${
-                isLogin
-                  ? "text-primary border-b-2 border-primary"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
+              isLogin ?
+              "text-primary border-b-2 border-primary" :
+              "text-muted-foreground hover:text-foreground"}`
+              }>
+              
               <LogIn className="w-4 h-4 inline-block mr-2" />
               Login
             </button>
             <button
               onClick={() => setIsLogin(false)}
               className={`flex-1 py-3 text-sm font-medium transition-colors ${
-                !isLogin
-                  ? "text-primary border-b-2 border-primary"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
+              !isLogin ?
+              "text-primary border-b-2 border-primary" :
+              "text-muted-foreground hover:text-foreground"}`
+              }>
+              
               <UserPlus className="w-4 h-4 inline-block mr-2" />
               Sign Up
             </button>
@@ -154,124 +154,124 @@ const AdminAuth = () => {
 
           {/* Form */}
           <div className="p-6">
-            {isLogin ? (
-              <form onSubmit={loginForm.handleSubmit(handleLogin)} className="space-y-4">
+            {isLogin ?
+            <form onSubmit={loginForm.handleSubmit(handleLogin)} className="space-y-4">
                 <div>
                   <Label htmlFor="email">Email</Label>
                   <Input
-                    id="email"
-                    type="email"
-                    placeholder="admin@school.edu.np"
-                    {...loginForm.register("email")}
-                    className="mt-1"
-                  />
-                  {loginForm.formState.errors.email && (
-                    <p className="text-destructive text-xs mt-1">
+                  id="email"
+                  type="email"
+                  placeholder="admin@school.edu.np"
+                  {...loginForm.register("email")}
+                  className="mt-1" />
+                
+                  {loginForm.formState.errors.email &&
+                <p className="text-destructive text-xs mt-1">
                       {loginForm.formState.errors.email.message}
                     </p>
-                  )}
+                }
                 </div>
 
                 <div>
                   <Label htmlFor="password">Password</Label>
                   <div className="relative mt-1">
                     <Input
-                      id="password"
-                      type={showPassword ? "text" : "password"}
-                      placeholder="••••••••"
-                      {...loginForm.register("password")}
-                    />
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="••••••••"
+                    {...loginForm.register("password")} />
+                  
                     <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                    >
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+                    
                       {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
                   </div>
-                  {loginForm.formState.errors.password && (
-                    <p className="text-destructive text-xs mt-1">
+                  {loginForm.formState.errors.password &&
+                <p className="text-destructive text-xs mt-1">
                       {loginForm.formState.errors.password.message}
                     </p>
-                  )}
+                }
                 </div>
 
                 <Button type="submit" className="w-full" disabled={isSubmitting}>
                   {isSubmitting ? "Signing in..." : "Sign In"}
                 </Button>
-              </form>
-            ) : (
-              <form onSubmit={signupForm.handleSubmit(handleSignup)} className="space-y-4">
+              </form> :
+
+            <form onSubmit={signupForm.handleSubmit(handleSignup)} className="space-y-4">
                 <div>
                   <Label htmlFor="fullName">Full Name</Label>
                   <Input
-                    id="fullName"
-                    type="text"
-                    placeholder="John Doe"
-                    {...signupForm.register("fullName")}
-                    className="mt-1"
-                  />
-                  {signupForm.formState.errors.fullName && (
-                    <p className="text-destructive text-xs mt-1">
+                  id="fullName"
+                  type="text"
+                  placeholder="John Doe"
+                  {...signupForm.register("fullName")}
+                  className="mt-1" />
+                
+                  {signupForm.formState.errors.fullName &&
+                <p className="text-destructive text-xs mt-1">
                       {signupForm.formState.errors.fullName.message}
                     </p>
-                  )}
+                }
                 </div>
 
                 <div>
                   <Label htmlFor="signupEmail">Email</Label>
                   <Input
-                    id="signupEmail"
-                    type="email"
-                    placeholder="admin@school.edu.np"
-                    {...signupForm.register("email")}
-                    className="mt-1"
-                  />
-                  {signupForm.formState.errors.email && (
-                    <p className="text-destructive text-xs mt-1">
+                  id="signupEmail"
+                  type="email"
+                  placeholder="admin@school.edu.np"
+                  {...signupForm.register("email")}
+                  className="mt-1" />
+                
+                  {signupForm.formState.errors.email &&
+                <p className="text-destructive text-xs mt-1">
                       {signupForm.formState.errors.email.message}
                     </p>
-                  )}
+                }
                 </div>
 
                 <div>
                   <Label htmlFor="signupPassword">Password</Label>
                   <div className="relative mt-1">
                     <Input
-                      id="signupPassword"
-                      type={showPassword ? "text" : "password"}
-                      placeholder="••••••••"
-                      {...signupForm.register("password")}
-                    />
+                    id="signupPassword"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="••••••••"
+                    {...signupForm.register("password")} />
+                  
                     <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                    >
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+                    
                       {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
                   </div>
-                  {signupForm.formState.errors.password && (
-                    <p className="text-destructive text-xs mt-1">
+                  {signupForm.formState.errors.password &&
+                <p className="text-destructive text-xs mt-1">
                       {signupForm.formState.errors.password.message}
                     </p>
-                  )}
+                }
                 </div>
 
                 <div>
                   <Label htmlFor="confirmPassword">Confirm Password</Label>
                   <Input
-                    id="confirmPassword"
-                    type="password"
-                    placeholder="••••••••"
-                    {...signupForm.register("confirmPassword")}
-                    className="mt-1"
-                  />
-                  {signupForm.formState.errors.confirmPassword && (
-                    <p className="text-destructive text-xs mt-1">
+                  id="confirmPassword"
+                  type="password"
+                  placeholder="••••••••"
+                  {...signupForm.register("confirmPassword")}
+                  className="mt-1" />
+                
+                  {signupForm.formState.errors.confirmPassword &&
+                <p className="text-destructive text-xs mt-1">
                       {signupForm.formState.errors.confirmPassword.message}
                     </p>
-                  )}
+                }
                 </div>
 
                 <Button type="submit" className="w-full" disabled={isSubmitting}>
@@ -282,20 +282,20 @@ const AdminAuth = () => {
                   Note: After signup, you need admin approval to access the dashboard.
                 </p>
               </form>
-            )}
+            }
           </div>
 
           {/* Footer */}
           <div className="px-6 pb-6">
             <div className="flex items-center justify-center gap-2 text-muted-foreground text-sm">
               <School className="w-4 h-4" />
-              <span>SDSJSS Admin Portal</span>
+              <span>Milestone International College Admin Portal</span>
             </div>
           </div>
         </div>
       </motion.div>
-    </div>
-  );
+    </div>);
+
 };
 
 export default AdminAuth;
