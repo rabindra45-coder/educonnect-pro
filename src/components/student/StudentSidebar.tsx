@@ -83,7 +83,7 @@ const StudentSidebar = ({
        {/* Header */}
        <div className={cn("p-4 border-b border-border/50", collapsed && !isMobile && "px-2")}>
          <div className={cn("flex items-center gap-3", collapsed && !isMobile && "justify-center")}>
-           <img src={schoolLogo} alt="Logo" className="w-10 h-10 object-contain" />
+           <img alt="Logo" className="w-10 h-10 object-contain" src="/lovable-uploads/fd29a9e9-6326-4193-ad94-f0181c0d4662.png" />
            {(!collapsed || isMobile) &&
         <div className="flex-1 min-w-0">
                <h1 className="font-display text-sm font-bold text-foreground truncate">Student Portal</h1>
