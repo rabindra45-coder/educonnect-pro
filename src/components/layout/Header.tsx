@@ -93,10 +93,10 @@ const Header = () => {
               />
               <div className="hidden xs:block">
                 <h1 className="font-display text-sm md:text-base font-normal text-foreground leading-tight">
-                  Shree Durga Saraswati
+                  Milestone International
                 </h1>
                 <p className="text-[10px] md:text-xs text-muted-foreground tracking-wide">
-                  Janata Secondary School
+                  S.S & College
                 </p>
               </div>
             </Link>

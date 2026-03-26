@@ -2,41 +2,41 @@ import { Helmet } from "react-helmet-async";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import MainLayout from "@/components/layout/MainLayout";
-import { GraduationCap, BookOpen, Award, Calendar, FileText, ArrowRight } from "lucide-react";
+import { FlaskConical, Briefcase, Scale, Calendar, FileText, ArrowRight } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const academicSections = [
   {
-    title: "Primary Level",
-    description: "Foundation education for grades 1-5 with focus on basic literacy, numeracy, and character development.",
-    icon: BookOpen,
-    path: "/academics/primary",
-    grades: "Grade 1-5",
+    title: "Science Faculty",
+    description: "Higher Secondary Science program with Physical and Biology groups, preparing students for engineering, medicine, and scientific careers.",
+    icon: FlaskConical,
+    path: "/academics/science",
+    grades: "Class 11-12",
   },
   {
-    title: "Lower Secondary",
-    description: "Intermediate education for grades 6-8 bridging foundational and advanced learning.",
-    icon: GraduationCap,
-    path: "/academics/lower-secondary",
-    grades: "Grade 6-8",
+    title: "Management Faculty",
+    description: "Comprehensive Management program with specializations in Computer Science, Hotel Management, and more.",
+    icon: Briefcase,
+    path: "/academics/management",
+    grades: "Class 11-12",
   },
   {
-    title: "Secondary Level",
-    description: "SEE preparation program for grades 9-10 with comprehensive exam-focused curriculum.",
-    icon: Award,
-    path: "/academics/secondary",
-    grades: "Grade 9-10",
+    title: "Law Faculty",
+    description: "Foundation in legal studies preparing students for careers in law, judiciary, and public administration.",
+    icon: Scale,
+    path: "/academics/law",
+    grades: "Class 11-12",
   },
   {
     title: "Exam Results",
-    description: "Access examination results and academic performance reports for all classes.",
+    description: "Access NEB examination results and academic performance reports for all faculties.",
     icon: FileText,
     path: "/academics/results",
-    grades: "All Classes",
+    grades: "All Faculties",
   },
   {
     title: "Academic Calendar",
-    description: "View important dates, exam schedules, holidays, and school events.",
+    description: "View important dates, exam schedules, holidays, and college events.",
     icon: Calendar,
     path: "/academics/calendar",
     grades: "2081/82",
@@ -47,10 +47,10 @@ const Academics = () => {
   return (
     <>
       <Helmet>
-        <title>Academics | Shree Durga Saraswati Janata Secondary School</title>
+        <title>Academics | Milestone International S.S & College</title>
         <meta
           name="description"
-          content="Explore academic programs at SDSJSS including Primary, Lower Secondary, and Secondary levels with comprehensive curriculum and exam preparation."
+          content="Explore academic programs at Milestone International College including Science, Management, and Law faculties for Class 11-12 Higher Secondary (+2) level."
         />
       </Helmet>
 
@@ -69,7 +69,7 @@ const Academics = () => {
                 Academics
               </h1>
               <p className="text-lg text-primary-foreground/80">
-                Comprehensive education from primary to secondary level, preparing students for academic excellence.
+                Higher Secondary (+2) education with Science, Management, and Law faculties — shaping future leaders.
               </p>
             </motion.div>
           </div>
@@ -85,10 +85,10 @@ const Academics = () => {
               viewport={{ once: true }}
             >
               <h2 className="font-display text-3xl font-bold text-foreground mb-4">
-                Our Academic Programs
+                Our Faculties & Programs
               </h2>
               <p className="text-muted-foreground max-w-2xl mx-auto">
-                We offer quality education across all levels, following the national curriculum with enhanced teaching methodologies.
+                We offer NEB-affiliated +2 programs across three faculties with specialized streams and expert faculty.
               </p>
             </motion.div>
 
@@ -139,15 +139,15 @@ const Academics = () => {
               viewport={{ once: true }}
             >
               <h2 className="font-display text-3xl font-bold text-foreground mb-4">
-                Why Choose Our School
+                Why Choose Milestone International
               </h2>
             </motion.div>
 
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
               {[
-                { title: "Experienced Faculty", value: "25+", subtitle: "Qualified Teachers" },
-                { title: "Student Success", value: "95%", subtitle: "SEE Pass Rate" },
-                { title: "Modern Facilities", value: "10+", subtitle: "Learning Labs" },
+                { title: "Expert Faculty", value: "30+", subtitle: "Qualified Lecturers" },
+                { title: "NEB Results", value: "95%", subtitle: "Pass Rate" },
+                { title: "Modern Labs", value: "12+", subtitle: "Specialized Labs" },
                 { title: "Years of Excellence", value: "20+", subtitle: "Serving Community" },
               ].map((stat, index) => (
                 <motion.div

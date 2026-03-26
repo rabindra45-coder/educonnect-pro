@@ -13,13 +13,13 @@ const Index = () => {
   return (
     <>
       <Helmet>
-        <title>Shree Durga Saraswati Janata Secondary School | Excellence in Education</title>
+        <title>Milestone International S.S & College | Excellence in Higher Secondary Education</title>
         <meta 
           name="description" 
-          content="Welcome to Shree Durga Saraswati Janata Secondary School - A premier educational institution in Nepal offering quality education from primary to secondary level. Admissions open for 2081/82." 
+          content="Welcome to Milestone International S.S & College - A premier +2 college in Nepal offering Science, Management, and Law faculties for Class 11-12. Admissions open for 2081/82." 
         />
-        <meta name="keywords" content="school, education, Nepal, secondary school, admission, Durga Saraswati, Janata School" />
-        <link rel="canonical" href="https://sdsjss.edu.np" />
+        <meta name="keywords" content="college, +2, higher secondary, Nepal, Science, Management, Law, Milestone International, Class 11, Class 12" />
+        <link rel="canonical" href="https://milestonecollege.edu.np" />
       </Helmet>
       
       <MainLayout>

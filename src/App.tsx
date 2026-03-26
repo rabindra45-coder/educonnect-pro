@@ -12,9 +12,9 @@ import Notices from "./pages/Notices";
 import Admission from "./pages/Admission";
 import Gallery from "./pages/Gallery";
 import Academics from "./pages/Academics";
-import PrimaryLevel from "./pages/academics/PrimaryLevel";
-import LowerSecondary from "./pages/academics/LowerSecondary";
-import SecondaryLevel from "./pages/academics/SecondaryLevel";
+import ScienceFaculty from "./pages/academics/ScienceFaculty";
+import ManagementFaculty from "./pages/academics/ManagementFaculty";
+import LawFaculty from "./pages/academics/LawFaculty";
 import ExamResults from "./pages/academics/ExamResults";
 import AcademicCalendar from "./pages/academics/AcademicCalendar";
 import NotFound from "./pages/NotFound";
@@ -69,9 +69,9 @@ const App = () => (
               <Route path="/admission" element={<Admission />} />
               <Route path="/gallery" element={<Gallery />} />
               <Route path="/academics" element={<Academics />} />
-              <Route path="/academics/primary" element={<PrimaryLevel />} />
-              <Route path="/academics/lower-secondary" element={<LowerSecondary />} />
-              <Route path="/academics/secondary" element={<SecondaryLevel />} />
+              <Route path="/academics/science" element={<ScienceFaculty />} />
+              <Route path="/academics/management" element={<ManagementFaculty />} />
+              <Route path="/academics/law" element={<LawFaculty />} />
               <Route path="/academics/results" element={<ExamResults />} />
               <Route path="/academics/calendar" element={<AcademicCalendar />} />
               <Route path="/login" element={<StudentAuth />} />
