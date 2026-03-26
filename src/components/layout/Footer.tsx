@@ -18,22 +18,22 @@ const Footer = () => {
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
 
   const quickLinks = [
-    { name: "About Us", path: "/about" },
-    { name: "Academics", path: "/academics" },
-    { name: "Notice Board", path: "/notices" },
-    { name: "Gallery", path: "/gallery" },
-    { name: "Contact", path: "/contact" },
-    { name: "Online Admission", path: "/admission" },
-    { name: "Library Portal", path: "/library/login" },
-  ];
+  { name: "About Us", path: "/about" },
+  { name: "Academics", path: "/academics" },
+  { name: "Notice Board", path: "/notices" },
+  { name: "Gallery", path: "/gallery" },
+  { name: "Contact", path: "/contact" },
+  { name: "Online Admission", path: "/admission" },
+  { name: "Library Portal", path: "/library/login" }];
+
 
   const academicLinks = [
-    { name: "Primary Level", path: "/academics#primary" },
-    { name: "Lower Secondary", path: "/academics#lower-secondary" },
-    { name: "Secondary Level", path: "/academics#secondary" },
-    { name: "Exam Results", path: "/results" },
-    { name: "Academic Calendar", path: "/calendar" },
-  ];
+  { name: "Primary Level", path: "/academics#primary" },
+  { name: "Lower Secondary", path: "/academics#lower-secondary" },
+  { name: "Secondary Level", path: "/academics#secondary" },
+  { name: "Exam Results", path: "/results" },
+  { name: "Academic Calendar", path: "/calendar" }];
+
 
   return (
     <footer className="bg-primary text-primary-foreground">
@@ -44,7 +44,7 @@ const Footer = () => {
             <Link to="/" className="flex items-center gap-3 mb-5">
               <img src={schoolLogo} alt="SDSJSS Logo" className="w-12 h-12 object-contain bg-white/90 rounded-lg p-1" />
               <div>
-                <h3 className="font-display text-base leading-tight">Shree Durga Saraswati</h3>
+                <h3 className="font-display text-base leading-tight">Milestone International</h3>
                 <p className="text-xs opacity-70">Janata Secondary School</p>
               </div>
             </Link>
@@ -52,11 +52,11 @@ const Footer = () => {
               Nurturing minds, building futures since establishment. Quality education empowering students to achieve their full potential.
             </p>
             <div className="flex gap-2">
-              {[Facebook, Youtube].map((Icon, i) => (
-                <a key={i} href="#" className="w-9 h-9 rounded-md bg-primary-foreground/10 flex items-center justify-center hover:bg-secondary hover:text-secondary-foreground transition-all">
+              {[Facebook, Youtube].map((Icon, i) =>
+              <a key={i} href="#" className="w-9 h-9 rounded-md bg-primary-foreground/10 flex items-center justify-center hover:bg-secondary hover:text-secondary-foreground transition-all">
                   <Icon className="w-4 h-4" />
                 </a>
-              ))}
+              )}
             </div>
           </div>
 
@@ -64,13 +64,13 @@ const Footer = () => {
           <div>
             <h4 className="text-sm font-semibold mb-4 uppercase tracking-wider opacity-90">Quick Links</h4>
             <ul className="space-y-2">
-              {quickLinks.map(link => (
-                <li key={link.name}>
+              {quickLinks.map((link) =>
+              <li key={link.name}>
                   <Link to={link.path} className="text-sm opacity-70 hover:opacity-100 hover:text-secondary transition-all">
                     {link.name}
                   </Link>
                 </li>
-              ))}
+              )}
             </ul>
           </div>
 
@@ -78,13 +78,13 @@ const Footer = () => {
           <div>
             <h4 className="text-sm font-semibold mb-4 uppercase tracking-wider opacity-90">Academics</h4>
             <ul className="space-y-2">
-              {academicLinks.map(link => (
-                <li key={link.name}>
+              {academicLinks.map((link) =>
+              <li key={link.name}>
                   <Link to={link.path} className="text-sm opacity-70 hover:opacity-100 hover:text-secondary transition-all">
                     {link.name}
                   </Link>
                 </li>
-              ))}
+              )}
             </ul>
           </div>
 
@@ -123,8 +123,8 @@ const Footer = () => {
           </div>
         </div>
       </div>
-    </footer>
-  );
+    </footer>);
+
 };
 
 export default Footer;

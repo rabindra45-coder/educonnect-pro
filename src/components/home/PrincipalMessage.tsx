@@ -11,16 +11,16 @@ const PrincipalMessage = () => {
 
   const { scrollYProgress } = useScroll({
     target: ref,
-    offset: ["start end", "end start"],
+    offset: ["start end", "end start"]
   });
   const imageY = useTransform(scrollYProgress, [0, 1], [30, -30]);
   const contentY = useTransform(scrollYProgress, [0, 1], [20, -20]);
 
   useEffect(() => {
-    supabase.from("school_settings")
-      .select("principal_name, principal_message, principal_photo_url, principal_years_experience")
-      .limit(1).maybeSingle()
-      .then(({ data }) => { if (data) setSettings(data); setLoading(false); });
+    supabase.from("school_settings").
+    select("principal_name, principal_message, principal_photo_url, principal_years_experience").
+    limit(1).maybeSingle().
+    then(({ data }) => {if (data) setSettings(data);setLoading(false);});
   }, []);
 
   const name = settings?.principal_name || "Mr. Ram Balak Sharma";
@@ -43,15 +43,15 @@ const PrincipalMessage = () => {
           initial={{ opacity: 0, x: -30 }}
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-        >
+          transition={{ duration: 0.6 }}>
+          
           <motion.div
             className="w-12 h-px bg-secondary"
             initial={{ width: 0 }}
             whileInView={{ width: 48 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-          />
+            transition={{ duration: 0.8 }} />
+          
           <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">From the Principal's Desk</span>
         </motion.div>
 
@@ -63,14 +63,14 @@ const PrincipalMessage = () => {
               initial={{ opacity: 0, x: -40 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.8 }}
-            >
+              transition={{ duration: 0.8 }}>
+              
               <div className="rounded-2xl overflow-hidden shadow-2xl relative group">
                 <img
                   src={photo}
                   alt={`${name} - Principal`}
-                  className="w-full aspect-[3/4] object-cover group-hover:scale-105 transition-transform duration-700"
-                />
+                  className="w-full aspect-[3/4] object-cover group-hover:scale-105 transition-transform duration-700" />
+                
                 {/* Gradient overlay on hover */}
                 <div className="absolute inset-0 bg-gradient-to-t from-primary/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
               </div>
@@ -81,8 +81,8 @@ const PrincipalMessage = () => {
                 initial={{ scale: 0, rotate: -10 }}
                 whileInView={{ scale: 1, rotate: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: 0.5, type: "spring", stiffness: 200 }}
-              >
+                transition={{ delay: 0.5, type: "spring", stiffness: 200 }}>
+                
                 <div className="text-center">
                   <div className="font-display text-2xl sm:text-3xl">{years}+</div>
                   <div className="text-[9px] sm:text-[10px] font-semibold uppercase tracking-wider opacity-80">Years in<br />Education</div>
@@ -95,15 +95,15 @@ const PrincipalMessage = () => {
                 initial={{ opacity: 0, scale: 0.5 }}
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
-                transition={{ delay: 0.7 }}
-              />
+                transition={{ delay: 0.7 }} />
+              
               <motion.div
                 className="absolute -bottom-3 -right-3 w-20 h-20 border-b-2 border-r-2 border-secondary/30 rounded-br-2xl"
                 initial={{ opacity: 0, scale: 0.5 }}
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
-                transition={{ delay: 0.8 }}
-              />
+                transition={{ delay: 0.8 }} />
+              
             </motion.div>
           </motion.div>
 
@@ -113,64 +113,64 @@ const PrincipalMessage = () => {
               initial={{ opacity: 0, x: 40 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-            >
+              transition={{ duration: 0.8, delay: 0.2 }}>
+              
               <h2 className="font-display text-3xl sm:text-4xl md:text-5xl text-foreground mb-8 sm:mb-10 leading-tight">
                 A Message from <br className="hidden sm:block" />
                 <span className="italic text-primary">Our Principal</span>
               </h2>
 
-              {loading ? (
-                <div className="flex items-center justify-center py-8">
+              {loading ?
+              <div className="flex items-center justify-center py-8">
                   <Loader2 className="w-5 h-5 animate-spin text-primary" />
-                </div>
-              ) : (
-                <>
+                </div> :
+
+              <>
                   <div className="relative mb-8">
                     <Quote className="absolute -top-2 -left-2 w-8 h-8 text-secondary/20" />
                     <div className="space-y-4 pl-6">
-                      {paragraphs.map((p, i) => (
-                        <motion.p
-                          key={i}
-                          className={`text-muted-foreground leading-relaxed text-sm sm:text-base ${i === 0 ? "text-base sm:text-lg text-foreground/80 italic border-l-2 border-secondary pl-4" : ""}`}
-                          initial={{ opacity: 0, y: 15 }}
-                          whileInView={{ opacity: 1, y: 0 }}
-                          viewport={{ once: true }}
-                          transition={{ duration: 0.5, delay: 0.4 + i * 0.15 }}
-                        >
+                      {paragraphs.map((p, i) =>
+                    <motion.p
+                      key={i}
+                      className={`text-muted-foreground leading-relaxed text-sm sm:text-base ${i === 0 ? "text-base sm:text-lg text-foreground/80 italic border-l-2 border-secondary pl-4" : ""}`}
+                      initial={{ opacity: 0, y: 15 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.5, delay: 0.4 + i * 0.15 }}>
+                      
                           {p}
                         </motion.p>
-                      ))}
+                    )}
                     </div>
                   </div>
 
                   <motion.div
-                    className="flex items-center gap-4 pt-6 border-t border-border"
-                    initial={{ opacity: 0 }}
-                    whileInView={{ opacity: 1 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: 0.8 }}
-                  >
+                  className="flex items-center gap-4 pt-6 border-t border-border"
+                  initial={{ opacity: 0 }}
+                  whileInView={{ opacity: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: 0.8 }}>
+                  
                     <motion.div
-                      className="w-1 h-10 bg-secondary rounded-full"
-                      initial={{ height: 0 }}
-                      whileInView={{ height: 40 }}
-                      viewport={{ once: true }}
-                      transition={{ delay: 0.9, duration: 0.4 }}
-                    />
+                    className="w-1 h-10 bg-secondary rounded-full"
+                    initial={{ height: 0 }}
+                    whileInView={{ height: 40 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: 0.9, duration: 0.4 }} />
+                  
                     <div>
                       <h4 className="font-display text-lg sm:text-xl text-foreground">{name}</h4>
-                      <p className="text-sm text-muted-foreground">Principal, SDSJSS</p>
+                      <p className="text-sm text-muted-foreground">Principal, Milestone International College</p>
                     </div>
                   </motion.div>
                 </>
-              )}
+              }
             </motion.div>
           </motion.div>
         </div>
       </div>
-    </section>
-  );
+    </section>);
+
 };
 
 export default PrincipalMessage;
