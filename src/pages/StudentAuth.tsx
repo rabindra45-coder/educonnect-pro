@@ -226,8 +226,8 @@ const StudentAuth = () => {
             animate={{ opacity: 1, y: 0 }}
             className="lg:hidden text-center mb-8">
             
-            <div className="w-20 h-20 mx-auto mb-4 bg-primary rounded-2xl p-3 shadow-lg">
-              <img alt="School Logo" className="w-full h-full object-contain" src="/lovable-uploads/af1c6c00-51ba-4cae-929e-90850ab5c251.png" />
+            <div className="w-20 h-20 mx-auto mb-4 rounded-2xl p-3 shadow-lg bg-primary-foreground">
+              <img alt="School Logo" className="w-full h-full object-contain text-6xl" src="/lovable-uploads/863d7717-eb32-48c7-9790-d7575372a745.png" />
             </div>
             <h1 className="font-display text-2xl font-bold text-foreground">Student Portal</h1>
             <p className="text-muted-foreground text-sm">माइलस्टोन इन्टरनेशनल मा. वि.</p>
