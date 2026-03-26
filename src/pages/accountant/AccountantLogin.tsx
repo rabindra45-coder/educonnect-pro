@@ -23,17 +23,17 @@ const AccountantLogin = () => {
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
-        password,
+        password
       });
 
       if (error) throw error;
 
       // Check if user has accountant role
-      const { data: roleData, error: roleError } = await supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", data.user.id)
-        .in("role", ["super_admin", "admin", "accountant"]);
+      const { data: roleData, error: roleError } = await supabase.
+      from("user_roles").
+      select("role").
+      eq("user_id", data.user.id).
+      in("role", ["super_admin", "admin", "accountant"]);
 
       if (roleError) throw roleError;
 
@@ -42,21 +42,21 @@ const AccountantLogin = () => {
         toast({
           title: "Access Denied",
           description: "You don't have permission to access the accountant portal.",
-          variant: "destructive",
+          variant: "destructive"
         });
         return;
       }
 
       toast({
         title: "Welcome!",
-        description: "Successfully logged in to Accountant Portal.",
+        description: "Successfully logged in to Accountant Portal."
       });
       navigate("/accountant");
     } catch (error: any) {
       toast({
         title: "Login Failed",
         description: error.message,
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setIsLoading(false);
@@ -72,10 +72,10 @@ const AccountantLogin = () => {
             Back to Main Site
           </Link>
           <div className="flex justify-center mb-4">
-            <img src={schoolLogo} alt="School Logo" className="w-20 h-20 object-contain" />
+            <img alt="School Logo" className="w-20 h-20 object-contain" src="/lovable-uploads/c95f7bbe-c429-4c53-8c05-cddc7872918b.png" />
           </div>
           <h1 className="text-2xl font-bold text-foreground">Accountant Portal</h1>
-          <p className="text-muted-foreground">SDSJSS Finance Management</p>
+          <p className="text-muted-foreground">Milestone College Finance Management</p>
         </div>
 
         <Card className="shadow-xl">
@@ -96,8 +96,8 @@ const AccountantLogin = () => {
                   placeholder="accountant@school.edu.np"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
+                  required />
+                
               </div>
               <div className="space-y-2">
                 <Label htmlFor="password">Password</Label>
@@ -107,18 +107,18 @@ const AccountantLogin = () => {
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
+                  required />
+                
               </div>
               <Button type="submit" className="w-full bg-emerald-600 hover:bg-emerald-700" disabled={isLoading}>
-                {isLoading ? (
-                  <>
+                {isLoading ?
+                <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                     Logging in...
-                  </>
-                ) : (
-                  "Login to Finance Portal"
-                )}
+                  </> :
+
+                "Login to Finance Portal"
+                }
               </Button>
             </form>
 
@@ -130,8 +130,8 @@ const AccountantLogin = () => {
           </CardContent>
         </Card>
       </div>
-    </div>
-  );
+    </div>);
+
 };
 
 export default AccountantLogin;
