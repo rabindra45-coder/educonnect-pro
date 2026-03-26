@@ -29,22 +29,22 @@ const TeacherLogin = () => {
 
       // If using staff ID or phone, we need to look up the email first
       if (loginMethod === "staffId" && staffId) {
-        const { data: teacherData, error: teacherError } = await supabase
-          .from("teachers")
-          .select("email")
-          .eq("employee_id", staffId)
-          .maybeSingle();
+        const { data: teacherData, error: teacherError } = await supabase.
+        from("teachers").
+        select("email").
+        eq("employee_id", staffId).
+        maybeSingle();
 
         if (teacherError || !teacherData?.email) {
           throw new Error("Staff ID not found. Please check your credentials.");
         }
         loginEmail = teacherData.email;
       } else if (loginMethod === "phone" && phone) {
-        const { data: teacherData, error: teacherError } = await supabase
-          .from("teachers")
-          .select("email")
-          .eq("phone", phone)
-          .maybeSingle();
+        const { data: teacherData, error: teacherError } = await supabase.
+        from("teachers").
+        select("email").
+        eq("phone", phone).
+        maybeSingle();
 
         if (teacherError || !teacherData?.email) {
           throw new Error("Phone number not found. Please check your credentials.");
@@ -58,17 +58,17 @@ const TeacherLogin = () => {
 
       const { data, error } = await supabase.auth.signInWithPassword({
         email: loginEmail,
-        password,
+        password
       });
 
       if (error) throw error;
 
       // Check if user has teacher role
-      const { data: roleData, error: roleError } = await supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", data.user.id)
-        .in("role", ["super_admin", "admin", "teacher"]);
+      const { data: roleData, error: roleError } = await supabase.
+      from("user_roles").
+      select("role").
+      eq("user_id", data.user.id).
+      in("role", ["super_admin", "admin", "teacher"]);
 
       if (roleError) throw roleError;
 
@@ -77,21 +77,21 @@ const TeacherLogin = () => {
         toast({
           title: "Access Denied",
           description: "You don't have permission to access the teacher portal.",
-          variant: "destructive",
+          variant: "destructive"
         });
         return;
       }
 
       toast({
         title: "Welcome!",
-        description: "Successfully logged in to Teacher Portal.",
+        description: "Successfully logged in to Teacher Portal."
       });
       navigate("/teacher");
     } catch (error: any) {
       toast({
         title: "Login Failed",
         description: error.message,
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setIsLoading(false);
@@ -107,10 +107,10 @@ const TeacherLogin = () => {
             Back to Main Site
           </Link>
           <div className="flex justify-center mb-4">
-            <img src={schoolLogo} alt="School Logo" className="w-20 h-20 object-contain" />
+            <img alt="School Logo" className="w-20 h-20 object-contain" src="/lovable-uploads/2cd4ff59-aa85-4bd4-a2c0-ce2480336262.png" />
           </div>
           <h1 className="text-2xl font-bold text-foreground">Teacher Portal</h1>
-          <p className="text-muted-foreground">SDSJSS Academic Management System</p>
+          <p className="text-muted-foreground">Milestone College Academic Management System</p>
         </div>
 
         <Card className="shadow-xl">
@@ -140,47 +140,47 @@ const TeacherLogin = () => {
             </Tabs>
 
             <form onSubmit={handleLogin} className="space-y-4">
-              {loginMethod === "email" && (
-                <div className="space-y-2">
+              {loginMethod === "email" &&
+              <div className="space-y-2">
                   <Label htmlFor="email">Email Address</Label>
                   <Input
-                    id="email"
-                    type="email"
-                    placeholder="teacher@school.edu.np"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                  />
+                  id="email"
+                  type="email"
+                  placeholder="teacher@school.edu.np"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required />
+                
                 </div>
-              )}
+              }
               
-              {loginMethod === "phone" && (
-                <div className="space-y-2">
+              {loginMethod === "phone" &&
+              <div className="space-y-2">
                   <Label htmlFor="phone">Phone Number</Label>
                   <Input
-                    id="phone"
-                    type="tel"
-                    placeholder="98XXXXXXXX"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    required
-                  />
+                  id="phone"
+                  type="tel"
+                  placeholder="98XXXXXXXX"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  required />
+                
                 </div>
-              )}
+              }
               
-              {loginMethod === "staffId" && (
-                <div className="space-y-2">
+              {loginMethod === "staffId" &&
+              <div className="space-y-2">
                   <Label htmlFor="staffId">Staff ID</Label>
                   <Input
-                    id="staffId"
-                    type="text"
-                    placeholder="EMP-0001"
-                    value={staffId}
-                    onChange={(e) => setStaffId(e.target.value)}
-                    required
-                  />
+                  id="staffId"
+                  type="text"
+                  placeholder="EMP-0001"
+                  value={staffId}
+                  onChange={(e) => setStaffId(e.target.value)}
+                  required />
+                
                 </div>
-              )}
+              }
 
               <div className="space-y-2">
                 <Label htmlFor="password">Password</Label>
@@ -190,19 +190,19 @@ const TeacherLogin = () => {
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
+                  required />
+                
               </div>
               
               <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700" disabled={isLoading}>
-                {isLoading ? (
-                  <>
+                {isLoading ?
+                <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                     Logging in...
-                  </>
-                ) : (
-                  "Login to Teacher Portal"
-                )}
+                  </> :
+
+                "Login to Teacher Portal"
+                }
               </Button>
             </form>
 
@@ -215,8 +215,8 @@ const TeacherLogin = () => {
           </CardContent>
         </Card>
       </div>
-    </div>
-  );
+    </div>);
+
 };
 
 export default TeacherLogin;
