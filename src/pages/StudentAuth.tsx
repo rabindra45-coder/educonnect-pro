@@ -17,8 +17,8 @@ import {
   ArrowRight,
   Mail,
   Lock,
-  ScanFace,
-} from "lucide-react";
+  ScanFace } from
+"lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -30,16 +30,16 @@ import FaceLoginDialog from "@/components/auth/FaceLoginDialog";
 
 const loginSchema = z.object({
   email: z.string().trim().email("Invalid email address").max(255, "Email too long"),
-  password: z.string().min(6, "Password must be at least 6 characters").max(128, "Password too long"),
+  password: z.string().min(6, "Password must be at least 6 characters").max(128, "Password too long")
 });
 
 type LoginForm = z.infer<typeof loginSchema>;
 
 const features = [
-  { icon: BookOpen, title: "View Notices", description: "Stay updated with school announcements" },
-  { icon: Award, title: "Exam Results", description: "Access your academic performance" },
-  { icon: Users, title: "Academic Calendar", description: "Track important dates & events" },
-];
+{ icon: BookOpen, title: "View Notices", description: "Stay updated with school announcements" },
+{ icon: Award, title: "Exam Results", description: "Access your academic performance" },
+{ icon: Users, title: "Academic Calendar", description: "Track important dates & events" }];
+
 
 const StudentAuth = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -57,7 +57,7 @@ const StudentAuth = () => {
         toast({
           title: "Admin Account Detected",
           description: "Please use the admin portal to login.",
-          variant: "destructive",
+          variant: "destructive"
         });
         supabase.auth.signOut();
       }
@@ -66,7 +66,7 @@ const StudentAuth = () => {
 
   const loginForm = useForm<LoginForm>({
     resolver: zodResolver(loginSchema),
-    defaultValues: { email: "", password: "" },
+    defaultValues: { email: "", password: "" }
   });
 
   const handleLogin = async (data: LoginForm) => {
@@ -77,10 +77,10 @@ const StudentAuth = () => {
     if (error) {
       toast({
         title: "Login Failed",
-        description: error.message === "Invalid login credentials"
-          ? "Invalid email or password. Please try again."
-          : error.message,
-        variant: "destructive",
+        description: error.message === "Invalid login credentials" ?
+        "Invalid email or password. Please try again." :
+        error.message,
+        variant: "destructive"
       });
     } else {
       try {
@@ -93,8 +93,8 @@ const StudentAuth = () => {
               fullName: loggedInUser.user_metadata?.full_name,
               loginMethod: "password",
               userAgent: navigator.userAgent,
-              timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-            },
+              timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+            }
           });
         }
       } catch (logError) {
@@ -110,8 +110,8 @@ const StudentAuth = () => {
         initial={{ opacity: 0, x: -50 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.6 }}
-        className="hidden lg:flex lg:w-1/2 relative bg-gradient-to-br from-primary via-primary/95 to-primary/90 overflow-hidden"
-      >
+        className="hidden lg:flex lg:w-1/2 relative bg-gradient-to-br from-primary via-primary/95 to-primary/90 overflow-hidden">
+        
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-10">
           <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC40Ij48Y2lyY2xlIGN4PSIzIiBjeT0iMyIgcj0iMyIvPjwvZz48L2c+PC9zdmc+')] " />
@@ -121,18 +121,18 @@ const StudentAuth = () => {
         <motion.div
           animate={{ y: [0, -20, 0], rotate: [0, 5, 0] }}
           transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute top-20 right-20 w-32 h-32 bg-white/10 rounded-full blur-xl"
-        />
+          className="absolute top-20 right-20 w-32 h-32 bg-white/10 rounded-full blur-xl" />
+        
         <motion.div
           animate={{ y: [0, 20, 0], rotate: [0, -5, 0] }}
           transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute bottom-32 left-20 w-48 h-48 bg-secondary/20 rounded-full blur-2xl"
-        />
+          className="absolute bottom-32 left-20 w-48 h-48 bg-secondary/20 rounded-full blur-2xl" />
+        
         <motion.div
           animate={{ scale: [1, 1.1, 1] }}
           transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute top-1/2 right-10 w-24 h-24 bg-white/5 rounded-2xl rotate-45"
-        />
+          className="absolute top-1/2 right-10 w-24 h-24 bg-white/5 rounded-2xl rotate-45" />
+        
 
         <div className="relative z-10 flex flex-col justify-center px-12 xl:px-20 w-full">
           {/* Logo & School Name */}
@@ -140,8 +140,8 @@ const StudentAuth = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="mb-12"
-          >
+            className="mb-12">
+            
             <div className="flex items-center gap-4 mb-6">
               <div className="w-20 h-20 bg-white rounded-2xl p-3 shadow-2xl">
                 <img src={schoolLogo} alt="School Logo" className="w-full h-full object-contain" />
@@ -162,8 +162,8 @@ const StudentAuth = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            className="mb-10"
-          >
+            className="mb-10">
+            
             <h2 className="text-3xl xl:text-4xl font-display font-bold text-white mb-4 leading-tight">
               Welcome Back,<br />
               <span className="text-secondary">Future Leaders!</span>
@@ -178,16 +178,16 @@ const StudentAuth = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
-            className="space-y-4"
-          >
-            {features.map((feature, index) => (
-              <motion.div
-                key={feature.title}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.5 + index * 0.1 }}
-                className="flex items-center gap-4 p-4 rounded-xl bg-white/10 backdrop-blur-sm border border-white/10 hover:bg-white/15 transition-colors group"
-              >
+            className="space-y-4">
+            
+            {features.map((feature, index) =>
+            <motion.div
+              key={feature.title}
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.5 + index * 0.1 }}
+              className="flex items-center gap-4 p-4 rounded-xl bg-white/10 backdrop-blur-sm border border-white/10 hover:bg-white/15 transition-colors group">
+              
                 <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center group-hover:scale-110 transition-transform">
                   <feature.icon className="w-6 h-6 text-white" />
                 </div>
@@ -196,7 +196,7 @@ const StudentAuth = () => {
                   <p className="text-white/60 text-sm">{feature.description}</p>
                 </div>
               </motion.div>
-            ))}
+            )}
           </motion.div>
 
           {/* Bottom decoration */}
@@ -204,8 +204,8 @@ const StudentAuth = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.8 }}
-            className="absolute bottom-8 left-12 xl:left-20 flex items-center gap-2 text-white/50 text-sm"
-          >
+            className="absolute bottom-8 left-12 xl:left-20 flex items-center gap-2 text-white/50 text-sm">
+            
             <Sparkles className="w-4 h-4" />
             <span>Empowering Education Since 2046 BS</span>
           </motion.div>
@@ -217,20 +217,20 @@ const StudentAuth = () => {
         initial={{ opacity: 0, x: 50 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.6 }}
-        className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-8 bg-gradient-to-br from-background via-background to-muted/30"
-      >
+        className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-8 bg-gradient-to-br from-background via-background to-muted/30">
+        
         <div className="w-full max-w-md">
           {/* Mobile Logo */}
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="lg:hidden text-center mb-8"
-          >
+            className="lg:hidden text-center mb-8">
+            
             <div className="w-20 h-20 mx-auto mb-4 bg-primary rounded-2xl p-3 shadow-lg">
-              <img src={schoolLogo} alt="School Logo" className="w-full h-full object-contain" />
+              <img alt="School Logo" className="w-full h-full object-contain" src="/lovable-uploads/af1c6c00-51ba-4cae-929e-90850ab5c251.png" />
             </div>
             <h1 className="font-display text-2xl font-bold text-foreground">Student Portal</h1>
-            <p className="text-muted-foreground text-sm">श्री दुर्गा सरस्वती जनता मा. वि.</p>
+            <p className="text-muted-foreground text-sm">माइलस्टोन इन्टरनेशनल मा. वि.</p>
           </motion.div>
 
           {/* Auth Card */}
@@ -264,12 +264,12 @@ const StudentAuth = () => {
                         type="email"
                         placeholder="student@example.com"
                         {...loginForm.register("email")}
-                        className="pl-10 h-12 rounded-xl bg-muted/50 border-muted-foreground/20 focus:border-primary"
-                      />
+                        className="pl-10 h-12 rounded-xl bg-muted/50 border-muted-foreground/20 focus:border-primary" />
+                      
                     </div>
-                    {loginForm.formState.errors.email && (
-                      <p className="text-destructive text-xs">{loginForm.formState.errors.email.message}</p>
-                    )}
+                    {loginForm.formState.errors.email &&
+                    <p className="text-destructive text-xs">{loginForm.formState.errors.email.message}</p>
+                    }
                   </div>
 
                   <div className="space-y-2">
@@ -283,41 +283,41 @@ const StudentAuth = () => {
                         type={showPassword ? "text" : "password"}
                         placeholder="••••••••"
                         {...loginForm.register("password")}
-                        className="pl-10 pr-10 h-12 rounded-xl bg-muted/50 border-muted-foreground/20 focus:border-primary"
-                      />
+                        className="pl-10 pr-10 h-12 rounded-xl bg-muted/50 border-muted-foreground/20 focus:border-primary" />
+                      
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                      >
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors">
+                        
                         {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                       </button>
                     </div>
-                    {loginForm.formState.errors.password && (
-                      <p className="text-destructive text-xs">{loginForm.formState.errors.password.message}</p>
-                    )}
+                    {loginForm.formState.errors.password &&
+                    <p className="text-destructive text-xs">{loginForm.formState.errors.password.message}</p>
+                    }
                   </div>
 
                   <Button
                     type="submit"
                     className="w-full h-12 rounded-xl text-base font-semibold shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-all"
-                    disabled={isSubmitting}
-                  >
-                    {isSubmitting ? (
-                      <span className="flex items-center gap-2">
+                    disabled={isSubmitting}>
+                    
+                    {isSubmitting ?
+                    <span className="flex items-center gap-2">
                         <motion.div
-                          animate={{ rotate: 360 }}
-                          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                          className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full"
-                        />
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                        className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full" />
+                      
                         Signing in...
-                      </span>
-                    ) : (
-                      <span className="flex items-center gap-2">
+                      </span> :
+
+                    <span className="flex items-center gap-2">
                         Sign In
                         <ArrowRight className="w-5 h-5" />
                       </span>
-                    )}
+                    }
                   </Button>
 
                   <div className="relative my-4">
@@ -333,8 +333,8 @@ const StudentAuth = () => {
                     type="button"
                     variant="outline"
                     className="w-full h-12 rounded-xl text-base font-medium"
-                    onClick={() => setShowFaceLogin(true)}
-                  >
+                    onClick={() => setShowFaceLogin(true)}>
+                    
                     <ScanFace className="w-5 h-5 mr-2" />
                     Login with Face
                   </Button>
@@ -367,12 +367,12 @@ const StudentAuth = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.5 }}
-            className="mt-6 text-center"
-          >
+            className="mt-6 text-center">
+            
             <Link
               to="/"
-              className="inline-flex items-center gap-2 text-muted-foreground text-sm hover:text-primary transition-colors group"
-            >
+              className="inline-flex items-center gap-2 text-muted-foreground text-sm hover:text-primary transition-colors group">
+              
               <Home className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
               <span>Back to Home</span>
             </Link>
@@ -383,10 +383,10 @@ const StudentAuth = () => {
       <FaceLoginDialog
         open={showFaceLogin}
         onOpenChange={setShowFaceLogin}
-        onSuccess={() => navigate("/student")}
-      />
-    </div>
-  );
+        onSuccess={() => navigate("/student")} />
+      
+    </div>);
+
 };
 
 export default StudentAuth;
