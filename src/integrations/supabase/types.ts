@@ -118,6 +118,8 @@ export type Database = {
           address: string
           application_number: string
           applying_for_class: string
+          applying_grade: string | null
+          applying_stream: string | null
           created_at: string
           date_of_birth: string
           documents_url: string | null
@@ -138,6 +140,8 @@ export type Database = {
           address: string
           application_number: string
           applying_for_class: string
+          applying_grade?: string | null
+          applying_stream?: string | null
           created_at?: string
           date_of_birth: string
           documents_url?: string | null
@@ -158,6 +162,8 @@ export type Database = {
           address?: string
           application_number?: string
           applying_for_class?: string
+          applying_grade?: string | null
+          applying_stream?: string | null
           created_at?: string
           date_of_birth?: string
           documents_url?: string | null
