@@ -234,8 +234,7 @@ const StudentIDCard = ({ studentInfo, schoolSettings }: StudentIDCardProps) => {
             ) : (
               /* Back Side */
               <div
-                ref={backRef}
-                className="w-[320px] h-[500px] rounded-2xl overflow-hidden shadow-xl relative bg-gradient-to-b from-white via-slate-50 to-white"
+                className="w-[320px] h-[500px] rounded-2xl overflow-hidden shadow-xl relative bg-gradient-to-b from-white via-slate-50 to-white mx-auto scale-[0.85] sm:scale-100 origin-top"
                 style={{ transform: "rotateY(180deg)" }}
               >
                 {/* Header */}
