@@ -107,6 +107,7 @@ const App = () => (
               <Route path="/teacher/login" element={<TeacherLogin />} />
               <Route path="/parent" element={<ParentDashboard />} />
               <Route path="/parent/login" element={<ParentLogin />} />
+              <Route path="/install" element={<InstallApp />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
