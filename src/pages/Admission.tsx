@@ -275,7 +275,7 @@ const Admission = () => {
                         name="previousSchool"
                         value={formData.previousSchool}
                         onChange={handleChange}
-                        placeholder="Name of previous school"
+                        placeholder="Name of previous school & SEE GPA"
                         className="h-12"
                       />
                     </div>
