@@ -75,7 +75,7 @@ const About = () => {
   }];
 
   // Default content if not in database
-  const historyContent = getContent("history") || `Shree Durga Saraswati Janata Secondary School was established with a vision 
+  const historyContent = getContent("history") || `Milestone International College was established with a vision 
 to provide quality education to the children of our community. What started as a 
 small school with just a handful of students has grown into one of the most 
 respected educational institutions in the region.
@@ -95,8 +95,8 @@ critical thinking, and moral values. We are committed to creating a nurturing
 environment where every student can discover and develop their unique potential.`;
   return <>
       <Helmet>
-        <title>About Us | Shree Durga Saraswati Janata Secondary School</title>
-        <meta name="description" content="Learn about Shree Durga Saraswati Janata Secondary School's history, vision, mission, and leadership. Discover our commitment to quality education in Nepal." />
+        <title>About Us | Milestone International College</title>
+        <meta name="description" content="Learn about Milestone International College's history, vision, mission, and leadership. Discover our commitment to quality education in Nepal." />
       </Helmet>
       
       <MainLayout>
@@ -120,7 +120,7 @@ environment where every student can discover and develop their unique potential.
                 About Our School
               </h1>
               <p className="text-lg text-primary-foreground/80">
-                Discover the story, vision, and values that make Shree Durga Saraswati Janata Secondary School 
+                Discover the story, vision, and values that make Milestone International College 
                 a leading educational institution.
               </p>
             </motion.div>

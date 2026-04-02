@@ -42,7 +42,7 @@ const StudentHeader = ({ studentName, photoUrl, onPasswordChange, onSignOut }: S
             <img src={schoolLogo} alt="Logo" className="w-10 h-10 object-contain" />
             <div className="hidden sm:block">
               <h1 className="font-display text-sm font-bold text-foreground">Student Portal</h1>
-              <p className="text-xs text-muted-foreground">SDSJSS</p>
+              <p className="text-xs text-muted-foreground">MIC</p>
             </div>
           </div>
 

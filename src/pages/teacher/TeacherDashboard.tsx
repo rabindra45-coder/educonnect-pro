@@ -168,7 +168,7 @@ const TeacherDashboard = () => {
               <div>
                 <h1 className="font-bold text-lg text-blue-700 dark:text-blue-400">Teacher Portal</h1>
                 <p className="text-xs text-muted-foreground">
-                  {teacherProfile ? teacherProfile.full_name : "SDSJSS Academic System"}
+                  {teacherProfile ? teacherProfile.full_name : "MIC Academic System"}
                 </p>
               </div>
             </div>

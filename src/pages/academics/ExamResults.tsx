@@ -49,10 +49,10 @@ const ExamResults = () => {
   return (
     <>
       <Helmet>
-        <title>Exam Results | Shree Durga Saraswati Janata Secondary School</title>
+        <title>Exam Results | Milestone International College</title>
         <meta
           name="description"
-          content="View exam results and academic performance reports for students of Shree Durga Saraswati Janata Secondary School."
+          content="View exam results and academic performance reports for students of Milestone International College."
         />
       </Helmet>
 

@@ -42,7 +42,7 @@ const Footer = () => {
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">
             <Link to="/" className="flex items-center gap-3 mb-5">
-              <img src={schoolLogo} alt="SDSJSS Logo" className="w-12 h-12 object-contain bg-white/90 rounded-lg p-1" />
+              <img src={schoolLogo} alt="MIC Logo" className="w-12 h-12 object-contain bg-white/90 rounded-lg p-1" />
               <div>
                 <h3 className="font-display text-base leading-tight">Milestone International</h3>
                 <p className="text-xs opacity-70">SS & College </p>
@@ -116,7 +116,7 @@ const Footer = () => {
       <div className="border-t border-primary-foreground/10">
         <div className="container mx-auto px-4 py-4">
           <div className="flex flex-col sm:flex-row justify-between items-center gap-3 text-xs opacity-50">
-            <p>© {new Date().getFullYear()} SDSJSS. All rights reserved.</p>
+            <p>© {new Date().getFullYear()} MIC. All rights reserved.</p>
             <button onClick={scrollToTop} className="flex items-center gap-1.5 hover:opacity-100 transition-opacity">
               Back to top <ArrowUp className="w-3 h-3" />
             </button>

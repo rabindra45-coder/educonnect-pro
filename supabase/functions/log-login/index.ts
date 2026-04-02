@@ -129,7 +129,7 @@ const handler = async (req: Request): Promise<Response> => {
           </style></head>
           <body>
             <div class="container">
-              <div class="header"><h1>🔐 New Login Alert</h1><p style="margin: 10px 0 0; opacity: 0.9;">Shree Durga Saraswati Janata Secondary School</p></div>
+              <div class="header"><h1>🔐 New Login Alert</h1><p style="margin: 10px 0 0; opacity: 0.9;">Milestone International College</p></div>
               <div class="content">
                 <p>Dear ${fullName || "Student"},</p>
                 <p>We detected a new login to your account:</p>
@@ -143,7 +143,7 @@ const handler = async (req: Request): Promise<Response> => {
                 </div>
                 <div class="warning"><span>⚠️</span> <strong>Wasn't you?</strong> Change your password immediately and contact the school.</div>
               </div>
-              <div class="footer"><p>Automated security notification from SDSJSS.</p></div>
+              <div class="footer"><p>Automated security notification from MIC.</p></div>
             </div>
           </body></html>
         `;

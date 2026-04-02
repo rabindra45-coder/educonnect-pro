@@ -48,7 +48,7 @@ async function sendWelcomeEmail(
 
   try {
     await resend.emails.send({
-      from: "Shree Durga Saraswati Janata SS <onboarding@resend.dev>",
+      from: "Milestone International College <onboarding@resend.dev>",
       to: [guardianEmail],
       subject: `🎓 ${portalName} Access - ${studentName} Admission Approved`,
       html: `
@@ -76,7 +76,7 @@ async function sendWelcomeEmail(
           <div class="container">
             <div class="header">
               <h1>श्री दुर्गा सरस्वती जनता माध्यमिक विद्यालय</h1>
-              <p>Shree Durga Saraswati Janata Secondary School</p>
+              <p>Milestone International College</p>
             </div>
             <div class="content">
               <p>Dear <strong>${guardianName}</strong>,</p>
@@ -105,7 +105,7 @@ async function sendWelcomeEmail(
               <p>Welcome to our school family! 🏫</p>
             </div>
             <div class="footer">
-              <p>© ${new Date().getFullYear()} Shree Durga Saraswati Janata Secondary School</p>
+              <p>© ${new Date().getFullYear()} Milestone International College</p>
               <p>This is an automated email. Please do not reply.</p>
             </div>
           </div>
@@ -354,7 +354,7 @@ const handler = async (req: Request): Promise<Response> => {
       .select("school_name")
       .single();
 
-    const schoolName = schoolSettings?.school_name || "Shree Durga Saraswati Janata Secondary School";
+    const schoolName = schoolSettings?.school_name || "Milestone International College";
 
     await supabase.from("notices").insert({
       title: `🎉 Welcome ${studentName} - Admission Approved!`,

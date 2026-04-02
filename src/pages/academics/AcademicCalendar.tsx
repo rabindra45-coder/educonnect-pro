@@ -73,10 +73,10 @@ const AcademicCalendar = () => {
   return (
     <>
       <Helmet>
-        <title>Academic Calendar | Shree Durga Saraswati Janata Secondary School</title>
+        <title>Academic Calendar | Milestone International College</title>
         <meta
           name="description"
-          content="View the academic calendar including exam schedules, holidays, and events at Shree Durga Saraswati Janata Secondary School."
+          content="View the academic calendar including exam schedules, holidays, and events at Milestone International College."
         />
       </Helmet>
 

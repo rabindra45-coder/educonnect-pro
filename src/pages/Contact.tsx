@@ -45,7 +45,7 @@ const Contact = () => {
   }, {
     icon: <Mail className="w-6 h-6" />,
     title: "Email",
-    details: ["info@sdsjss.edu.np", "admission@sdsjss.edu.np"]
+    details: ["info@milestonecollege.edu.np", "admission@milestonecollege.edu.np"]
   }, {
     icon: <MapPin className="w-6 h-6" />,
     title: "Address",
@@ -57,8 +57,8 @@ const Contact = () => {
   }];
   return <>
       <Helmet>
-        <title>Contact Us | Shree Durga Saraswati Janata Secondary School</title>
-        <meta name="description" content="Get in touch with Shree Durga Saraswati Janata Secondary School. Contact us for admissions, inquiries, or to schedule a campus visit." />
+        <title>Contact Us | Milestone International College</title>
+        <meta name="description" content="Get in touch with Milestone International College. Contact us for admissions, inquiries, or to schedule a campus visit." />
       </Helmet>
       
       <MainLayout>

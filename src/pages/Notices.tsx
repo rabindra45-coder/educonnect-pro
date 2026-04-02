@@ -60,10 +60,10 @@ const Notices = () => {
   return (
     <>
       <Helmet>
-        <title>Notice Board | Shree Durga Saraswati Janata Secondary School</title>
+        <title>Notice Board | Milestone International College</title>
         <meta 
           name="description" 
-          content="Stay updated with the latest notices, announcements, and important information from Shree Durga Saraswati Janata Secondary School." 
+          content="Stay updated with the latest notices, announcements, and important information from Milestone International College." 
         />
       </Helmet>
       
