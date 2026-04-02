@@ -335,6 +335,7 @@ const StudentIDCard = ({ studentInfo, schoolSettings }: StudentIDCardProps) => {
               </div>
             )}
           </motion.div>
+          </div>
 
           {/* Toggle Button */}
           <Button
