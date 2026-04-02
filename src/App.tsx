@@ -50,6 +50,7 @@ import TeacherDashboard from "./pages/teacher/TeacherDashboard";
 import TeacherLogin from "./pages/teacher/TeacherLogin";
 import ParentDashboard from "./pages/parent/ParentDashboard";
 import ParentLogin from "./pages/parent/ParentLogin";
+import InstallApp from "./pages/InstallApp";
 
 const queryClient = new QueryClient();
 
