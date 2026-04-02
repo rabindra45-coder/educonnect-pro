@@ -124,7 +124,7 @@ const Admission = () => {
                 Online Admission
               </h1>
               <p className="text-lg text-primary-foreground/80">
-                Begin your educational journey with us. Apply for admission for the academic year 2081/82.
+                Begin your higher secondary journey with Milestone International College. Apply for Class 11 & 12.
               </p>
             </motion.div>
           </div>
