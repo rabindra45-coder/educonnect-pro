@@ -186,7 +186,7 @@ const StudentIDCard = ({ studentInfo, schoolSettings }: StudentIDCardProps) => {
                     <div className="text-white space-y-1.5 flex-1">
                       <h3 className="font-bold text-base leading-tight">{studentInfo.full_name}</h3>
                       <div className="space-y-1 text-sm">
-                        <p><span className="text-secondary">Class:</span> {studentInfo.class}</p>
+                        <p><span className="text-secondary">Stream:</span> {studentInfo.class}</p>
                         <p><span className="text-secondary">Section:</span> {studentInfo.section || "N/A"}</p>
                         <p><span className="text-secondary">Roll No:</span> {studentInfo.roll_number || "N/A"}</p>
                         <p><span className="text-secondary">ID No:</span> {studentInfo.registration_number}</p>
