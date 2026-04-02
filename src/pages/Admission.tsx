@@ -358,10 +358,12 @@ const Admission = () => {
                     
                     <div className="space-y-4">
                       {[
-                        "Birth Certificate",
-                        "Previous School Transfer Certificate",
-                        "Previous Year's Marksheet",
-                        "Passport Size Photo",
+                        "SEE Marksheet / Transcript",
+                        "Character Certificate",
+                        "Transfer Certificate (TC)",
+                        "Migration Certificate (if applicable)",
+                        "Passport Size Photo (PP size)",
+                        "Citizenship / Birth Certificate",
                       ].map((doc) => (
                         <div
                           key={doc}
