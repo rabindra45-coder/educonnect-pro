@@ -269,7 +269,7 @@ const Admission = () => {
 
                     <div>
                       <label className="block text-sm font-medium text-foreground mb-2">
-                        Previous School (if any)
+                        Previous School / SEE Details (if any)
                       </label>
                       <Input
                         name="previousSchool"
