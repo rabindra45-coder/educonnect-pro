@@ -127,8 +127,7 @@ const StudentIDCard = ({ studentInfo, schoolSettings }: StudentIDCardProps) => {
             {!showBack ? (
               /* Front Side */
               <div
-                ref={frontRef}
-                className="w-[320px] h-[500px] rounded-2xl overflow-hidden shadow-xl relative"
+                className="w-[320px] h-[500px] rounded-2xl overflow-hidden shadow-xl relative mx-auto scale-[0.85] sm:scale-100 origin-top"
                 style={{
                   background: "linear-gradient(135deg, #1e3a5f 0%, #0d2137 50%, #1e3a5f 100%)",
                 }}
