@@ -119,10 +119,10 @@ const StudentIDCard = ({ studentInfo, schoolSettings }: StudentIDCardProps) => {
         <div className="flex flex-col items-center gap-4">
           <div className="w-full max-w-[340px] mx-auto" style={{ aspectRatio: '320/500' }}>
           <motion.div
-            className="perspective-1000"
+            className="w-full"
             animate={{ rotateY: showBack ? 180 : 0 }}
             transition={{ duration: 0.6, type: "spring" }}
-            style={{ transformStyle: "preserve-3d" }}
+            style={{ transformStyle: "preserve-3d", perspective: 1000 }}
           >
             {!showBack ? (
               /* Front Side */
