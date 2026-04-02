@@ -102,10 +102,10 @@ const Admission = () => {
   return (
     <>
       <Helmet>
-        <title>Online Admission | Shree Durga Saraswati Janata Secondary School</title>
+        <title>Online Admission | Milestone International College</title>
         <meta 
           name="description" 
-          content="Apply for admission to Shree Durga Saraswati Janata Secondary School. Online admission form for academic year 2081/82." 
+          content="Apply for admission to Milestone International College. Online admission for Class 11 & 12 in Science, Management & Law faculties." 
         />
       </Helmet>
       
