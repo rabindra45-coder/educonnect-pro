@@ -24,15 +24,16 @@ const Footer = () => {
   { name: "Gallery", path: "/gallery" },
   { name: "Contact", path: "/contact" },
   { name: "Online Admission", path: "/admission" },
-  { name: "Library Portal", path: "/library/login" }];
+  { name: "Library Portal", path: "/library/login" },
+  { name: "Install App", path: "/install" }];
 
 
   const academicLinks = [
-  { name: "Primary Level", path: "/academics#primary" },
-  { name: "Lower Secondary", path: "/academics#lower-secondary" },
-  { name: "Secondary Level", path: "/academics#secondary" },
-  { name: "Exam Results", path: "/results" },
-  { name: "Academic Calendar", path: "/calendar" }];
+  { name: "Science Faculty", path: "/academics/science" },
+  { name: "Management Faculty", path: "/academics/management" },
+  { name: "Law Faculty", path: "/academics/law" },
+  { name: "Exam Results", path: "/academics/results" },
+  { name: "Academic Calendar", path: "/academics/calendar" }];
 
 
   return (
