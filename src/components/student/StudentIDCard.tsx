@@ -106,7 +106,7 @@ const StudentIDCard = ({ studentInfo, schoolSettings }: StudentIDCardProps) => {
     link.click();
   };
 
-  return (
+    return (
     <Card className="w-full">
       <CardHeader className="pb-4">
         <CardTitle className="flex items-center gap-2 text-lg">
@@ -115,8 +115,9 @@ const StudentIDCard = ({ studentInfo, schoolSettings }: StudentIDCardProps) => {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
-        {/* Card Preview */}
+        {/* Card Preview - responsive scaling */}
         <div className="flex flex-col items-center gap-4">
+          <div className="w-full max-w-[340px] mx-auto" style={{ aspectRatio: '320/500' }}>
           <motion.div
             className="perspective-1000"
             animate={{ rotateY: showBack ? 180 : 0 }}
