@@ -66,7 +66,7 @@ const AttendanceManagement = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
 
-  const classes = ["Nursery", "LKG", "UKG", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"];
+  const classes = ["11-Science-Physical", "11-Science-Biology", "11-Management-CS-Maths", "11-Management-CS-Social", "11-Management-Hotel-A", "11-Management-Hotel-B", "11-Law", "12-Science-Physical", "12-Science-Biology", "12-Management-CS-Maths", "12-Management-CS-Social", "12-Management-Hotel-A", "12-Management-Hotel-B", "12-Law"];
 
   // Fetch students for selected class
   const { data: students = [], isLoading: loadingStudents } = useQuery({

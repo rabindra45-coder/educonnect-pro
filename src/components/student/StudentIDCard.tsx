@@ -106,7 +106,7 @@ const StudentIDCard = ({ studentInfo, schoolSettings }: StudentIDCardProps) => {
     link.click();
   };
 
-  return (
+    return (
     <Card className="w-full">
       <CardHeader className="pb-4">
         <CardTitle className="flex items-center gap-2 text-lg">
@@ -115,19 +115,19 @@ const StudentIDCard = ({ studentInfo, schoolSettings }: StudentIDCardProps) => {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
-        {/* Card Preview */}
+        {/* Card Preview - responsive scaling */}
         <div className="flex flex-col items-center gap-4">
+          <div className="w-full max-w-[340px] mx-auto" style={{ aspectRatio: '320/500' }}>
           <motion.div
-            className="perspective-1000"
+            className="w-full"
             animate={{ rotateY: showBack ? 180 : 0 }}
             transition={{ duration: 0.6, type: "spring" }}
-            style={{ transformStyle: "preserve-3d" }}
+            style={{ transformStyle: "preserve-3d", perspective: 1000 }}
           >
             {!showBack ? (
               /* Front Side */
               <div
-                ref={frontRef}
-                className="w-[320px] h-[500px] rounded-2xl overflow-hidden shadow-xl relative"
+                className="w-[320px] h-[500px] rounded-2xl overflow-hidden shadow-xl relative mx-auto scale-[0.85] sm:scale-100 origin-top"
                 style={{
                   background: "linear-gradient(135deg, #1e3a5f 0%, #0d2137 50%, #1e3a5f 100%)",
                 }}
@@ -186,7 +186,7 @@ const StudentIDCard = ({ studentInfo, schoolSettings }: StudentIDCardProps) => {
                     <div className="text-white space-y-1.5 flex-1">
                       <h3 className="font-bold text-base leading-tight">{studentInfo.full_name}</h3>
                       <div className="space-y-1 text-sm">
-                        <p><span className="text-secondary">Class:</span> {studentInfo.class}</p>
+                        <p><span className="text-secondary">Stream:</span> {studentInfo.class}</p>
                         <p><span className="text-secondary">Section:</span> {studentInfo.section || "N/A"}</p>
                         <p><span className="text-secondary">Roll No:</span> {studentInfo.roll_number || "N/A"}</p>
                         <p><span className="text-secondary">ID No:</span> {studentInfo.registration_number}</p>
@@ -234,8 +234,7 @@ const StudentIDCard = ({ studentInfo, schoolSettings }: StudentIDCardProps) => {
             ) : (
               /* Back Side */
               <div
-                ref={backRef}
-                className="w-[320px] h-[500px] rounded-2xl overflow-hidden shadow-xl relative bg-gradient-to-b from-white via-slate-50 to-white"
+                className="w-[320px] h-[500px] rounded-2xl overflow-hidden shadow-xl relative bg-gradient-to-b from-white via-slate-50 to-white mx-auto scale-[0.85] sm:scale-100 origin-top"
                 style={{ transform: "rotateY(180deg)" }}
               >
                 {/* Header */}
@@ -336,6 +335,7 @@ const StudentIDCard = ({ studentInfo, schoolSettings }: StudentIDCardProps) => {
               </div>
             )}
           </motion.div>
+          </div>
 
           {/* Toggle Button */}
           <Button

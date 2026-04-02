@@ -49,7 +49,7 @@ const HeroSection = () => {
       const { data } = await supabase
         .from("notices").select("title").eq("is_published", true)
         .order("is_pinned", { ascending: false }).order("created_at", { ascending: false }).limit(5);
-      setNotices(data?.length ? data.map(n => n.title) : ["Welcome to Shree Durga Saraswati Janata Secondary School"]);
+      setNotices(data?.length ? data.map(n => n.title) : ["Welcome to Milestone International College — Excellence in Higher Secondary Education"]);
     };
     const fetchSlides = async () => {
       const { data } = await supabase.from("hero_slides").select("*").eq("is_active", true).order("display_order");
@@ -221,7 +221,7 @@ const HeroSection = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.5 }}
               >
-                Welcome to Shree Durga Saraswati Janata Secondary School — nurturing young minds with quality education, strong values, and a vision for excellence.
+                Welcome to Milestone International College — a premier +2 institution offering Science, Management, and Law faculties with a vision for excellence.
               </motion.p>
 
               <motion.div

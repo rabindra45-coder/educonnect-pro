@@ -65,7 +65,7 @@ const Header = () => {
                 <Phone className="w-3 h-3" />
                 <span>+977 01-5186382</span>
               </a>
-              <a href="mailto:info@sdsjss.edu.np" className="flex items-center gap-1.5 opacity-80 hover:opacity-100 transition-opacity">
+              <a href="mailto:info@milestonecollege.edu.np" className="flex items-center gap-1.5 opacity-80 hover:opacity-100 transition-opacity">
                 <Mail className="w-3 h-3" />
                 <span>info@milestonecollege.edu.np</span>
               </a>
@@ -88,7 +88,7 @@ const Header = () => {
             <Link to="/" className="flex items-center gap-2.5 group flex-shrink-0">
               <img
                 src={schoolLogo}
-                alt="SDSJSS Logo"
+                alt="MIC Logo"
                 className="w-10 h-10 md:w-12 md:h-12 object-contain transition-transform group-hover:scale-105" />
               
               <div className="hidden xs:block">

@@ -100,7 +100,7 @@ const ParentDashboard = () => {
   return (
     <>
       <Helmet>
-        <title>Parent Portal | SDSJSS</title>
+        <title>Parent Portal | MIC</title>
         <meta name="description" content="Parent portal for monitoring children's academic progress, attendance, and school activities." />
       </Helmet>
 

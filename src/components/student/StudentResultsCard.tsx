@@ -275,7 +275,7 @@ const StudentResultsCard = ({
                       माइलस्टोन इन्टरनेशनल माध्यमिक विद्यालय 
                     </h1>
                     <h2 className="text-white/95 text-lg font-semibold mt-1">
-                      Shree Durga Saraswati Janata Secondary School
+                      Milestone International College
                     </h2>
                     <p className="text-white/80 text-sm mt-1">
                       Barahathawa, Sarlahi, Province No. 2, Nepal

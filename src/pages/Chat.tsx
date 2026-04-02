@@ -12,10 +12,10 @@ const Chat = () => {
   return (
     <>
       <Helmet>
-        <title>Chat with Us | Shree Durga Saraswati Janata Secondary School</title>
+        <title>Chat with Us | Milestone International College</title>
         <meta
           name="description"
-          content="Chat with our AI assistant to learn about admissions, academics, and more at SDSJSS."
+          content="Chat with our AI assistant to learn about admissions, academics, and more at MIC."
         />
       </Helmet>
 
@@ -31,7 +31,7 @@ const Chat = () => {
                 </Link>
               </Button>
               <h1 className="font-display text-lg font-bold text-foreground">
-                SDSJSS Chat
+                MIC Chat
               </h1>
               <div className="w-24" />
             </div>
@@ -50,7 +50,7 @@ const Chat = () => {
                 <MessageCircle className="h-8 w-8" />
               </div>
               <h2 className="text-2xl font-display font-bold text-foreground mb-2">
-                Chat with SDSJSS Assistant
+                Chat with MIC Assistant
               </h2>
               <p className="text-muted-foreground max-w-lg mx-auto">
                 Get instant answers about admissions, academics, facilities, and events.
@@ -101,7 +101,7 @@ const Chat = () => {
                   <MessageCircle className="h-5 w-5" />
                 </div>
                 <div>
-                  <h3 className="font-semibold">SDSJSS Assistant</h3>
+                  <h3 className="font-semibold">MIC Assistant</h3>
                   <p className="text-xs text-primary-foreground/70">
                     {chatbot.isLoading ? "Typing..." : "Online • Ready to help"}
                   </p>

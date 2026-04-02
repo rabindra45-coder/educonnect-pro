@@ -50,6 +50,7 @@ import TeacherDashboard from "./pages/teacher/TeacherDashboard";
 import TeacherLogin from "./pages/teacher/TeacherLogin";
 import ParentDashboard from "./pages/parent/ParentDashboard";
 import ParentLogin from "./pages/parent/ParentLogin";
+import InstallApp from "./pages/InstallApp";
 
 const queryClient = new QueryClient();
 
@@ -106,6 +107,7 @@ const App = () => (
               <Route path="/teacher/login" element={<TeacherLogin />} />
               <Route path="/parent" element={<ParentDashboard />} />
               <Route path="/parent/login" element={<ParentLogin />} />
+              <Route path="/install" element={<InstallApp />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>

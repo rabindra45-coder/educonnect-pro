@@ -54,7 +54,7 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     const emailResponse = await resend.emails.send({
-      from: "Shree Durga Saraswati Janata Secondary School <onboarding@resend.dev>",
+      from: "Milestone International College <onboarding@resend.dev>",
       to: [to],
       subject: subject,
       html: `
@@ -73,15 +73,15 @@ const handler = async (req: Request): Promise<Response> => {
         <body>
           <div class="container">
             <div class="header">
-              <h2>Shree Durga Saraswati Janata Secondary School</h2>
+              <h2>Milestone International College</h2>
             </div>
             <div class="content">
               ${recipientName ? `<p>Dear ${recipientName},</p>` : ''}
               <div>${message.replace(/\n/g, '<br>')}</div>
             </div>
             <div class="footer">
-              <p>This email was sent from SDSJSS School Management System</p>
-              <p>© ${new Date().getFullYear()} Shree Durga Saraswati Janata Secondary School</p>
+              <p>This email was sent from MIC School Management System</p>
+              <p>© ${new Date().getFullYear()} Milestone International College</p>
             </div>
           </div>
         </body>

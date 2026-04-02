@@ -54,7 +54,7 @@ const Admission = () => {
   const generateApplicationNumber = () => {
     const year = new Date().getFullYear();
     const random = Math.floor(1000 + Math.random() * 9000);
-    return `SDSJSS-${year}-${random}`;
+    return `MIC-${year}-${random}`;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -102,10 +102,10 @@ const Admission = () => {
   return (
     <>
       <Helmet>
-        <title>Online Admission | Shree Durga Saraswati Janata Secondary School</title>
+        <title>Online Admission | Milestone International College</title>
         <meta 
           name="description" 
-          content="Apply for admission to Shree Durga Saraswati Janata Secondary School. Online admission form for academic year 2081/82." 
+          content="Apply for admission to Milestone International College. Online admission for Class 11 & 12 in Science, Management & Law faculties." 
         />
       </Helmet>
       
@@ -124,7 +124,7 @@ const Admission = () => {
                 Online Admission
               </h1>
               <p className="text-lg text-primary-foreground/80">
-                Begin your educational journey with us. Apply for admission for the academic year 2081/82.
+                Begin your higher secondary journey with Milestone International College. Apply for Class 11 & 12.
               </p>
             </motion.div>
           </div>
@@ -238,21 +238,30 @@ const Admission = () => {
                       <div>
                         <label className="block text-sm font-medium text-foreground mb-2">
                           <BookOpen className="w-4 h-4 inline mr-2" />
-                          Applying for Class *
+                          Applying for Stream / Faculty *
                         </label>
                         <Select 
                           value={formData.applyingClass} 
                           onValueChange={(value) => handleSelectChange("applyingClass", value)}
                         >
                           <SelectTrigger className="h-12">
-                            <SelectValue placeholder="Select class" />
+                            <SelectValue placeholder="Select stream / faculty" />
                           </SelectTrigger>
                           <SelectContent>
-                            {[...Array(10)].map((_, i) => (
-                              <SelectItem key={i + 1} value={`${i + 1}`}>
-                                Class {i + 1}
-                              </SelectItem>
-                            ))}
+                            <SelectItem value="11-Science-Physical">Class 11 - Science (Physical Group)</SelectItem>
+                            <SelectItem value="11-Science-Biology">Class 11 - Science (Biology Group)</SelectItem>
+                            <SelectItem value="11-Management-CS-Maths">Class 11 - Management (CS + Maths)</SelectItem>
+                            <SelectItem value="11-Management-CS-Social">Class 11 - Management (CS + Social)</SelectItem>
+                            <SelectItem value="11-Management-Hotel-A">Class 11 - Management (Hotel Mgmt Sec A)</SelectItem>
+                            <SelectItem value="11-Management-Hotel-B">Class 11 - Management (Hotel Mgmt Sec B)</SelectItem>
+                            <SelectItem value="11-Law">Class 11 - Law</SelectItem>
+                            <SelectItem value="12-Science-Physical">Class 12 - Science (Physical Group)</SelectItem>
+                            <SelectItem value="12-Science-Biology">Class 12 - Science (Biology Group)</SelectItem>
+                            <SelectItem value="12-Management-CS-Maths">Class 12 - Management (CS + Maths)</SelectItem>
+                            <SelectItem value="12-Management-CS-Social">Class 12 - Management (CS + Social)</SelectItem>
+                            <SelectItem value="12-Management-Hotel-A">Class 12 - Management (Hotel Mgmt Sec A)</SelectItem>
+                            <SelectItem value="12-Management-Hotel-B">Class 12 - Management (Hotel Mgmt Sec B)</SelectItem>
+                            <SelectItem value="12-Law">Class 12 - Law</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
@@ -260,13 +269,13 @@ const Admission = () => {
 
                     <div>
                       <label className="block text-sm font-medium text-foreground mb-2">
-                        Previous School (if any)
+                        Previous School / SEE Details (if any)
                       </label>
                       <Input
                         name="previousSchool"
                         value={formData.previousSchool}
                         onChange={handleChange}
-                        placeholder="Name of previous school"
+                        placeholder="Name of previous school & SEE GPA"
                         className="h-12"
                       />
                     </div>
@@ -349,10 +358,12 @@ const Admission = () => {
                     
                     <div className="space-y-4">
                       {[
-                        "Birth Certificate",
-                        "Previous School Transfer Certificate",
-                        "Previous Year's Marksheet",
-                        "Passport Size Photo",
+                        "SEE Marksheet / Transcript",
+                        "Character Certificate",
+                        "Transfer Certificate (TC)",
+                        "Migration Certificate (if applicable)",
+                        "Passport Size Photo (PP size)",
+                        "Citizenship / Birth Certificate",
                       ].map((doc) => (
                         <div
                           key={doc}

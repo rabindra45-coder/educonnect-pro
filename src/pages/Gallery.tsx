@@ -49,10 +49,10 @@ const Gallery = () => {
   return (
     <>
       <Helmet>
-        <title>Photo Gallery | Shree Durga Saraswati Janata Secondary School</title>
+        <title>Photo Gallery | Milestone International College</title>
         <meta 
           name="description" 
-          content="Explore our photo gallery showcasing school events, sports activities, academic achievements, and campus life at Shree Durga Saraswati Janata Secondary School." 
+          content="Explore our photo gallery showcasing school events, sports activities, academic achievements, and campus life at Milestone International College." 
         />
       </Helmet>
       

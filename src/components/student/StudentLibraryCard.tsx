@@ -370,7 +370,7 @@ const StudentLibraryCard = ({
               <div ref={billRef} className="bg-white p-6 border rounded-lg">
                 <div className="text-center border-b pb-4 mb-4">
                   <img src={schoolLogo} alt="Logo" className="w-16 h-16 mx-auto mb-2" />
-                  <h2 className="font-bold text-lg">Shree Durga Saraswati Janata Secondary School</h2>
+                  <h2 className="font-bold text-lg">Milestone International College</h2>
                   <p className="text-sm text-gray-600">Library Department</p>
                   <p className="text-xs text-gray-500">Fine Receipt</p>
                 </div>
