@@ -221,7 +221,7 @@ const HeroSection = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.5 }}
               >
-                Welcome to Shree Durga Saraswati Janata Secondary School — nurturing young minds with quality education, strong values, and a vision for excellence.
+                Welcome to Milestone International College — a premier +2 institution offering Science, Management, and Law faculties with a vision for excellence.
               </motion.p>
 
               <motion.div
