@@ -252,6 +252,12 @@ const HeroSection = () => {
             </motion.div>
           </AnimatePresence>
         </div>
+
+        {/* Calendar widget - desktop only */}
+        <div className="hidden lg:block flex-shrink-0">
+          <CalendarWidget />
+        </div>
+        </div>
       </div>
 
       {/* Slide indicators with progress */}
