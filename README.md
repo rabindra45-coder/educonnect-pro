@@ -3,7 +3,7 @@
 <p align="center"> <img src="https://readme-typing-svg.demolab.com?font=Poppins&weight=700&size=36&pause=900&color=00BFFF&center=true&vCenter=true&width=1100&lines=🎓+Premium+College+Website+Experience;🚀+ERP+%2B+Smart+Management;🌐+Inspired+by+Top+International+Colleges;⚡+Modern+%7C+Clean+%7C+Professional"/> </p>
 <p align="center"> <img src="https://img.shields.io/badge/🌍_Live_Campus-Visit_Now-1E90FF?style=for-the-badge&logo=google-chrome"/> <img src="https://img.shields.io/badge/⚡_Deploy_Vercel-000000?style=for-the-badge&logo=vercel"/> <img src="https://img.shields.io/badge/⭐_Star_This-Help_Grow-yellow?style=for-the-badge"/> </p>
 🏫 Hero / Showcase
-<p align="center"> <img src="https://github.com/user-attachments/assets/6d0e9e3c-3fa9-4804-9cc3-a00b0f5d2ce2" width="95%" style="border-radius:20px; box-shadow:0px 8px 24px rgba(0,0,0,0.2)"/> </p>
+<p align="center"> <img src="Screenshot 2026-04-04 170545.png" width="95%" style="border-radius:20px; box-shadow:0px 8px 24px rgba(0,0,0,0.2)"/> </p>
 
 🎥 Replace with a GIF of campus hero section for maximum effect
 
