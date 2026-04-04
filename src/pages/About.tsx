@@ -5,7 +5,7 @@ import { useRef, useEffect, useState } from "react";
 import MainLayout from "@/components/layout/MainLayout";
 import { Target, Eye, Heart, BookOpen, Users, Award, Building2, Shield, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import heroImage from "@/assets/hero-school.jpg";
+
 interface AboutContent {
   id: string;
   section_key: string;
