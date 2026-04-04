@@ -1,83 +1,75 @@
-🎓 Shree Durga Saraswati Janata Secondary School
-🌐 Modern Smart School ERP & Website System
-<p align="center"> <img src="https://readme-typing-svg.demolab.com?font=Poppins&size=28&pause=1000&color=1E90FF&center=true&vCenter=true&width=900&lines=Welcome+to+SDSJSS+Digital+Platform;Smart+School+Management+System;Built+with+React+%2B+Vite+%2B+Tailwind;Future+of+Education+in+Nepal+🇳🇵" /> </p>
-🚀 Live Preview
-<p align="center"> <a href="https://shreedurgasaraswatijantass.lovable.app/"> <img src="https://img.shields.io/badge/🌐_Live_Website-Visit_Now-0A66C2?style=for-the-badge&logo=google-chrome&logoColor=white" /> </a> <a href="https://milestoneinternationalcollege.lovable.app/"> <img src="https://img.shields.io/badge/🎯_Design_Inspiration-Milestone_College-FF6B00?style=for-the-badge" /> </a> </p>
-⚡ Tech Stack
-<p align="center"> <img src="https://skillicons.dev/icons?i=react,typescript,vite,tailwind,js,html,css,nodejs,mysql,php,git,github" /> </p>
-📊 Project Status
-<p align="center"> <img src="https://img.shields.io/badge/Status-🚧_In_Development-yellow?style=for-the-badge" /> <img src="https://img.shields.io/badge/Version-2.0-blue?style=for-the-badge" /> <img src="https://img.shields.io/badge/Made%20In-Nepal-DC143C?style=for-the-badge" /> </p>
-✨ Features
-🌍 Public Website
-🎥 Hero Slider (Image/Video)
-📢 Auto Notice System
-📊 Live Stats Counter
-📰 News & Events
-🖼️ Gallery with Lightbox
-📥 Downloads Section
-📞 Contact with Google Map
-🌐 Nepali + English Support
-🎓 Academic System
-📚 Class & Subject Management
-📅 Academic Calendar
-📄 Routine (PDF + Table)
-🧾 Result Publishing System
-👩‍🏫 Faculty System
-👨‍🏫 Teacher Profiles
-🏢 Department Filtering
-🎯 Specialized Faculty Pages
-🛠️ Admin Panel
-🔐 Secure Login
-👑 Role-Based Access
-📝 Content Management
-📅 Event/Calendar Management
-📩 Contact Messages
-📊 Activity Logs
-🚀 Advanced Modules
-📲 SMS Notification (MSG91)
-🤖 Face Login System
-📄 Online Admission
-📱 Android App (Capacitor)
-🖼️ Preview
-<p align="center"> <img src="https://github.com/user-attachments/assets/787b4486-d9e0-4ea1-b173-7c08d2ee7de8" width="90%" /> </p>
-🛠️ Installation
+🌊 SDSJSS Smart School System
+<p align="center"> <img src="https://capsule-render.vercel.app/api?type=waving&color=0:0A66C2,50:1E90FF,100:000080&height=200&section=header&text=SDSJSS%20Digital%20Platform&fontSize=40&fontColor=ffffff&animation=fadeIn&fontAlignY=35"/> </p>
+<p align="center"> <img src="https://readme-typing-svg.demolab.com?font=Poppins&weight=600&size=30&pause=1000&color=00BFFF&center=true&vCenter=true&width=1000&lines=🚀+Next+Gen+School+Management+System;🎓+Smart+ERP+%2B+Website+Integration;🇳🇵+Digitizing+Education+in+Nepal;⚡+Built+for+Performance+%26+Scalability"/> </p>
+<p align="center"> <img src="https://komarev.com/ghpvc/?username=YOUR_USERNAME&label=Visitors&color=0e75b6&style=for-the-badge"/> <img src="https://img.shields.io/github/stars/YOUR_USERNAME/YOUR_REPO?style=for-the-badge"/> <img src="https://img.shields.io/github/forks/YOUR_USERNAME/YOUR_REPO?style=for-the-badge"/> <img src="https://img.shields.io/github/issues/YOUR_USERNAME/YOUR_REPO?style=for-the-badge"/> </p>
+🌐 🔴 Live System
+<p align="center"> <a href="https://shreedurgasaraswatijantass.lovable.app/"> <img src="https://img.shields.io/badge/🚀_Launch_Live_Platform-Click_Here-1E90FF?style=for-the-badge&logo=vercel&logoColor=white"/> </a> </p>
+🎬 System Preview
+<p align="center"> <img src="https://github.com/user-attachments/assets/787b4486-d9e0-4ea1-b173-7c08d2ee7de8" width="90%" style="border-radius:20px"/> </p>
+⚡ Tech Ecosystem
+<p align="center"> <img src="https://skillicons.dev/icons?i=react,typescript,vite,tailwind,nodejs,php,mysql,git,github,figma&perline=6" /> </p>
+🧩 Core Modules
+<div align="center">
+🌍 Website	🎓 Academics	🛠️ Admin	🚀 Advanced
+Hero Slider	Result System	RBAC System	Face Login 🤖
+Notices	Routine	CMS	SMS API 📲
+Gallery	Subjects	Dashboard	Android App 📱
+Downloads	Calendar	Logs	AI Future
+</div>
+✨ Premium Features
+🌍 Public Experience
+🎥 Cinematic Hero Section
+📢 Smart Notice Engine
+📊 Animated Counters
+📰 Dynamic News System
+🌐 Multi-language (Nepali + English)
+🖼️ Modern Gallery (Lightbox + Grid)
+🎓 Academic Engine
+📅 Smart Calendar Management
+📄 Result Publishing System
+📚 Class & Subject Structuring
+📊 Performance Tracking
+🛠️ Admin Intelligence
+🔐 Secure Authentication
+👑 Role Hierarchy System
+📊 Activity Monitoring
+🧾 Content Control Panel
+🚀 Future AI Layer
+🤖 Face Recognition Login
+📲 SMS Notification System
+🧠 AI Chat Assistant
+💳 Digital Payment Integration
+🧠 System Architecture
+📦 Installation
 git clone <YOUR_GIT_URL>
-cd <YOUR_PROJECT_NAME>
+cd <PROJECT_NAME>
 npm install
 npm run dev
-📁 Project Structure
-src/
- ├── components/
- ├── pages/
- ├── assets/
- ├── hooks/
- ├── lib/
- └── App.tsx
-📈 GitHub Stats
-<p align="center"> <img src="https://github-readme-stats.vercel.app/api?username=YOUR_USERNAME&show_icons=true&theme=tokyonight" /> <img src="https://github-readme-streak-stats.herokuapp.com/?user=YOUR_USERNAME&theme=tokyonight" /> </p>
-🧠 Future Roadmap
+📊 GitHub Analytics
+<p align="center"> <img src="https://github-readme-stats.vercel.app/api?username=YOUR_USERNAME&show_icons=true&theme=tokyonight&border_radius=15"/> <img src="https://github-readme-streak-stats.herokuapp.com/?user=YOUR_USERNAME&theme=tokyonight&border_radius=15"/> </p>
+📈 Contribution Graph
+<p align="center"> <img src="https://github-readme-activity-graph.vercel.app/graph?username=YOUR_USERNAME&theme=tokyo-night"/> </p>
+🐍 Contribution Snake (Animated)
+<p align="center"> <img src="https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/output/github-contribution-grid-snake.svg" /> </p>
+🧑‍💻 Developer Identity
+<p align="center"> <img src="https://img.shields.io/badge/👨‍💻_Rabindra-Full_Stack_Developer-0A66C2?style=for-the-badge"/> <img src="https://img.shields.io/badge/🌍_Location-Nepal-DC143C?style=for-the-badge"/> </p>
+🧭 Roadmap
+🔔 Real-time Notifications
 💳 Online Fee Payment
-🔔 Real-Time Notifications
-🤖 AI Chatbot
-🌐 Multi-School SaaS
-📊 Advanced Analytics
-🤝 Contributing
-# Fork the repo
-# Create your feature branch
-git checkout -b feature/AmazingFeature
+📊 Advanced Reports
+🌐 Multi-school SaaS Platform
+🤖 AI Integration
+🤝 Contribute
+fork 🍴
+clone 📥
+code 💻
+commit 📌
+push 🚀
+⭐ Show Support
+<p align="center"> <img src="https://img.shields.io/badge/⭐_Star_This_Project-Support_Development-yellow?style=for-the-badge"/> </p>
+❤️ Mission
 
-# Commit changes
-git commit -m "Add some AmazingFeature"
+Transforming traditional education into a digital smart ecosystem for Nepal 🇳🇵
 
-# Push
-git push origin feature/AmazingFeature
-👨‍💻 Developer
-<p align="center"> <img src="https://img.shields.io/badge/Developed%20By-Rabindra-0A66C2?style=for-the-badge" /> <img src="https://img.shields.io/badge/Country-Nepal-DC143C?style=for-the-badge" /> </p>
-⭐ Support
-<p align="center"> <img src="https://img.shields.io/badge/⭐_Star_This_Repo-Support_Project-yellow?style=for-the-badge" /> </p>
-❤️ Vision
-
-Transforming traditional schools into smart digital institutions with modern technology.
-
-🔥 Bonus (Animated Wave Footer)
-<p align="center"> <img src="https://capsule-render.vercel.app/api?type=waving&color=0:1E90FF,100:000080&height=120&section=footer"/> </p>
+🌊 Footer Animation
+<p align="center"> <img src="https://capsule-render.vercel.app/api?type=waving&color=0:000080,50:1E90FF,100:0A66C2&height=150&section=footer"/> </p>
