@@ -8,7 +8,7 @@
 📊 Live Campus Metrics (Animated Counters)
 <p align="center"> <img src="https://img.shields.io/badge/Students-3000+-blue?style=for-the-badge&logo=student"/> <img src="https://img.shields.io/badge/Faculty-150+-green?style=for-the-badge&logo=teacher"/> <img src="https://img.shields.io/badge/Programs-25+-orange?style=for-the-badge&logo=read-the-docs"/> <img src="https://img.shields.io/badge/Success_Rate-98%25-success?style=for-the-badge&logo=achievement"/> </p>
 🎥 Hero / Demo Preview
-<p align="center"> <img src="https://github.com/user-attachments/assets/787b4486-d9e0-4ea1-b173-7c08d2ee7de8" width="95%" style="border-radius:20px"/> </p>
+<p align="center"> <img src="Screenshot 2026-04-04 170545.png" width="95%" style="border-radius:20px"/> </p>
 🧠 Smart ERP Architecture
 flowchart LR
 Student --> Website
