@@ -93,19 +93,22 @@ const HeroSection = () => {
       {/* Parallax Background */}
       <motion.div className="absolute inset-0" style={{ y: backgroundY }}>
         {currentBackground ? (
-        <AnimatePresence mode="wait">
-          <motion.img
-            key={currentSlide}
-            src={currentBackground}
-            alt="Milestone International College"
-            className="w-full h-[120%] object-cover"
-            style={{ objectPosition: 'center 30%' }}
-            initial={{ opacity: 0, scale: 1.1 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.98 }}
-            transition={{ duration: 1.2, ease: "easeOut" }}
-          />
-        </AnimatePresence>
+          <AnimatePresence mode="wait">
+            <motion.img
+              key={currentSlide}
+              src={currentBackground}
+              alt="Milestone International College"
+              className="w-full h-[120%] object-cover"
+              style={{ objectPosition: 'center 30%' }}
+              initial={{ opacity: 0, scale: 1.1 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.98 }}
+              transition={{ duration: 1.2, ease: "easeOut" }}
+            />
+          </AnimatePresence>
+        ) : (
+          <div className="w-full h-[120%] bg-gradient-to-br from-primary via-primary-dark to-primary" />
+        )}
       </motion.div>
 
       {/* Gradient overlay with animated opacity */}
