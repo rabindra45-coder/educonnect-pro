@@ -85,18 +85,19 @@ const HeroSection = () => {
     setTimeout(() => setIsAutoPlaying(true), 10000);
   }, []);
 
-  const currentBackground = slides.length > 0 ? slides[currentSlide]?.image_url : heroImage;
+  const currentBackground = slides.length > 0 ? slides[currentSlide]?.image_url : null;
   const currentSlideData = slides[currentSlide];
 
   return (
     <section ref={sectionRef} className="relative min-h-[60vh] sm:min-h-[80vh] lg:min-h-[90vh] flex items-end overflow-hidden">
       {/* Parallax Background */}
       <motion.div className="absolute inset-0" style={{ y: backgroundY }}>
+        {currentBackground ? (
         <AnimatePresence mode="wait">
           <motion.img
             key={currentSlide}
             src={currentBackground}
-            alt="School"
+            alt="Milestone International College"
             className="w-full h-[120%] object-cover"
             style={{ objectPosition: 'center 30%' }}
             initial={{ opacity: 0, scale: 1.1 }}

@@ -102,9 +102,7 @@ environment where every student can discover and develop their unique potential.
       <MainLayout>
         {/* Page Header */}
         <section className="relative py-24 bg-primary overflow-hidden">
-          <div className="absolute inset-0 opacity-20">
-            <img src={heroImage} alt="" className="w-full h-full object-cover" />
-          </div>
+          <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary-dark to-primary opacity-80" />
           <div className="absolute inset-0 bg-gradient-hero"></div>
           <div className="container mx-auto px-4 relative z-10">
             <motion.div className="text-center max-w-3xl mx-auto" initial={{
