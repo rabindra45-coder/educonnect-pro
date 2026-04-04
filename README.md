@@ -1,5 +1,4 @@
-🎓 Milestone International SS & College
-🚀 EduConnect Pro — Digital College Platform
+
 <p align="center"> <img src="https://capsule-render.vercel.app/api?type=waving&color=0:0A66C2,40:1E90FF,80:00BFFF&height=260&section=header&text=Milestone%20Digital%20Campus&fontSize=48&fontColor=ffffff&animation=fadeIn&fontAlignY=38"/> </p>
 <p align="center"> <img src="https://readme-typing-svg.demolab.com?font=Poppins&weight=700&size=36&pause=900&color=00BFFF&center=true&vCenter=true&width=1100&lines=🎓+Premium+College+Website+Experience;🚀+ERP+%2B+Smart+Management;🌐+Inspired+by+Top+International+Colleges;⚡+Modern+%7C+Clean+%7C+Professional"/> </p>
 <p align="center"> <img src="https://img.shields.io/badge/🌍_Live_Campus-Visit_Now-1E90FF?style=for-the-badge&logo=google-chrome"/> <img src="https://img.shields.io/badge/⚡_Deploy_Vercel-000000?style=for-the-badge&logo=vercel"/> <img src="https://img.shields.io/badge/⭐_Star_This-Help_Grow-yellow?style=for-the-badge"/> </p>
