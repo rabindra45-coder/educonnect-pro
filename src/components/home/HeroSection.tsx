@@ -188,6 +188,7 @@ const HeroSection = () => {
 
       {/* Content with staggered animation */}
       <div className="container mx-auto px-4 sm:px-6 relative z-10 pb-16 sm:pb-20 lg:pb-24 pt-20">
+        <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8">
         <div className="max-w-2xl">
           <AnimatePresence mode="wait">
             <motion.div
