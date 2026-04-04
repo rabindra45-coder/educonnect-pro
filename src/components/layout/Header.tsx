@@ -17,7 +17,14 @@ const navItems = [
   { name: "Leadership", path: "/about#leadership" },
   { name: "Infrastructure", path: "/about#infrastructure" }]
 },
-{ name: "Academics", path: "/academics" },
+{ name: "Academics", path: "/academics", dropdown: [
+  { name: "Science Faculty", path: "/academics/science" },
+  { name: "Management Faculty", path: "/academics/management" },
+  { name: "Law Faculty", path: "/academics/law" },
+  { name: "Academic Calendar", path: "/academics/calendar" },
+  { name: "Exam Results", path: "/academics/results" }]
+},
+{ name: "Admission", path: "/admission" },
 { name: "Notice Board", path: "/notices" },
 { name: "Gallery", path: "/gallery" },
 { name: "Contact", path: "/contact" }];

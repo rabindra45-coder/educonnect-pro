@@ -1435,6 +1435,7 @@ export type Database = {
           created_at: string
           created_by: string | null
           expire_at: string | null
+          hero_image_url: string | null
           id: string
           is_pinned: boolean | null
           is_published: boolean | null
@@ -1448,6 +1449,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           expire_at?: string | null
+          hero_image_url?: string | null
           id?: string
           is_pinned?: boolean | null
           is_published?: boolean | null
@@ -1461,6 +1463,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           expire_at?: string | null
+          hero_image_url?: string | null
           id?: string
           is_pinned?: boolean | null
           is_published?: boolean | null

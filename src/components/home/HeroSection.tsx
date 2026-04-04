@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { useEffect, useState, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import CalendarWidget from "./CalendarWidget";
 
 
 interface HeroSlide {
@@ -187,6 +188,7 @@ const HeroSection = () => {
 
       {/* Content with staggered animation */}
       <div className="container mx-auto px-4 sm:px-6 relative z-10 pb-16 sm:pb-20 lg:pb-24 pt-20">
+        <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8">
         <div className="max-w-2xl">
           <AnimatePresence mode="wait">
             <motion.div
@@ -249,6 +251,12 @@ const HeroSection = () => {
               </motion.div>
             </motion.div>
           </AnimatePresence>
+        </div>
+
+        {/* Calendar widget - desktop only */}
+        <div className="hidden lg:block flex-shrink-0">
+          <CalendarWidget />
+        </div>
         </div>
       </div>
 
