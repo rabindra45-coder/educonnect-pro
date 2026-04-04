@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { useEffect, useState, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import heroImage from "@/assets/hero-school.jpg";
+
 
 interface HeroSlide {
   id: string;
@@ -85,26 +85,30 @@ const HeroSection = () => {
     setTimeout(() => setIsAutoPlaying(true), 10000);
   }, []);
 
-  const currentBackground = slides.length > 0 ? slides[currentSlide]?.image_url : heroImage;
+  const currentBackground = slides.length > 0 ? slides[currentSlide]?.image_url : null;
   const currentSlideData = slides[currentSlide];
 
   return (
     <section ref={sectionRef} className="relative min-h-[60vh] sm:min-h-[80vh] lg:min-h-[90vh] flex items-end overflow-hidden">
       {/* Parallax Background */}
       <motion.div className="absolute inset-0" style={{ y: backgroundY }}>
-        <AnimatePresence mode="wait">
-          <motion.img
-            key={currentSlide}
-            src={currentBackground}
-            alt="School"
-            className="w-full h-[120%] object-cover"
-            style={{ objectPosition: 'center 30%' }}
-            initial={{ opacity: 0, scale: 1.1 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.98 }}
-            transition={{ duration: 1.2, ease: "easeOut" }}
-          />
-        </AnimatePresence>
+        {currentBackground ? (
+          <AnimatePresence mode="wait">
+            <motion.img
+              key={currentSlide}
+              src={currentBackground}
+              alt="Milestone International College"
+              className="w-full h-[120%] object-cover"
+              style={{ objectPosition: 'center 30%' }}
+              initial={{ opacity: 0, scale: 1.1 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.98 }}
+              transition={{ duration: 1.2, ease: "easeOut" }}
+            />
+          </AnimatePresence>
+        ) : (
+          <div className="w-full h-[120%] bg-gradient-to-br from-primary via-primary-dark to-primary" />
+        )}
       </motion.div>
 
       {/* Gradient overlay with animated opacity */}
