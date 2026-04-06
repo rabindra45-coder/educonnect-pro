@@ -20,6 +20,7 @@ import {
   Wallet,
   UserCheck,
   BarChart3,
+  Mail,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
@@ -52,6 +53,7 @@ const AdminSidebar = ({ onNavigate }: AdminSidebarProps) => {
     { name: "Teachers", path: "/admin/teachers", icon: Users },
     { name: "Admissions", path: "/admin/admissions", icon: FileText },
     { name: "Chats", path: "/admin/chats", icon: MessageCircle },
+    { name: "Messages", path: "/admin/contact-messages", icon: Mail },
     ...(hasRole("super_admin") ? [{ name: "User Mgmt", path: "/admin/users", icon: UserCog }] : []),
     { name: "Settings", path: "/admin/settings", icon: Settings },
   ];

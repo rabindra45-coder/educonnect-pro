@@ -18,6 +18,8 @@ import LawFaculty from "./pages/academics/LawFaculty";
 import ExamResults from "./pages/academics/ExamResults";
 import AcademicCalendar from "./pages/academics/AcademicCalendar";
 import NotFound from "./pages/NotFound";
+import NoticeDetail from "./pages/NoticeDetail";
+import ContactMessages from "./pages/admin/ContactMessages";
 import AdminAuth from "./pages/AdminAuth";
 import StudentAuth from "./pages/StudentAuth";
 import Dashboard from "./pages/admin/Dashboard";
@@ -96,6 +98,8 @@ const App = () => (
               <Route path="/admin/student-fees" element={<StudentFees />} />
               <Route path="/admin/attendance" element={<AttendanceManagement />} />
               <Route path="/admin/attendance-reports" element={<AttendanceReports />} />
+              <Route path="/admin/contact-messages" element={<ContactMessages />} />
+              <Route path="/notices/:noticeId" element={<NoticeDetail />} />
               <Route path="/student" element={<StudentDashboard />} />
               <Route path="/verify/:studentId" element={<VerifyStudent />} />
               <Route path="/chat" element={<Chat />} />
