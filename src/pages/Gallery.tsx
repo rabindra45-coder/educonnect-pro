@@ -198,6 +198,15 @@ const Gallery = () => {
                       alt={image.title}
                       className="w-full object-cover group-hover:scale-105 transition-transform duration-500"
                       loading="lazy"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.style.display = "none";
+                        target.parentElement!.classList.add("min-h-[200px]", "bg-muted", "flex", "items-center", "justify-center");
+                        const span = document.createElement("span");
+                        span.className = "text-muted-foreground text-sm p-4 text-center";
+                        span.textContent = image.title;
+                        target.parentElement!.appendChild(span);
+                      }}
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-foreground/80 via-foreground/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                       <div className="absolute bottom-0 left-0 right-0 p-4">
@@ -229,6 +238,15 @@ const Gallery = () => {
                       alt={image.title}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       loading="lazy"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.style.display = "none";
+                        target.parentElement!.classList.add("bg-muted", "flex", "items-center", "justify-center");
+                        const span = document.createElement("span");
+                        span.className = "text-muted-foreground text-xs p-2 text-center";
+                        span.textContent = image.title;
+                        target.parentElement!.appendChild(span);
+                      }}
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-foreground/80 via-foreground/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                       <div className="absolute bottom-0 left-0 right-0 p-3">
