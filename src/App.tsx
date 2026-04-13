@@ -112,6 +112,7 @@ const App = () => (
               <Route path="/parent" element={<ParentDashboard />} />
               <Route path="/parent/login" element={<ParentLogin />} />
               <Route path="/install" element={<InstallApp />} />
+              <Route path="/facilities/:facilityId" element={<FacilityDetail />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
