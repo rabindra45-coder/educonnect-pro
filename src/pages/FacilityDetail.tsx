@@ -1,3 +1,4 @@
+// Facility Detail Page
 import { Helmet } from "react-helmet-async";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
