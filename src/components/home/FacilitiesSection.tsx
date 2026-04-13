@@ -81,45 +81,49 @@ const FacilitiesSection = () => {
         {/* Grid */}
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {facilities.map((f, i) => (
-            <motion.div
-              key={f.id}
-              className="group relative rounded-2xl overflow-hidden bg-card border border-border/50 shadow-sm hover:shadow-xl transition-all duration-500"
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.08 }}
-            >
-              {/* Image */}
-              <div className="relative h-52 overflow-hidden">
-                {f.image_url ? (
-                  <img
-                    src={f.image_url}
-                    alt={f.title}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                  />
-                ) : (
-                  <div className="w-full h-full bg-gradient-to-br from-primary/10 to-secondary/10" />
-                )}
-                <div className="absolute inset-0 bg-gradient-to-t from-foreground/50 via-transparent to-transparent" />
-                
-                {/* Number badge */}
-                <div className="absolute top-4 left-4 w-8 h-8 rounded-lg bg-card/90 backdrop-blur-sm flex items-center justify-center">
-                  <span className="text-xs font-bold text-primary">
-                    {String(i + 1).padStart(2, "0")}
+            <Link key={f.id} to={`/facilities/${f.id}`}>
+              <motion.div
+                className="group relative rounded-2xl overflow-hidden bg-card border border-border/50 shadow-sm hover:shadow-xl transition-all duration-500 h-full"
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.08 }}
+              >
+                {/* Image */}
+                <div className="relative h-52 overflow-hidden">
+                  {f.image_url ? (
+                    <img
+                      src={f.image_url}
+                      alt={f.title}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gradient-to-br from-primary/10 to-secondary/10" />
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-foreground/50 via-transparent to-transparent" />
+                  
+                  {/* Number badge */}
+                  <div className="absolute top-4 left-4 w-8 h-8 rounded-lg bg-card/90 backdrop-blur-sm flex items-center justify-center">
+                    <span className="text-xs font-bold text-primary">
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Content */}
+                <div className="p-5">
+                  <h3 className="font-display text-lg font-semibold text-foreground mb-2 group-hover:text-primary transition-colors">
+                    {f.title}
+                  </h3>
+                  <p className="text-muted-foreground text-sm line-clamp-2 leading-relaxed">
+                    {f.description}
+                  </p>
+                  <span className="inline-flex items-center gap-1 text-primary text-xs font-semibold mt-3 group-hover:gap-2 transition-all">
+                    Learn More <ArrowRight className="w-3.5 h-3.5" />
                   </span>
                 </div>
-              </div>
-
-              {/* Content */}
-              <div className="p-5">
-                <h3 className="font-display text-lg font-semibold text-foreground mb-2 group-hover:text-primary transition-colors">
-                  {f.title}
-                </h3>
-                <p className="text-muted-foreground text-sm line-clamp-2 leading-relaxed">
-                  {f.description}
-                </p>
-              </div>
-            </motion.div>
+              </motion.div>
+            </Link>
           ))}
         </div>
       </div>
