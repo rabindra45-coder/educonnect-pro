@@ -92,11 +92,12 @@ const FacilitiesSection = () => {
                 {/* Image */}
                 <div className="relative h-52 overflow-hidden">
                   {f.image_url ? (
-                    <img
-                      src={f.image_url}
-                      alt={f.title}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                    />
+                  <img
+                    src={f.image_url}
+                    alt={f.title}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                    onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+                  />
                   ) : (
                     <div className="w-full h-full bg-gradient-to-br from-primary/10 to-secondary/10" />
                   )}
