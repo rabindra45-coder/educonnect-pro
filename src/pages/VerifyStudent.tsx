@@ -277,11 +277,48 @@ const VerifyStudent = () => {
 
               <Separator />
 
-              {/* Guardian Information */}
+              {/* Address & Location */}
+              {student.address && (
+                <>
+                  <div>
+                    <h3 className="font-semibold text-lg mb-4 flex items-center gap-2">
+                      <MapPin className="w-5 h-5 text-primary" />
+                      Home Address
+                    </h3>
+                    <div className="p-3 bg-muted/50 rounded-lg space-y-3">
+                      <p className="font-medium">{student.address}</p>
+                      <div className="rounded-lg overflow-hidden border border-border aspect-video bg-muted">
+                        <iframe
+                          title="Student location"
+                          src={`https://www.google.com/maps?q=${encodeURIComponent(student.address)}&output=embed`}
+                          className="w-full h-full"
+                          loading="lazy"
+                          referrerPolicy="no-referrer-when-downgrade"
+                        />
+                      </div>
+                      <Button asChild variant="outline" size="sm" className="w-full">
+                        <a
+                          href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(student.address)}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="gap-2"
+                        >
+                          <MapPin className="w-4 h-4" />
+                          Open in Google Maps
+                        </a>
+                      </Button>
+                    </div>
+                  </div>
+
+                  <Separator />
+                </>
+              )}
+
+              {/* Guardian / Parent Information */}
               <div>
                 <h3 className="font-semibold text-lg mb-4 flex items-center gap-2">
                   <Shield className="w-5 h-5 text-primary" />
-                  Emergency Contact
+                  Parent / Guardian Contact
                 </h3>
                 <div className="space-y-3">
                   {student.guardian_name && (
@@ -297,8 +334,27 @@ const VerifyStudent = () => {
                     <div className="flex items-center gap-3">
                       <Phone className="w-4 h-4 text-muted-foreground" />
                       <div>
-                        <p className="text-sm text-muted-foreground">Contact Number</p>
-                        <p className="font-medium">{student.guardian_phone}</p>
+                        <p className="text-sm text-muted-foreground">Phone</p>
+                        <a
+                          href={`tel:${student.guardian_phone}`}
+                          className="font-medium text-primary hover:underline"
+                        >
+                          {student.guardian_phone}
+                        </a>
+                      </div>
+                    </div>
+                  )}
+                  {student.guardian_email && (
+                    <div className="flex items-center gap-3">
+                      <Mail className="w-4 h-4 text-muted-foreground" />
+                      <div>
+                        <p className="text-sm text-muted-foreground">Email</p>
+                        <a
+                          href={`mailto:${student.guardian_email}`}
+                          className="font-medium text-primary hover:underline break-all"
+                        >
+                          {student.guardian_email}
+                        </a>
                       </div>
                     </div>
                   )}
