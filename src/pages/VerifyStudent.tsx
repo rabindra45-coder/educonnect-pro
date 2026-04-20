@@ -32,7 +32,9 @@ interface StudentInfo {
   roll_number: number | null;
   guardian_name: string | null;
   guardian_phone: string | null;
+  guardian_email: string | null;
   date_of_birth: string | null;
+  address: string | null;
   photo_url: string | null;
   status: string | null;
   gender: string | null;
@@ -66,7 +68,7 @@ const VerifyStudent = () => {
       // Fetch student data (publicly accessible for verification)
       const { data: studentData, error: studentError } = await supabase
         .from("students")
-        .select("id, full_name, registration_number, class, section, roll_number, guardian_name, guardian_phone, date_of_birth, photo_url, status, gender, admission_year")
+        .select("id, full_name, registration_number, class, section, roll_number, guardian_name, guardian_phone, guardian_email, date_of_birth, address, photo_url, status, gender, admission_year")
         .eq("id", studentId)
         .maybeSingle();
 
