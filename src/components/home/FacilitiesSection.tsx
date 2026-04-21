@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 
 interface Facility {
   id: string;
@@ -78,9 +79,9 @@ const FacilitiesSection = () => {
           </p>
         </motion.div>
 
-        {/* Grid */}
+        {/* Grid - show only first 3 on home */}
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {facilities.map((f, i) => (
+          {facilities.slice(0, 3).map((f, i) => (
             <Link key={f.id} to={`/facilities/${f.id}`}>
               <motion.div
                 className="group relative rounded-2xl overflow-hidden bg-card border border-border/50 shadow-sm hover:shadow-xl transition-all duration-500 h-full"
@@ -127,6 +128,22 @@ const FacilitiesSection = () => {
             </Link>
           ))}
         </div>
+
+        {facilities.length > 3 && (
+          <motion.div
+            className="flex justify-center mt-10"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            <Button asChild size="lg" className="rounded-full px-8 group">
+              <Link to="/facilities">
+                View All Facilities
+                <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+              </Link>
+            </Button>
+          </motion.div>
+        )}
       </div>
     </section>
   );
