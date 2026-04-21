@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import { AuthProvider } from "@/hooks/useAuth";
+import SplashScreen from "@/components/SplashScreen";
 import Index from "./pages/Index";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
@@ -65,6 +66,7 @@ const App = () => (
         <TooltipProvider>
           <Toaster />
           <Sonner />
+          <SplashScreen />
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Index />} />
