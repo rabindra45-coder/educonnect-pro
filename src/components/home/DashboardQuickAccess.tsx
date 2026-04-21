@@ -45,7 +45,7 @@ const DashboardQuickAccess = () => {
       >
         <div className="relative flex items-center justify-center w-11 h-11 rounded-xl bg-gradient-to-br from-primary to-primary/70 text-primary-foreground shrink-0">
           <Icon className="w-5 h-5" />
-          <span className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 border-2 border-card rounded-full" />
+          <span className="absolute -top-1 -right-1 w-3 h-3 bg-accent border-2 border-card rounded-full" />
         </div>
         <div className="hidden xs:flex flex-col leading-tight pr-1">
           <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">
