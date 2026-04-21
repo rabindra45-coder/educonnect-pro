@@ -11,6 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 
 // Components
 import StudentSidebar from "@/components/student/StudentSidebar";
+import MobileBottomNav from "@/components/layout/MobileBottomNav";
 import WelcomeBanner from "@/components/student/WelcomeBanner";
 import QuickStats from "@/components/student/QuickStats";
 import ProfileCard from "@/components/student/ProfileCard";
@@ -524,7 +525,7 @@ const StudentDashboard = () => {
       pendingFees={pendingFeesAmount > 0}
       />
 
-    <main className="flex-1 lg:overflow-auto pt-14 lg:pt-0">
+    <main className="flex-1 lg:overflow-auto pt-14 lg:pt-0 pb-20 lg:pb-0">
       <div className="p-4 sm:p-6 space-y-6">
         {!studentInfo ? (
           <NoStudentRecordCard
@@ -784,6 +785,18 @@ const StudentDashboard = () => {
         )}
       </div>
       </main>
+
+      <MobileBottomNav
+        activeId={activeTab}
+        onChange={setActiveTab}
+        items={[
+          { id: "overview", label: "Home", icon: Home },
+          { id: "homework", label: "Homework", icon: BookOpen },
+          { id: "fees", label: "Fees", icon: Wallet, badge: pendingFeesAmount > 0 },
+          { id: "messages", label: "Messages", icon: MessageSquare, badge: unreadMessages },
+          { id: "idcard", label: "ID Card", icon: CreditCard },
+        ]}
+      />
     </div>
   );
 };

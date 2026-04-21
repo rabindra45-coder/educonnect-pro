@@ -4,8 +4,9 @@ import { Helmet } from "react-helmet-async";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2 } from "lucide-react";
+import { Loader2, LayoutDashboard, Users, Wallet, MessageSquare, CalendarCheck } from "lucide-react";
 import ParentSidebar from "@/components/parent/ParentSidebar";
+import MobileBottomNav from "@/components/layout/MobileBottomNav";
 import ParentOverview from "@/components/parent/ParentOverview";
 import ChildrenList from "@/components/parent/ChildrenList";
 import AcademicProgress from "@/components/parent/AcademicProgress";
@@ -112,9 +113,21 @@ const ParentDashboard = () => {
           userName={profile?.full_name || "Parent"}
           photoUrl={profile?.photo_url}
         />
-        <main className="flex-1 overflow-auto">
+        <main className="flex-1 overflow-auto pb-20 lg:pb-0">
           <div className="p-4 md:p-6">{renderContent()}</div>
         </main>
+
+        <MobileBottomNav
+          activeId={activeTab}
+          onChange={setActiveTab}
+          items={[
+            { id: "overview", label: "Home", icon: LayoutDashboard },
+            { id: "children", label: "Children", icon: Users },
+            { id: "attendance", label: "Attend.", icon: CalendarCheck },
+            { id: "fees", label: "Fees", icon: Wallet },
+            { id: "messages", label: "Messages", icon: MessageSquare },
+          ]}
+        />
       </div>
     </>
   );
