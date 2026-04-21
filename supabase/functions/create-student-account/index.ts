@@ -37,9 +37,9 @@ async function sendWelcomeEmail(
   role: string,
   password: string,
 ) {
-  const resendKey = Deno.env.get("RESEND_API_KEY");
+  const resendKey = Deno.env.get("RESEND_API_KEY") || Deno.env.get("Resend");
   if (!resendKey) {
-    console.log("RESEND_API_KEY not set, skipping email");
+    console.log("RESEND key not set, skipping email");
     return;
   }
 
@@ -140,24 +140,21 @@ const handler = async (req: Request): Promise<Response> => {
     const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
-    // Verify caller identity
-    const anonClient = createClient(supabaseUrl, supabaseAnonKey, {
-      global: { headers: { Authorization: authHeader } },
-    });
-    const { data: claimsData, error: claimsError } = await anonClient.auth.getClaims(
-      authHeader.replace("Bearer ", "")
-    );
-    if (claimsError || !claimsData?.claims) {
+    // Verify caller identity using service client (avoids getClaims compat issues)
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+    const token = authHeader.replace("Bearer ", "");
+    const { data: userData, error: userErr } = await supabase.auth.getUser(token);
+    if (userErr || !userData?.user) {
+      console.error("Auth getUser failed:", userErr);
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
         headers: { "Content-Type": "application/json", ...corsHeaders },
       });
     }
 
-    const callerId = claimsData.claims.sub as string;
+    const callerId = userData.user.id;
 
-    // Check caller has admin role using service client
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+    // Check caller has admin role
     const { data: callerRole } = await supabase
       .from("user_roles")
       .select("role")

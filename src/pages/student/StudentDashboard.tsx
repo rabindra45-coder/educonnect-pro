@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { User, Bell, Calendar, FileText, Loader2, CreditCard, FolderOpen, Wallet, Book, UserCheck, BookOpen, MessageSquare, TrendingUp, Sparkles } from "lucide-react";
+import { User, Bell, Calendar, FileText, Loader2, CreditCard, FolderOpen, Wallet, Book, UserCheck, BookOpen, MessageSquare, TrendingUp, Sparkles, Home } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -11,6 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 
 // Components
 import StudentSidebar from "@/components/student/StudentSidebar";
+import MobileBottomNav from "@/components/layout/MobileBottomNav";
 import WelcomeBanner from "@/components/student/WelcomeBanner";
 import QuickStats from "@/components/student/QuickStats";
 import ProfileCard from "@/components/student/ProfileCard";
@@ -524,7 +525,7 @@ const StudentDashboard = () => {
       pendingFees={pendingFeesAmount > 0}
       />
 
-    <main className="flex-1 lg:overflow-auto pt-14 lg:pt-0">
+    <main className="flex-1 lg:overflow-auto pt-14 lg:pt-0 pb-20 lg:pb-0">
       <div className="p-4 sm:p-6 space-y-6">
         {!studentInfo ? (
           <NoStudentRecordCard
@@ -784,6 +785,18 @@ const StudentDashboard = () => {
         )}
       </div>
       </main>
+
+      <MobileBottomNav
+        activeId={activeTab}
+        onChange={setActiveTab}
+        items={[
+          { id: "overview", label: "Home", icon: Home },
+          { id: "homework", label: "Homework", icon: BookOpen },
+          { id: "fees", label: "Fees", icon: Wallet, badge: pendingFeesAmount > 0 },
+          { id: "messages", label: "Messages", icon: MessageSquare, badge: unreadMessages },
+          { id: "idcard", label: "ID Card", icon: CreditCard },
+        ]}
+      />
     </div>
   );
 };
