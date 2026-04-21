@@ -35,21 +35,18 @@ const handler = async (req: Request): Promise<Response> => {
     const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
-    const anonClient = createClient(supabaseUrl, supabaseAnonKey, {
-      global: { headers: { Authorization: authHeader } },
-    });
-    const { data: claimsData, error: claimsError } = await anonClient.auth.getClaims(
-      authHeader.replace("Bearer ", "")
-    );
-    if (claimsError || !claimsData?.claims) {
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+    const token = authHeader.replace("Bearer ", "");
+    const { data: userData, error: userErr } = await supabase.auth.getUser(token);
+    if (userErr || !userData?.user) {
+      console.error("Auth getUser failed:", userErr);
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
         headers: { "Content-Type": "application/json", ...corsHeaders },
       });
     }
 
-    const callerId = claimsData.claims.sub as string;
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+    const callerId = userData.user.id;
 
     // Verify admin role
     const { data: callerRole } = await supabase
@@ -66,7 +63,7 @@ const handler = async (req: Request): Promise<Response> => {
       });
     }
 
-    const resendKey = Deno.env.get("RESEND_API_KEY");
+    const resendKey = Deno.env.get("RESEND_API_KEY") || Deno.env.get("Resend");
     const resend = resendKey ? new Resend(resendKey) : null;
 
     const { data: students, error: studentsError } = await supabase
