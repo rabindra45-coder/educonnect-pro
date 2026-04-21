@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { User, Bell, Calendar, FileText, Loader2, CreditCard, FolderOpen, Wallet, Book, UserCheck, BookOpen, MessageSquare, TrendingUp, Sparkles } from "lucide-react";
+import { User, Bell, Calendar, FileText, Loader2, CreditCard, FolderOpen, Wallet, Book, UserCheck, BookOpen, MessageSquare, TrendingUp, Sparkles, Home } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
