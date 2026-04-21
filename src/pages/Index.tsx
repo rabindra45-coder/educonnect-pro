@@ -8,6 +8,7 @@ import NewsSection from "@/components/home/NewsSection";
 import TestimonialsSection from "@/components/home/TestimonialsSection";
 import CTASection from "@/components/home/CTASection";
 import ChatBubble from "@/components/chat/ChatBubble";
+import DashboardQuickAccess from "@/components/home/DashboardQuickAccess";
 
 const Index = () => {
   return (
@@ -32,6 +33,7 @@ const Index = () => {
         <CTASection />
       </MainLayout>
       <ChatBubble />
+      <DashboardQuickAccess />
     </>
   );
 };
