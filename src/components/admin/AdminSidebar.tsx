@@ -21,6 +21,7 @@ import {
   UserCheck,
   BarChart3,
   Mail,
+  Sparkles,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
@@ -55,6 +56,7 @@ const AdminSidebar = ({ onNavigate }: AdminSidebarProps) => {
     { name: "Chats", path: "/admin/chats", icon: MessageCircle },
     { name: "Messages", path: "/admin/contact-messages", icon: Mail },
     ...(hasRole("super_admin") ? [{ name: "User Mgmt", path: "/admin/users", icon: UserCog }] : []),
+    ...(hasRole("super_admin") ? [{ name: "AI Control", path: "/admin/ai-control", icon: Sparkles }] : []),
     { name: "Settings", path: "/admin/settings", icon: Settings },
   ];
 

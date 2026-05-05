@@ -56,6 +56,7 @@ import ParentLogin from "./pages/parent/ParentLogin";
 import InstallApp from "./pages/InstallApp";
 import FacilityDetail from "./pages/FacilityDetail";
 import Facilities from "./pages/Facilities";
+import AIControlCenter from "./pages/admin/AIControlCenter";
 
 const queryClient = new QueryClient();
 
@@ -103,6 +104,7 @@ const App = () => (
               <Route path="/admin/attendance" element={<AttendanceManagement />} />
               <Route path="/admin/attendance-reports" element={<AttendanceReports />} />
               <Route path="/admin/contact-messages" element={<ContactMessages />} />
+              <Route path="/admin/ai-control" element={<AIControlCenter />} />
               <Route path="/notices/:noticeId" element={<NoticeDetail />} />
               <Route path="/student" element={<StudentDashboard />} />
               <Route path="/verify/:studentId" element={<VerifyStudent />} />
