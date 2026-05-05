@@ -182,6 +182,145 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_generated_media: {
+        Row: {
+          approved_at: string | null
+          created_at: string
+          id: string
+          image_url: string
+          log_id: string | null
+          metadata: Json | null
+          prompt: string
+          purpose: string | null
+          status: string
+          storage_path: string | null
+          user_id: string
+        }
+        Insert: {
+          approved_at?: string | null
+          created_at?: string
+          id?: string
+          image_url: string
+          log_id?: string | null
+          metadata?: Json | null
+          prompt: string
+          purpose?: string | null
+          status?: string
+          storage_path?: string | null
+          user_id: string
+        }
+        Update: {
+          approved_at?: string | null
+          created_at?: string
+          id?: string
+          image_url?: string
+          log_id?: string | null
+          metadata?: Json | null
+          prompt?: string
+          purpose?: string | null
+          status?: string
+          storage_path?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_generated_media_log_id_fkey"
+            columns: ["log_id"]
+            isOneToOne: false
+            referencedRelation: "ai_logs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_logs: {
+        Row: {
+          agent: string | null
+          created_at: string
+          duration_ms: number | null
+          error: string | null
+          id: string
+          intent: string | null
+          prompt: string
+          result: Json | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          agent?: string | null
+          created_at?: string
+          duration_ms?: number | null
+          error?: string | null
+          id?: string
+          intent?: string | null
+          prompt: string
+          result?: Json | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          agent?: string | null
+          created_at?: string
+          duration_ms?: number | null
+          error?: string | null
+          id?: string
+          intent?: string | null
+          prompt?: string
+          result?: Json | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      ai_versions: {
+        Row: {
+          applied_changes: Json | null
+          created_at: string
+          id: string
+          label: string
+          log_id: string | null
+          rolled_back_at: string | null
+          snapshot: Json
+          summary: string | null
+          target_id: string | null
+          target_table: string
+          user_id: string
+        }
+        Insert: {
+          applied_changes?: Json | null
+          created_at?: string
+          id?: string
+          label: string
+          log_id?: string | null
+          rolled_back_at?: string | null
+          snapshot: Json
+          summary?: string | null
+          target_id?: string | null
+          target_table: string
+          user_id: string
+        }
+        Update: {
+          applied_changes?: Json | null
+          created_at?: string
+          id?: string
+          label?: string
+          log_id?: string | null
+          rolled_back_at?: string | null
+          snapshot?: Json
+          summary?: string | null
+          target_id?: string | null
+          target_table?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_versions_log_id_fkey"
+            columns: ["log_id"]
+            isOneToOne: false
+            referencedRelation: "ai_logs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       attendance: {
         Row: {
           check_in_time: string | null
