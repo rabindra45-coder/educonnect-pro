@@ -165,6 +165,10 @@ export default function AIControlCenter() {
                     value={prompt}
                     onChange={(e) => setPrompt(e.target.value)}
                   />
+                  <label className="flex items-center gap-2 text-xs text-muted-foreground cursor-pointer select-none">
+                    <input type="checkbox" checked={withImage} onChange={(e) => setWithImage(e.target.checked)} className="accent-primary" />
+                    Auto-generate hero image for notices
+                  </label>
                   <div className="flex flex-wrap gap-2">
                     <Button onClick={onAnalyze} disabled={analyzing}>
                       {analyzing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
