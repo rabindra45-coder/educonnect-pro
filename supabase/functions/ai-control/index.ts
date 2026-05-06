@@ -111,7 +111,19 @@ async function planChange(prompt: string) {
   const ctx = `Admin prompt: "${prompt}"\n\nAgent notes:\n- ${hr.content}\n- ${sw.content}\n- ${db.content}\n- ${ui.content}\n- ${sec.content}\n- ${strat.content}`;
   const planResp = await ai(
     [
-      { role: "system", content: `You are Rabindra 2.0, a safe controller. Only modify whitelisted tables: ${ALLOWED_TABLES.join(", ")}. For ambiguous prompts, choose noop. Never include code or SQL.` },
+      { role: "system", content: `You are Rabindra 2.0, a safe controller. Only modify whitelisted tables: ${ALLOWED_TABLES.join(", ")}. Never include code or SQL.
+
+REQUIRED FIELDS per table for INSERT (you MUST populate ALL of these in 'fields'):
+- notices: title (string), content (string). Optional: category, is_pinned, hero_image_url, attachment_url.
+- hero_slides: image_url. Optional: title, subtitle, link_url, link_text, display_order.
+- facilities: title, description. Optional: image_url, display_order.
+- leadership: name, role. Optional: photo_url, experience, display_order.
+- testimonials: content. Optional: name, role, photo_url.
+- stats: label, value.
+- about_content: section_key. Optional: title, content.
+- academic_calendar: title, event_date (YYYY-MM-DD).
+
+If the admin's prompt does not give enough information to fill the required fields, you MUST infer reasonable values from the prompt context (e.g. derive a short title from the prompt and write appropriate content). Never leave required fields empty. If truly impossible, choose operation 'noop' and explain in summary.` },
       { role: "user", content: ctx },
     ],
     "google/gemini-2.5-flash",
