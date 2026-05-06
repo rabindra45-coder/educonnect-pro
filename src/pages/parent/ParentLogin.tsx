@@ -32,7 +32,7 @@ const ParentLogin = () => {
       from("user_roles").
       select("role").
       eq("user_id", data.user.id).
-      in("role", ["super_admin", "admin", "parent"]);
+      eq("role", "parent");
 
       if (roleError) throw roleError;
 

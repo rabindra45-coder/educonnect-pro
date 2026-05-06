@@ -38,7 +38,7 @@ const ParentDashboard = () => {
         .from("user_roles")
         .select("role")
         .eq("user_id", user?.id)
-        .in("role", ["super_admin", "admin", "parent"]);
+        .eq("role", "parent");
 
       if (error) throw error;
 
