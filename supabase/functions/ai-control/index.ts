@@ -26,6 +26,27 @@ const ALLOWED_TABLES = [
   "school_settings",
 ];
 
+const VERSION = "rabindra-3.0";
+
+async function generateImageBytes(prompt: string): Promise<{ bytes: Uint8Array; path: string; publicUrl: string } | null> {
+  const r = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${LOVABLE_API_KEY}`, "Content-Type": "application/json" },
+    body: JSON.stringify({
+      model: "google/gemini-2.5-flash-image",
+      messages: [{ role: "user", content: prompt }],
+      modalities: ["image", "text"],
+    }),
+  });
+  if (!r.ok) return null;
+  const data = await r.json();
+  const dataUrl = data.choices?.[0]?.message?.images?.[0]?.image_url?.url;
+  if (!dataUrl) return null;
+  const base64 = dataUrl.split(",")[1];
+  const bytes = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
+  return { bytes, path: "", publicUrl: "" };
+}
+
 async function ai(messages: any[], model = "google/gemini-2.5-flash", tools?: any[], tool_choice?: any) {
   const body: any = { model, messages };
   if (tools) { body.tools = tools; body.tool_choice = tool_choice; }
