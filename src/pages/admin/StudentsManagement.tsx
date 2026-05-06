@@ -546,6 +546,32 @@ const StudentsManagement = () => {
                         <Button
                           variant="ghost"
                           size="icon"
+                          disabled={!student.guardian_email}
+                          title="Resend welcome email via Gmail"
+                          onClick={async () => {
+                            try {
+                              const { error } = await supabase.functions.invoke("send-welcome-email", {
+                                body: {
+                                  to: student.guardian_email,
+                                  recipientName: student.guardian_name || student.full_name,
+                                  studentName: student.full_name,
+                                  registrationNumber: student.registration_number,
+                                  applyingForClass: student.class,
+                                  resend: true,
+                                },
+                              });
+                              if (error) throw error;
+                              toast({ title: "Welcome email sent", description: `Sent to ${student.guardian_email}` });
+                            } catch (e: any) {
+                              toast({ title: "Failed", description: e.message, variant: "destructive" });
+                            }
+                          }}
+                        >
+                          <Send className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
                           onClick={() => openEditDialog(student)}
                         >
                           <Edit className="w-4 h-4" />

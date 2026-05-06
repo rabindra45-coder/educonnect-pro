@@ -17,7 +17,7 @@ const ROLE_DASHBOARDS: Record<string, DashInfo> = {
 };
 
 const ROLE_PRIORITY: AppRole[] | string[] = [
-  "super_admin", "admin", "accountant", "librarian", "teacher", "staff", "parent", "student",
+  "super_admin", "admin", "accountant", "librarian", "teacher", "staff", "student", "parent",
 ];
 
 const DashboardQuickAccess = () => {

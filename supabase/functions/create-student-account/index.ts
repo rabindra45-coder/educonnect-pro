@@ -362,12 +362,21 @@ const handler = async (req: Request): Promise<Response> => {
       is_pinned: false,
     });
 
-    // ── 8. Send welcome emails (only for new users) ──
+    // ── 8. Send welcome email via Gmail SMTP (only for new users) ──
     if (isNewUser) {
-      await Promise.all([
-        sendWelcomeEmail(guardianEmail, guardianName, studentName, registrationNumber, applicationNumber, applyingForClass, "parent", generatedPassword),
-        sendWelcomeEmail(guardianEmail, guardianName, studentName, registrationNumber, applicationNumber, applyingForClass, "student", generatedPassword),
-      ]);
+      try {
+        const { sendViaGmail } = await import("../send-welcome-email/index.ts");
+        await sendViaGmail({
+          to: guardianEmail,
+          recipientName: guardianName,
+          studentName,
+          registrationNumber,
+          applyingForClass,
+          password: generatedPassword,
+        });
+      } catch (e) {
+        console.error("Welcome email failed:", e);
+      }
     }
 
     console.log(`Account created for: ${studentName} | Reg: ${registrationNumber}`);

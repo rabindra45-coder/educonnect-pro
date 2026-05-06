@@ -32,7 +32,7 @@ const ParentLogin = () => {
       from("user_roles").
       select("role").
       eq("user_id", data.user.id).
-      in("role", ["super_admin", "admin", "parent"]);
+      eq("role", "parent");
 
       if (roleError) throw roleError;
 
@@ -71,7 +71,7 @@ const ParentLogin = () => {
             Back to Main Site
           </Link>
           <div className="flex justify-center mb-4">
-            <img alt="School Logo" className="w-20 h-20 object-contain" src="/lovable-uploads/3fb1114e-22bb-4ec3-9c84-ca910d624274.png" />
+            <img alt="School Logo" className="w-20 h-20 object-contain" src="/logo.png" />
           </div>
           <h1 className="text-2xl font-bold text-foreground">Parent Portal</h1>
           <p className="text-muted-foreground">Milestone College Guardian Management System</p>
