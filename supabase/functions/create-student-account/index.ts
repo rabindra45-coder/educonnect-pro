@@ -207,7 +207,7 @@ const handler = async (req: Request): Promise<Response> => {
         email_confirm: true,
         user_metadata: { full_name: studentName, must_change_password: true },
       });
-      if (authError) throw new Error(`Failed to create user account: ${authError.message}`);
+      if (authError) { console.error("auth create error:", authError); throw new Error("Failed to create user account"); }
       userId = authData.user.id;
       isNewUser = true;
       console.log("New user created:", userId);
@@ -225,7 +225,7 @@ const handler = async (req: Request): Promise<Response> => {
       const { error: roleError } = await supabase
         .from("user_roles")
         .insert({ user_id: userId, role: "student" });
-      if (roleError) throw new Error(`Failed to assign student role: ${roleError.message}`);
+      if (roleError) { console.error("role assign error:", roleError); throw new Error("Failed to assign student role"); }
     }
 
     // ── 3. Update profile ──
@@ -265,7 +265,8 @@ const handler = async (req: Request): Promise<Response> => {
         .single();
 
       if (studentError) {
-        throw new Error(`Failed to create student record: ${studentError.message}`);
+        console.error("student insert error:", studentError);
+        throw new Error("Failed to create student record");
       }
       studentId = newStudent.id;
     }
@@ -384,7 +385,7 @@ const handler = async (req: Request): Promise<Response> => {
   } catch (error: any) {
     console.error("Error in create-student-account:", error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: "Failed to create student account" }),
       { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } },
     );
   }
