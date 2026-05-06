@@ -34,6 +34,7 @@ export default function AIControlCenter() {
   const { user, isLoading, hasRole } = useAuth();
   const navigate = useNavigate();
   const [prompt, setPrompt] = useState("");
+  const [withImage, setWithImage] = useState(true);
   const [analyzing, setAnalyzing] = useState(false);
   const [applying, setApplying] = useState(false);
   const [plan, setPlan] = useState<Plan | null>(null);
