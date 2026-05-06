@@ -91,6 +91,71 @@ function toHeadline(input: string, fallback = "New Notice") {
   return headline || fallback;
 }
 
+function firstSentence(input: string, fallback: string) {
+  const clean = sanitize(input).replace(/\s+/g, " ").trim();
+  if (!clean) return fallback;
+  return clean.split(/[\n.!?]/)[0]?.trim().slice(0, 240) || fallback;
+}
+
+function inferMissingRequiredFields(prompt: string, plan: any) {
+  const basePrompt = sanitize(prompt);
+  const fields = { ...(plan?.fields || {}) };
+
+  switch (plan?.target_table) {
+    case "notices": {
+      if (!String(fields.title || "").trim()) fields.title = toHeadline(basePrompt, "College Notice");
+      if (!String(fields.content || "").trim()) {
+        const contentSource = basePrompt
+          .replace(/^(add|create|post|publish|make|write)\s+(a|an)?\s*notice\s*/i, "")
+          .trim();
+        fields.content = contentSource || `Please note: ${fields.title}`;
+      }
+      if (fields.is_pinned === undefined) fields.is_pinned = false;
+      break;
+    }
+    case "facilities": {
+      if (!String(fields.title || "").trim()) fields.title = toHeadline(basePrompt, "Campus Facility");
+      if (!String(fields.description || "").trim()) {
+        fields.description = firstSentence(
+          basePrompt.replace(/^(add|create|post|publish|make|write|update)\s+(a|an|the)?\s*facility\s*/i, ""),
+          `${fields.title} is available for students and campus activities.`
+        );
+      }
+      if (fields.display_order === undefined) fields.display_order = 0;
+      if (fields.is_active === undefined) fields.is_active = true;
+      break;
+    }
+    case "leadership": {
+      if (!String(fields.name || "").trim()) fields.name = toHeadline(basePrompt, "Leadership Member");
+      if (!String(fields.role || "").trim()) fields.role = "Administrator";
+      if (fields.display_order === undefined) fields.display_order = 0;
+      if (fields.is_active === undefined) fields.is_active = true;
+      break;
+    }
+    case "testimonials": {
+      if (!String(fields.content || "").trim()) fields.content = firstSentence(basePrompt, "A positive experience shared by our community.");
+      break;
+    }
+    case "stats": {
+      if (!String(fields.label || "").trim()) fields.label = toHeadline(basePrompt, "Key Metric");
+      if (fields.value === undefined || fields.value === null || fields.value === "") fields.value = "Updated";
+      break;
+    }
+    case "about_content": {
+      if (!String(fields.section_key || "").trim()) fields.section_key = "overview";
+      break;
+    }
+    case "academic_calendar": {
+      if (!String(fields.title || "").trim()) fields.title = toHeadline(basePrompt, "Academic Event");
+      if (!String(fields.event_date || "").trim()) fields.event_date = new Date().toISOString().slice(0, 10);
+      if (!String(fields.event_type || "").trim()) fields.event_type = "general";
+      break;
+    }
+  }
+
+  return { ...plan, fields };
+}
+
 function normalizePlan(prompt: string, rawPlan: any) {
   const plan = {
     ...rawPlan,
@@ -99,28 +164,7 @@ function normalizePlan(prompt: string, rawPlan: any) {
 
   if (plan.operation !== "insert") return plan;
 
-  if (plan.target_table === "notices") {
-    const existingTitle = typeof plan.fields.title === "string" ? plan.fields.title.trim() : "";
-    const existingContent = typeof plan.fields.content === "string" ? plan.fields.content.trim() : "";
-    const basePrompt = sanitize(prompt);
-
-    if (!existingTitle) {
-      plan.fields.title = toHeadline(basePrompt, "College Notice");
-    }
-
-    if (!existingContent) {
-      const contentSource = basePrompt
-        .replace(/^(add|create|post|publish|make|write)\s+(a|an)?\s*notice\s*/i, "")
-        .trim();
-      plan.fields.content = contentSource || `Please note: ${plan.fields.title}`;
-    }
-
-    if (plan.fields.is_pinned === undefined) {
-      plan.fields.is_pinned = false;
-    }
-  }
-
-  return plan;
+  return inferMissingRequiredFields(prompt, plan);
 }
 
 async function runAgent(name: string, system: string, user: string) {
