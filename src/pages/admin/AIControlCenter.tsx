@@ -130,7 +130,7 @@ export default function AIControlCenter() {
                 <h1 className="font-display text-2xl sm:text-3xl font-bold">AI Control Center</h1>
                 <Badge variant="secondary" className="gap-1"><ShieldCheck className="w-3 h-3" /> Super Admin</Badge>
                 <Badge className="gap-1 bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/30">
-                  <Activity className="w-3 h-3" /> Rabindra 2.0 Online
+                  <Activity className="w-3 h-3" /> Rabindra 3.0 — Auto-Heal
                 </Badge>
               </div>
               <p className="text-sm text-muted-foreground mt-1">
