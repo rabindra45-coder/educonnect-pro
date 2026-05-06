@@ -182,6 +182,35 @@ serve(async (req) => {
       if (!ALLOWED_TABLES.includes(plan.target_table)) return json({ error: "Table not allowed" }, 400);
       if (plan.operation === "noop") return json({ ok: true, noop: true });
 
+      // Required-field validation per table (prevents NOT NULL violations)
+      const REQUIRED: Record<string, string[]> = {
+        notices: ["title", "content"],
+        hero_slides: ["image_url"],
+        facilities: ["title", "description"],
+        leadership: ["name", "role"],
+        testimonials: ["content"],
+        stats: ["label", "value"],
+        about_content: ["section_key"],
+        academic_calendar: ["title", "event_date"],
+        school_settings: [],
+      };
+      if (plan.operation === "insert") {
+        const need = REQUIRED[plan.target_table] || [];
+        const missing = need.filter((k) => {
+          const v = (plan.fields || {})[k];
+          return v === undefined || v === null || v === "";
+        });
+        if (missing.length) {
+          await admin.from("ai_logs").update({
+            status: "failed",
+            error: `Missing required fields: ${missing.join(", ")}`,
+          }).eq("id", log_id);
+          return json({
+            error: `Cannot create ${plan.target_table}: missing required field(s): ${missing.join(", ")}. Please be more specific in your prompt (e.g. include a title and content).`,
+          }, 400);
+        }
+      }
+
       // Snapshot before
       let snapshot: any = null;
       if (plan.operation === "update" && plan.target_id) {
