@@ -40,7 +40,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
       <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-lg border-b border-border/50 safe-area-inset">
         <div className="flex items-center justify-between px-4 h-14">
           <div className="flex items-center gap-3">
-            <img alt="Logo" className="w-8 h-8 object-contain" src="/lovable-uploads/6a060f55-67c8-4243-ac6f-4320029beca2.png" />
+            <img alt="Logo" className="w-8 h-8 object-contain" src="/logo.png" />
             <span className="font-display text-sm font-bold">Admin Panel</span>
           </div>
           <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>

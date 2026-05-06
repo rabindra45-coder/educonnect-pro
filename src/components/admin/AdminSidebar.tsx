@@ -85,7 +85,7 @@ const AdminSidebar = ({ onNavigate }: AdminSidebarProps) => {
           <img
             alt="College Logo"
             className="w-10 h-10 object-contain"
-            src="/lovable-uploads/6a060f55-67c8-4243-ac6f-4320029beca2.png"
+            src="/logo.png"
           />
           {!isCollapsed && (
             <div className="overflow-hidden">
