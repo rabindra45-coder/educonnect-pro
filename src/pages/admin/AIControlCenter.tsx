@@ -34,6 +34,7 @@ export default function AIControlCenter() {
   const { user, isLoading, hasRole } = useAuth();
   const navigate = useNavigate();
   const [prompt, setPrompt] = useState("");
+  const [withImage, setWithImage] = useState(true);
   const [analyzing, setAnalyzing] = useState(false);
   const [applying, setApplying] = useState(false);
   const [plan, setPlan] = useState<Plan | null>(null);
@@ -85,7 +86,7 @@ export default function AIControlCenter() {
     if (!plan || !logId) return;
     setApplying(true);
     try {
-      await call("apply", { log_id: logId, plan });
+      await call("apply", { log_id: logId, plan, with_image: withImage });
       toast.success("Change deployed");
       setPlan(null); setPrompt(""); setLogId(null); setAgents([]);
     } catch (e: any) { toast.error(e.message); }
@@ -129,7 +130,7 @@ export default function AIControlCenter() {
                 <h1 className="font-display text-2xl sm:text-3xl font-bold">AI Control Center</h1>
                 <Badge variant="secondary" className="gap-1"><ShieldCheck className="w-3 h-3" /> Super Admin</Badge>
                 <Badge className="gap-1 bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/30">
-                  <Activity className="w-3 h-3" /> Rabindra 2.0 Online
+                  <Activity className="w-3 h-3" /> Rabindra 3.0 — Auto-Heal
                 </Badge>
               </div>
               <p className="text-sm text-muted-foreground mt-1">
@@ -164,6 +165,10 @@ export default function AIControlCenter() {
                     value={prompt}
                     onChange={(e) => setPrompt(e.target.value)}
                   />
+                  <label className="flex items-center gap-2 text-xs text-muted-foreground cursor-pointer select-none">
+                    <input type="checkbox" checked={withImage} onChange={(e) => setWithImage(e.target.checked)} className="accent-primary" />
+                    Auto-generate hero image for notices
+                  </label>
                   <div className="flex flex-wrap gap-2">
                     <Button onClick={onAnalyze} disabled={analyzing}>
                       {analyzing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}

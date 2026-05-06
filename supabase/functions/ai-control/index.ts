@@ -26,6 +26,27 @@ const ALLOWED_TABLES = [
   "school_settings",
 ];
 
+const VERSION = "rabindra-3.0";
+
+async function generateImageBytes(prompt: string): Promise<{ bytes: Uint8Array; path: string; publicUrl: string } | null> {
+  const r = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${LOVABLE_API_KEY}`, "Content-Type": "application/json" },
+    body: JSON.stringify({
+      model: "google/gemini-2.5-flash-image",
+      messages: [{ role: "user", content: prompt }],
+      modalities: ["image", "text"],
+    }),
+  });
+  if (!r.ok) return null;
+  const data = await r.json();
+  const dataUrl = data.choices?.[0]?.message?.images?.[0]?.image_url?.url;
+  if (!dataUrl) return null;
+  const base64 = dataUrl.split(",")[1];
+  const bytes = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
+  return { bytes, path: "", publicUrl: "" };
+}
+
 async function ai(messages: any[], model = "google/gemini-2.5-flash", tools?: any[], tool_choice?: any) {
   const body: any = { model, messages };
   if (tools) { body.tools = tools; body.tool_choice = tool_choice; }
@@ -285,6 +306,23 @@ serve(async (req) => {
         }
       }
 
+      // Auto-generate hero image for notices when requested or when none provided
+      const wantImage = !!body.with_image || /\b(image|banner|poster|photo|picture|visual)\b/i.test(logRow?.prompt || "");
+      if (plan.operation === "insert" && plan.target_table === "notices" && wantImage && !plan.fields.hero_image_url) {
+        try {
+          const imgPrompt = `Professional college notice banner, navy and gold tones, clean editorial style. Topic: ${plan.fields.title}. ${plan.fields.content?.slice(0, 200) || ""}`;
+          const img = await generateImageBytes(imgPrompt);
+          if (img) {
+            const path = `ai/notices/${u.user.id}/${Date.now()}.png`;
+            const { error: upErr } = await admin.storage.from("content-images").upload(path, img.bytes, { contentType: "image/png", upsert: false });
+            if (!upErr) {
+              const { data: pub } = admin.storage.from("content-images").getPublicUrl(path);
+              plan.fields.hero_image_url = pub.publicUrl;
+            }
+          }
+        } catch (e) { console.error("auto-image failed", e); }
+      }
+
       // Snapshot before
       let snapshot: any = null;
       if (plan.operation === "update" && plan.target_id) {
@@ -292,16 +330,35 @@ serve(async (req) => {
         snapshot = cur;
       }
 
-      // Apply
-      let applied: any = null;
-      if (plan.operation === "insert") {
-        const { data, error } = await admin.from(plan.target_table).insert(plan.fields).select().single();
-        if (error) throw error;
-        applied = data;
-      } else if (plan.operation === "update") {
-        const { data, error } = await admin.from(plan.target_table).update(plan.fields).eq("id", plan.target_id).select().single();
-        if (error) throw error;
-        applied = data;
+      // Apply with auto error-fix retry
+      const tryApply = async (fields: any) => {
+        if (plan.operation === "insert") {
+          return await admin.from(plan.target_table).insert(fields).select().single();
+        } else {
+          return await admin.from(plan.target_table).update(fields).eq("id", plan.target_id).select().single();
+        }
+      };
+
+      let { data: applied, error: applyErr } = await tryApply(plan.fields);
+
+      if (applyErr) {
+        // Ask AI to repair the fields based on the DB error, then retry once
+        try {
+          const repair = await ai([
+            { role: "system", content: `You repair Postgres insert/update payloads. Return ONLY a JSON object of corrected column->value for table "${plan.target_table}". Drop unknown columns, fix types, fill missing required fields with sensible values. No prose.` },
+            { role: "user", content: `Original fields: ${JSON.stringify(plan.fields)}\nDB error: ${applyErr.message}` },
+          ], "google/gemini-2.5-flash");
+          const txt = repair.choices?.[0]?.message?.content || "{}";
+          const jsonStr = txt.match(/\{[\s\S]*\}/)?.[0] || "{}";
+          const fixed = JSON.parse(jsonStr);
+          plan.fields = { ...plan.fields, ...fixed };
+          const retry = await tryApply(plan.fields);
+          if (retry.error) throw retry.error;
+          applied = retry.data;
+        } catch (e: any) {
+          await admin.from("ai_logs").update({ status: "failed", error: `Apply failed: ${applyErr.message}; auto-fix: ${e.message}` }).eq("id", log_id);
+          return json({ error: `Apply failed: ${applyErr.message}` }, 400);
+        }
       }
 
       // Save version
