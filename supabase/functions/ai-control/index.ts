@@ -381,7 +381,7 @@ serve(async (req) => {
       const version_id = body.version_id;
       const { data: v, error } = await admin.from("ai_versions").select("*").eq("id", version_id).single();
       if (error || !v) return json({ error: "Version not found" }, 404);
-      if (v.rolled_back_at) return json({ error: "Already rolled back" }, 400);
+      if (v.rolled_back_at) return json({ ok: true, already: true });
       if (!ALLOWED_TABLES.includes(v.target_table)) return json({ error: "Table not allowed" }, 400);
 
       const snap = v.snapshot as any;
