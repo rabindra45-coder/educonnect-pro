@@ -45,6 +45,63 @@ function sanitize(s: string) {
   return (s || "").slice(0, 4000).replace(/[\u0000-\u001F\u007F]/g, " ");
 }
 
+function toHeadline(input: string, fallback = "New Notice") {
+  const clean = sanitize(input)
+    .replace(/^(add|create|post|publish|make|write|update)\s+(a|an|the)?\s*/i, "")
+    .replace(/^(new)\s+/i, "")
+    .replace(/^(notice|announcement)\s+(about|for|regarding)\s+/i, "")
+    .trim();
+
+  if (!clean) return fallback;
+
+  const compact = clean
+    .replace(/\s+/g, " ")
+    .split(/[.!?\n]/)[0]
+    .slice(0, 90)
+    .trim();
+
+  const headline = compact
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 10)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+
+  return headline || fallback;
+}
+
+function normalizePlan(prompt: string, rawPlan: any) {
+  const plan = {
+    ...rawPlan,
+    fields: { ...(rawPlan?.fields || {}) },
+  };
+
+  if (plan.operation !== "insert") return plan;
+
+  if (plan.target_table === "notices") {
+    const existingTitle = typeof plan.fields.title === "string" ? plan.fields.title.trim() : "";
+    const existingContent = typeof plan.fields.content === "string" ? plan.fields.content.trim() : "";
+    const basePrompt = sanitize(prompt);
+
+    if (!existingTitle) {
+      plan.fields.title = toHeadline(basePrompt, "College Notice");
+    }
+
+    if (!existingContent) {
+      const contentSource = basePrompt
+        .replace(/^(add|create|post|publish|make|write)\s+(a|an)?\s*notice\s*/i, "")
+        .trim();
+      plan.fields.content = contentSource || `Please note: ${plan.fields.title}`;
+    }
+
+    if (plan.fields.is_pinned === undefined) {
+      plan.fields.is_pinned = false;
+    }
+  }
+
+  return plan;
+}
+
 async function runAgent(name: string, system: string, user: string) {
   const out = await ai([
     { role: "system", content: system },
@@ -137,6 +194,8 @@ If the admin's prompt does not give enough information to fill the required fiel
     try { plan = JSON.parse(call.function.arguments); } catch { /* ignore */ }
   }
 
+  plan = normalizePlan(prompt, plan);
+
   return {
     plan,
     agents: [hr, sw, db, ui, sec, strat],
@@ -189,10 +248,13 @@ serve(async (req) => {
 
     if (action === "apply") {
       const log_id = body.log_id;
-      const plan = body.plan;
+      let plan = body.plan;
       if (!log_id || !plan) return json({ error: "log_id & plan required" }, 400);
       if (!ALLOWED_TABLES.includes(plan.target_table)) return json({ error: "Table not allowed" }, 400);
       if (plan.operation === "noop") return json({ ok: true, noop: true });
+
+      const { data: logRow } = await admin.from("ai_logs").select("prompt").eq("id", log_id).maybeSingle();
+      plan = normalizePlan(logRow?.prompt || "", plan);
 
       // Required-field validation per table (prevents NOT NULL violations)
       const REQUIRED: Record<string, string[]> = {
