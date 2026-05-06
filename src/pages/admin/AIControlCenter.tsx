@@ -86,7 +86,7 @@ export default function AIControlCenter() {
     if (!plan || !logId) return;
     setApplying(true);
     try {
-      await call("apply", { log_id: logId, plan });
+      await call("apply", { log_id: logId, plan, with_image: withImage });
       toast.success("Change deployed");
       setPlan(null); setPrompt(""); setLogId(null); setAgents([]);
     } catch (e: any) { toast.error(e.message); }
