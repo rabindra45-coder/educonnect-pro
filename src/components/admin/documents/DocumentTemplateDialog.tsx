@@ -32,6 +32,8 @@ interface Student {
   registration_number: string;
   full_name: string;
   class: string;
+  stream?: string | null;
+  grade?: string | null;
   section: string | null;
   photo_url: string | null;
   guardian_name: string | null;
@@ -39,6 +41,12 @@ interface Student {
   address: string | null;
   gender?: string | null;
 }
+
+const formatStudentMeta = (s: Student) => {
+  const parts = [s.stream, s.grade ? `Grade ${s.grade}` : null, s.section ? `Sec ${s.section}` : null]
+    .filter(Boolean);
+  return parts.length ? parts.join(" · ") : (s.class || "");
+};
 
 interface SchoolSettings {
   school_name: string;
@@ -480,7 +488,7 @@ const DocumentTemplateDialog = ({
                   <SelectContent>
                     {students.map((student) => (
                       <SelectItem key={student.id} value={student.id}>
-                        {student.full_name} ({student.registration_number}) - Class {student.class}
+                        {student.full_name} ({student.registration_number}) — {formatStudentMeta(student)}
                       </SelectItem>
                     ))}
                   </SelectContent>
