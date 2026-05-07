@@ -39,12 +39,21 @@ interface Student {
   registration_number: string;
   full_name: string;
   class: string;
+  stream: string | null;
+  grade: string | null;
   section: string | null;
   photo_url: string | null;
   guardian_name: string | null;
   date_of_birth: string | null;
   address: string | null;
 }
+
+const formatStudentLabel = (s: Student) => {
+  const parts = [s.stream, s.grade ? `Grade ${s.grade}` : null, s.section ? `Sec ${s.section}` : null]
+    .filter(Boolean);
+  const meta = parts.length > 0 ? parts.join(" · ") : (s.class || "");
+  return `${s.full_name} (${s.registration_number})${meta ? ` — ${meta}` : ""}`;
+};
 
 interface StudentDocument {
   id: string;
@@ -118,6 +127,8 @@ const DocumentsManagement = () => {
             registration_number,
             full_name,
             class,
+            stream,
+            grade,
             section,
             photo_url,
             guardian_name,
@@ -145,7 +156,7 @@ const DocumentsManagement = () => {
     try {
       const { data, error } = await supabase
         .from("students")
-        .select("id, registration_number, full_name, class, section, photo_url, guardian_name, date_of_birth, address")
+        .select("id, registration_number, full_name, class, stream, grade, section, photo_url, guardian_name, date_of_birth, address")
         .eq("status", "active")
         .order("full_name");
 
@@ -351,7 +362,7 @@ const DocumentsManagement = () => {
                       <SelectContent>
                         {students.map((student) => (
                           <SelectItem key={student.id} value={student.id}>
-                            {student.full_name} ({student.registration_number}) - Class {student.class}
+                            {formatStudentLabel(student)}
                           </SelectItem>
                         ))}
                       </SelectContent>

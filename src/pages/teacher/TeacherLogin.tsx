@@ -1,14 +1,13 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { GraduationCap, Loader2, ArrowLeft, Mail, Phone, User } from "lucide-react";
-import schoolLogo from "@/assets/logo.png";
+import { GraduationCap, Loader2, Mail, Phone, User } from "lucide-react";
+import GlassAuthShell from "@/components/auth/GlassAuthShell";
 
 const TeacherLogin = () => {
   const [loginMethod, setLoginMethod] = useState<"email" | "phone" | "staffId">("email");
@@ -99,123 +98,103 @@ const TeacherLogin = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-950 dark:to-indigo-950 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <Link to="/" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary mb-4">
-            <ArrowLeft className="w-4 h-4" />
-            Back to Main Site
-          </Link>
-          <div className="flex justify-center mb-4">
-            <img alt="School Logo" className="w-20 h-20 object-contain" src="/lovable-uploads/2cd4ff59-aa85-4bd4-a2c0-ce2480336262.png" />
+    <GlassAuthShell
+      accent="from-blue-500 via-indigo-600 to-violet-600"
+      title="Teacher Portal"
+      subtitle="Academic management system"
+      icon={<GraduationCap className="w-6 h-6" />}
+    >
+      <Tabs value={loginMethod} onValueChange={(v) => setLoginMethod(v as any)} className="mb-4">
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="email" className="text-xs">
+            <Mail className="w-3 h-3 mr-1" />
+            Email
+          </TabsTrigger>
+          <TabsTrigger value="phone" className="text-xs">
+            <Phone className="w-3 h-3 mr-1" />
+            Phone
+          </TabsTrigger>
+          <TabsTrigger value="staffId" className="text-xs">
+            <User className="w-3 h-3 mr-1" />
+            Staff ID
+          </TabsTrigger>
+        </TabsList>
+      </Tabs>
+
+      <form onSubmit={handleLogin} className="space-y-4">
+        {loginMethod === "email" && (
+          <div className="space-y-2">
+            <Label htmlFor="email">Email Address</Label>
+            <Input
+              id="email"
+              type="email"
+              placeholder="teacher@school.edu.np"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
           </div>
-          <h1 className="text-2xl font-bold text-foreground">Teacher Portal</h1>
-          <p className="text-muted-foreground">Milestone College Academic Management System</p>
+        )}
+
+        {loginMethod === "phone" && (
+          <div className="space-y-2">
+            <Label htmlFor="phone">Phone Number</Label>
+            <Input
+              id="phone"
+              type="tel"
+              placeholder="98XXXXXXXX"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              required
+            />
+          </div>
+        )}
+
+        {loginMethod === "staffId" && (
+          <div className="space-y-2">
+            <Label htmlFor="staffId">Staff ID</Label>
+            <Input
+              id="staffId"
+              type="text"
+              placeholder="EMP-0001"
+              value={staffId}
+              onChange={(e) => setStaffId(e.target.value)}
+              required
+            />
+          </div>
+        )}
+
+        <div className="space-y-2">
+          <Label htmlFor="password">Password</Label>
+          <Input
+            id="password"
+            type="password"
+            placeholder="••••••••"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
         </div>
 
-        <Card className="shadow-xl">
-          <CardHeader className="text-center">
-            <div className="mx-auto w-12 h-12 bg-blue-500/10 rounded-full flex items-center justify-center mb-2">
-              <GraduationCap className="w-6 h-6 text-blue-600" />
-            </div>
-            <CardTitle>Teacher Login</CardTitle>
-            <CardDescription>Enter your credentials to access the portal</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Tabs value={loginMethod} onValueChange={(v) => setLoginMethod(v as any)} className="mb-4">
-              <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="email" className="text-xs">
-                  <Mail className="w-3 h-3 mr-1" />
-                  Email
-                </TabsTrigger>
-                <TabsTrigger value="phone" className="text-xs">
-                  <Phone className="w-3 h-3 mr-1" />
-                  Phone
-                </TabsTrigger>
-                <TabsTrigger value="staffId" className="text-xs">
-                  <User className="w-3 h-3 mr-1" />
-                  Staff ID
-                </TabsTrigger>
-              </TabsList>
-            </Tabs>
+        <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white" disabled={isLoading}>
+          {isLoading ? (
+            <>
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              Logging in...
+            </>
+          ) : (
+            "Login to Teacher Portal"
+          )}
+        </Button>
+      </form>
 
-            <form onSubmit={handleLogin} className="space-y-4">
-              {loginMethod === "email" &&
-              <div className="space-y-2">
-                  <Label htmlFor="email">Email Address</Label>
-                  <Input
-                  id="email"
-                  type="email"
-                  placeholder="teacher@school.edu.np"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required />
-                
-                </div>
-              }
-              
-              {loginMethod === "phone" &&
-              <div className="space-y-2">
-                  <Label htmlFor="phone">Phone Number</Label>
-                  <Input
-                  id="phone"
-                  type="tel"
-                  placeholder="98XXXXXXXX"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  required />
-                
-                </div>
-              }
-              
-              {loginMethod === "staffId" &&
-              <div className="space-y-2">
-                  <Label htmlFor="staffId">Staff ID</Label>
-                  <Input
-                  id="staffId"
-                  type="text"
-                  placeholder="EMP-0001"
-                  value={staffId}
-                  onChange={(e) => setStaffId(e.target.value)}
-                  required />
-                
-                </div>
-              }
-
-              <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required />
-                
-              </div>
-              
-              <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700" disabled={isLoading}>
-                {isLoading ?
-                <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Logging in...
-                  </> :
-
-                "Login to Teacher Portal"
-                }
-              </Button>
-            </form>
-
-            <div className="mt-6 pt-4 border-t text-center">
-              <p className="text-xs text-muted-foreground">
-                Only authorized teachers can access this portal.
-                Contact admin if you need help.
-              </p>
-            </div>
-          </CardContent>
-        </Card>
+      <div className="mt-6 pt-4 border-t border-white/20 text-center">
+        <p className="text-xs text-white/80">
+          Only authorized teachers can access this portal.
+        </p>
       </div>
-    </div>);
+    </GlassAuthShell>
+  );
 
 };
 

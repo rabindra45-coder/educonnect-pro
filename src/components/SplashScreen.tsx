@@ -1,27 +1,75 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import schoolLogo from "@/assets/logo.png";
 
 /**
  * Animated splash shown when the PWA opens in standalone mode.
- * Auto-dismisses after ~1.8s. Only renders once per session.
+ * Auto-dismisses after ~1.8s (or ~1.0s on low-power devices).
+ * On low-power devices or when prefers-reduced-motion is set, renders a
+ * lightweight static splash without blurs / orbs / repeating animations
+ * so it doesn't freeze entry-level phones.
  */
 const SplashScreen = () => {
   const [visible, setVisible] = useState(false);
+
+  // Detect low-power conditions once, synchronously, before render commit.
+  const lowPower = useMemo(() => {
+    if (typeof window === "undefined") return false;
+    try {
+      const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const nav = navigator as Navigator & {
+        deviceMemory?: number;
+        connection?: { saveData?: boolean; effectiveType?: string };
+      };
+      const lowMem = typeof nav.deviceMemory === "number" && nav.deviceMemory <= 2;
+      const lowCpu = typeof navigator.hardwareConcurrency === "number" && navigator.hardwareConcurrency <= 4;
+      const saveData = !!nav.connection?.saveData;
+      const slowNet = nav.connection?.effectiveType === "2g" || nav.connection?.effectiveType === "slow-2g";
+      return reducedMotion || lowMem || lowCpu || saveData || slowNet;
+    } catch {
+      return false;
+    }
+  }, []);
 
   useEffect(() => {
     const isStandalone =
       window.matchMedia("(display-mode: standalone)").matches ||
       // iOS Safari
-      (window.navigator as any).standalone === true;
+      (window.navigator as Navigator & { standalone?: boolean }).standalone === true;
     const shown = sessionStorage.getItem("mic_splash_shown");
     if (isStandalone && !shown) {
       setVisible(true);
       sessionStorage.setItem("mic_splash_shown", "1");
-      const t = setTimeout(() => setVisible(false), 1900);
+      const t = setTimeout(() => setVisible(false), lowPower ? 1000 : 1900);
       return () => clearTimeout(t);
     }
-  }, []);
+  }, [lowPower]);
+
+  // Lightweight static splash for low-power devices — no blur, no infinite
+  // animations, no gradient orbs. Just logo + label + simple progress bar.
+  if (visible && lowPower) {
+    return (
+      <div className="fixed inset-0 z-[100] flex items-center justify-center bg-primary">
+        <div className="flex flex-col items-center">
+          <div className="w-24 h-24 rounded-2xl bg-primary-foreground/10 border border-primary-foreground/20 flex items-center justify-center">
+            <img src={schoolLogo} alt="Milestone College" className="w-14 h-14 object-contain" loading="eager" decoding="async" />
+          </div>
+          <h1 className="mt-5 font-display text-xl text-primary-foreground tracking-wide">
+            Milestone <span className="italic text-secondary">Int'l</span>
+          </h1>
+          <p className="text-[10px] uppercase tracking-[0.3em] text-primary-foreground/60 mt-1">
+            College App
+          </p>
+          <div className="mt-6 w-32 h-0.5 bg-primary-foreground/15 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-secondary rounded-full"
+              style={{ width: "100%", transition: "width 800ms linear" }}
+            />
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <AnimatePresence>

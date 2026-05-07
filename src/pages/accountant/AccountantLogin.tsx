@@ -1,13 +1,12 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Calculator, Loader2, ArrowLeft } from "lucide-react";
-import schoolLogo from "@/assets/logo.png";
+import { Calculator, Loader2 } from "lucide-react";
+import GlassAuthShell from "@/components/auth/GlassAuthShell";
 
 const AccountantLogin = () => {
   const [email, setEmail] = useState("");
@@ -64,74 +63,54 @@ const AccountantLogin = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 to-teal-100 dark:from-emerald-950 dark:to-teal-950 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <Link to="/" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary mb-4">
-            <ArrowLeft className="w-4 h-4" />
-            Back to Main Site
-          </Link>
-          <div className="flex justify-center mb-4">
-            <img alt="School Logo" className="w-20 h-20 object-contain" src="/lovable-uploads/c95f7bbe-c429-4c53-8c05-cddc7872918b.png" />
-          </div>
-          <h1 className="text-2xl font-bold text-foreground">Accountant Portal</h1>
-          <p className="text-muted-foreground">Milestone College Finance Management</p>
+    <GlassAuthShell
+      accent="from-emerald-500 via-green-600 to-teal-700"
+      title="Accountant Portal"
+      subtitle="Finance & billing management"
+      icon={<Calculator className="w-6 h-6" />}
+    >
+      <form onSubmit={handleLogin} className="space-y-4">
+        <div className="space-y-2">
+          <Label htmlFor="email">Email / Staff ID</Label>
+          <Input
+            id="email"
+            type="email"
+            placeholder="accountant@school.edu.np"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
         </div>
+        <div className="space-y-2">
+          <Label htmlFor="password">Password</Label>
+          <Input
+            id="password"
+            type="password"
+            placeholder="••••••••"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+        </div>
+        <Button type="submit" className="w-full bg-emerald-600 hover:bg-emerald-700 text-white" disabled={isLoading}>
+          {isLoading ? (
+            <>
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              Logging in...
+            </>
+          ) : (
+            "Login to Finance Portal"
+          )}
+        </Button>
+      </form>
 
-        <Card className="shadow-xl">
-          <CardHeader className="text-center">
-            <div className="mx-auto w-12 h-12 bg-emerald-500/10 rounded-full flex items-center justify-center mb-2">
-              <Calculator className="w-6 h-6 text-emerald-600" />
-            </div>
-            <CardTitle>Accountant Login</CardTitle>
-            <CardDescription>Enter your credentials to access the finance system</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleLogin} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="email">Email / Staff ID</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="accountant@school.edu.np"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required />
-                
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required />
-                
-              </div>
-              <Button type="submit" className="w-full bg-emerald-600 hover:bg-emerald-700" disabled={isLoading}>
-                {isLoading ?
-                <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Logging in...
-                  </> :
-
-                "Login to Finance Portal"
-                }
-              </Button>
-            </form>
-
-            <div className="mt-6 pt-4 border-t text-center">
-              <p className="text-xs text-muted-foreground">
-                Only authorized accountants can access this portal.
-              </p>
-            </div>
-          </CardContent>
-        </Card>
+      <div className="mt-6 pt-4 border-t border-white/20 text-center">
+        <p className="text-xs text-white/80">
+          Only authorized accountants can access this portal.
+        </p>
       </div>
-    </div>);
-
+    </GlassAuthShell>
+  );
 };
 
 export default AccountantLogin;

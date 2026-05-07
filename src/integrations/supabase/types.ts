@@ -2497,6 +2497,7 @@ export type Database = {
           date_of_birth: string | null
           full_name: string
           gender: string | null
+          grade: string | null
           guardian_email: string | null
           guardian_name: string | null
           guardian_phone: string | null
@@ -2506,6 +2507,7 @@ export type Database = {
           roll_number: number | null
           section: string | null
           status: string | null
+          stream: string | null
           updated_at: string
           user_id: string | null
         }
@@ -2517,6 +2519,7 @@ export type Database = {
           date_of_birth?: string | null
           full_name: string
           gender?: string | null
+          grade?: string | null
           guardian_email?: string | null
           guardian_name?: string | null
           guardian_phone?: string | null
@@ -2526,6 +2529,7 @@ export type Database = {
           roll_number?: number | null
           section?: string | null
           status?: string | null
+          stream?: string | null
           updated_at?: string
           user_id?: string | null
         }
@@ -2537,6 +2541,7 @@ export type Database = {
           date_of_birth?: string | null
           full_name?: string
           gender?: string | null
+          grade?: string | null
           guardian_email?: string | null
           guardian_name?: string | null
           guardian_phone?: string | null
@@ -2546,6 +2551,7 @@ export type Database = {
           roll_number?: number | null
           section?: string | null
           status?: string | null
+          stream?: string | null
           updated_at?: string
           user_id?: string | null
         }
