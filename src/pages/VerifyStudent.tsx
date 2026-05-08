@@ -65,21 +65,27 @@ const VerifyStudent = () => {
     setError(null);
 
     try {
-      // Fetch student data (publicly accessible for verification)
-      const { data: studentData, error: studentError } = await supabase
-        .from("students")
-        .select("id, full_name, registration_number, class, section, roll_number, guardian_name, guardian_phone, guardian_email, date_of_birth, address, photo_url, status, gender, admission_year")
-        .eq("id", studentId)
-        .maybeSingle();
+      // Fetch minimal student verification data via secure RPC (no PII exposure)
+      const { data: rpcData, error: studentError } = await supabase
+        .rpc("get_student_verification", { _student_id: studentId });
 
       if (studentError) throw studentError;
+      const studentData = Array.isArray(rpcData) ? rpcData[0] : rpcData;
       if (!studentData) {
         setError("Student not found");
         setIsLoading(false);
         return;
       }
 
-      setStudent(studentData);
+      setStudent({
+        ...studentData,
+        guardian_name: null,
+        guardian_phone: null,
+        guardian_email: null,
+        date_of_birth: null,
+        address: null,
+        gender: null,
+      } as StudentInfo);
 
       // Fetch school settings
       const { data: schoolData } = await supabase

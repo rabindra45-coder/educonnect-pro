@@ -40,6 +40,26 @@ import {
 } from "lucide-react";
 import { format } from "date-fns";
 
+function PaymentProofImage({ value }: { value: string }) {
+  const [src, setSrc] = useState<string | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      if (value.startsWith("http")) {
+        if (!cancelled) setSrc(value);
+        return;
+      }
+      const { data } = await supabase.storage
+        .from("payment-proofs")
+        .createSignedUrl(value, 60 * 10);
+      if (!cancelled) setSrc(data?.signedUrl ?? null);
+    })();
+    return () => { cancelled = true; };
+  }, [value]);
+  if (!src) return <div className="text-sm text-muted-foreground">Loading proof…</div>;
+  return <img src={src} alt="Payment proof" className="w-full max-h-80 object-contain rounded-lg border" />;
+}
+
 interface VerificationRequest {
   id: string;
   student_fee_id: string;
@@ -482,11 +502,7 @@ const PaymentVerificationManagement = () => {
               {selectedRequest.screenshot_url && (
                 <div>
                   <p className="text-muted-foreground text-sm mb-2">Payment Screenshot</p>
-                  <img
-                    src={selectedRequest.screenshot_url}
-                    alt="Payment proof"
-                    className="w-full max-h-80 object-contain rounded-lg border"
-                  />
+                  <PaymentProofImage value={selectedRequest.screenshot_url} />
                 </div>
               )}
 

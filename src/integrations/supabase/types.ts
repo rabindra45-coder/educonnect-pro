@@ -2941,6 +2941,20 @@ export type Database = {
         Returns: number
       }
       get_parent_id: { Args: { _user_id: string }; Returns: string }
+      get_student_verification: {
+        Args: { _student_id: string }
+        Returns: {
+          admission_year: number
+          class: string
+          full_name: string
+          id: string
+          photo_url: string
+          registration_number: string
+          roll_number: number
+          section: string
+          status: string
+        }[]
+      }
       get_teacher_id: { Args: { _user_id: string }; Returns: string }
       has_any_admin_role: { Args: { _user_id: string }; Returns: boolean }
       has_role: {
