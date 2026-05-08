@@ -482,11 +482,7 @@ const PaymentVerificationManagement = () => {
               {selectedRequest.screenshot_url && (
                 <div>
                   <p className="text-muted-foreground text-sm mb-2">Payment Screenshot</p>
-                  <img
-                    src={selectedRequest.screenshot_url}
-                    alt="Payment proof"
-                    className="w-full max-h-80 object-contain rounded-lg border"
-                  />
+                  <PaymentProofImage value={selectedRequest.screenshot_url} />
                 </div>
               )}
 
