@@ -32,6 +32,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import FaceLoginDialog from "@/components/auth/FaceLoginDialog";
 import QRLoginDialog from "@/components/auth/QRLoginDialog";
+import ForgotPasswordDialog from "@/components/auth/ForgotPasswordDialog";
 import schoolLogo from "@/assets/logo.png";
 
 const loginSchema = z.object({
