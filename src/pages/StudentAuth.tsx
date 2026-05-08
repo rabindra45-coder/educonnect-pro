@@ -449,6 +449,21 @@ const StudentAuth = () => {
                       )}
                     </div>
 
+                    <div className="flex justify-end -mt-1">
+                      <ForgotPasswordDialog
+                        defaultEmail={loginForm.watch("email")}
+                        portalLabel="Student Portal"
+                        trigger={
+                          <button
+                            type="button"
+                            className="text-xs font-medium text-primary hover:text-primary/80 underline-offset-4 hover:underline transition"
+                          >
+                            Forgot password?
+                          </button>
+                        }
+                      />
+                    </div>
+
                     <Button
                       type="submit"
                       className="w-full h-12 rounded-xl text-base font-semibold shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-all"
