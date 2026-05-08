@@ -32,6 +32,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import FaceLoginDialog from "@/components/auth/FaceLoginDialog";
 import QRLoginDialog from "@/components/auth/QRLoginDialog";
+import schoolLogo from "@/assets/logo.png";
 
 const loginSchema = z.object({
   email: z.string().trim().email("Invalid email address").max(255, "Email too long"),
@@ -193,7 +194,7 @@ const StudentAuth = () => {
                 <img
                   alt="School Logo"
                   className="w-full h-full object-contain"
-                  src="/lovable-uploads/a44266fb-533a-4dea-917a-8d4a683c3a90.png"
+                  src={schoolLogo}
                 />
               </div>
               <div>
@@ -281,7 +282,7 @@ const StudentAuth = () => {
               <img
                 alt="School Logo"
                 className="w-full h-full object-contain"
-                src="/lovable-uploads/863d7717-eb32-48c7-9790-d7575372a745.png"
+                src={schoolLogo}
               />
             </div>
             <h1 className="font-display text-xl font-bold text-foreground">Student Portal</h1>
