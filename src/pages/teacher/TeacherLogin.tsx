@@ -8,6 +8,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { GraduationCap, Loader2, Mail, Phone, User } from "lucide-react";
 import GlassAuthShell from "@/components/auth/GlassAuthShell";
+import ForgotPasswordDialog from "@/components/auth/ForgotPasswordDialog";
 
 const TeacherLogin = () => {
   const [loginMethod, setLoginMethod] = useState<"email" | "phone" | "staffId">("email");
@@ -176,6 +177,9 @@ const TeacherLogin = () => {
           />
         </div>
 
+        <div className="flex justify-end">
+          <ForgotPasswordDialog defaultEmail={email} portalLabel="Teacher Portal" />
+        </div>
         <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white" disabled={isLoading}>
           {isLoading ? (
             <>

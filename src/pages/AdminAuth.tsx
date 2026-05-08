@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import GlassAuthShell from "@/components/auth/GlassAuthShell";
+import ForgotPasswordDialog from "@/components/auth/ForgotPasswordDialog";
 
 const loginSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -176,6 +177,9 @@ const AdminAuth = () => {
             )}
           </div>
 
+          <div className="flex justify-end">
+            <ForgotPasswordDialog defaultEmail={loginForm.watch("email")} portalLabel="Admin Portal" />
+          </div>
           <Button type="submit" className="w-full" disabled={isSubmitting}>
             {isSubmitting ? "Signing in..." : "Sign In"}
           </Button>

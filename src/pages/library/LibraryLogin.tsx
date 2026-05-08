@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { BookOpen, Loader2 } from "lucide-react";
 import GlassAuthShell from "@/components/auth/GlassAuthShell";
+import ForgotPasswordDialog from "@/components/auth/ForgotPasswordDialog";
 
 const LibraryLogin = () => {
   const [email, setEmail] = useState("");
@@ -91,6 +92,9 @@ const LibraryLogin = () => {
             onChange={(e) => setPassword(e.target.value)}
             required
           />
+        </div>
+        <div className="flex justify-end">
+          <ForgotPasswordDialog defaultEmail={email} portalLabel="Library Portal" />
         </div>
         <Button type="submit" className="w-full bg-amber-600 hover:bg-amber-700 text-white" disabled={isLoading}>
           {isLoading ? (

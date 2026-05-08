@@ -32,6 +32,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import FaceLoginDialog from "@/components/auth/FaceLoginDialog";
 import QRLoginDialog from "@/components/auth/QRLoginDialog";
+import ForgotPasswordDialog from "@/components/auth/ForgotPasswordDialog";
 import schoolLogo from "@/assets/logo.png";
 
 const loginSchema = z.object({
@@ -446,6 +447,21 @@ const StudentAuth = () => {
                           {loginForm.formState.errors.password.message}
                         </p>
                       )}
+                    </div>
+
+                    <div className="flex justify-end -mt-1">
+                      <ForgotPasswordDialog
+                        defaultEmail={loginForm.watch("email")}
+                        portalLabel="Student Portal"
+                        trigger={
+                          <button
+                            type="button"
+                            className="text-xs font-medium text-primary hover:text-primary/80 underline-offset-4 hover:underline transition"
+                          >
+                            Forgot password?
+                          </button>
+                        }
+                      />
                     </div>
 
                     <Button
