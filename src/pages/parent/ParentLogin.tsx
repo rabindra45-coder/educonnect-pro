@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Users, Loader2, Mail } from "lucide-react";
 import GlassAuthShell from "@/components/auth/GlassAuthShell";
+import ForgotPasswordDialog from "@/components/auth/ForgotPasswordDialog";
 
 const ParentLogin = () => {
   const [email, setEmail] = useState("");
@@ -97,6 +98,9 @@ const ParentLogin = () => {
           />
         </div>
 
+        <div className="flex justify-end">
+          <ForgotPasswordDialog defaultEmail={email} portalLabel="Parent Portal" />
+        </div>
         <Button type="submit" className="w-full bg-teal-600 hover:bg-teal-700 text-white" disabled={isLoading}>
           {isLoading ? (
             <>

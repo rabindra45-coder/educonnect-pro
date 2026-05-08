@@ -25,6 +25,7 @@ import NoticeDetail from "./pages/NoticeDetail";
 import ContactMessages from "./pages/admin/ContactMessages";
 import AdminAuth from "./pages/AdminAuth";
 import StudentAuth from "./pages/StudentAuth";
+import ResetPassword from "./pages/ResetPassword";
 import Dashboard from "./pages/admin/Dashboard";
 import NoticesManagement from "./pages/admin/NoticesManagement";
 import StudentsManagement from "./pages/admin/StudentsManagement";
@@ -86,6 +87,7 @@ const App = () => (
               <Route path="/academics/results" element={<ExamResults />} />
               <Route path="/academics/calendar" element={<AcademicCalendar />} />
               <Route path="/login" element={<StudentAuth />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/admin/login" element={<AdminAuth />} />
               <Route path="/admin" element={<Dashboard />} />
               <Route path="/admin/notices" element={<NoticesManagement />} />

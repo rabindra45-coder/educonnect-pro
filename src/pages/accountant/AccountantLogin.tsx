@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Calculator, Loader2 } from "lucide-react";
 import GlassAuthShell from "@/components/auth/GlassAuthShell";
+import ForgotPasswordDialog from "@/components/auth/ForgotPasswordDialog";
 
 const AccountantLogin = () => {
   const [email, setEmail] = useState("");
@@ -91,6 +92,9 @@ const AccountantLogin = () => {
             onChange={(e) => setPassword(e.target.value)}
             required
           />
+        </div>
+        <div className="flex justify-end">
+          <ForgotPasswordDialog defaultEmail={email} portalLabel="Accountant Portal" />
         </div>
         <Button type="submit" className="w-full bg-emerald-600 hover:bg-emerald-700 text-white" disabled={isLoading}>
           {isLoading ? (
