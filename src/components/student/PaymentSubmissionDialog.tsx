@@ -107,18 +107,17 @@ const PaymentSubmissionDialog = ({
 
     setUploadingScreenshot(true);
     const fileName = `payment_${studentId}_${Date.now()}_${file.name}`;
+    const path = `screenshots/${fileName}`;
 
-    const { data, error } = await supabase.storage
+    const { error } = await supabase.storage
       .from("payment-proofs")
-      .upload(`screenshots/${fileName}`, file);
+      .upload(path, file);
 
     if (error) {
       toast({ title: "Error uploading screenshot", variant: "destructive" });
     } else {
-      const { data: publicUrl } = supabase.storage
-        .from("payment-proofs")
-        .getPublicUrl(`screenshots/${fileName}`);
-      setScreenshotUrl(publicUrl.publicUrl);
+      // Store the storage path (bucket is private; admin will use signed URLs to view)
+      setScreenshotUrl(path);
       toast({ title: "Screenshot uploaded successfully" });
     }
     setUploadingScreenshot(false);
