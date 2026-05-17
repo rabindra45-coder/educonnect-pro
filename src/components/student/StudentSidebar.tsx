@@ -83,7 +83,7 @@ const StudentSidebar = ({
        {/* Header */}
        <div className={cn("p-4 border-b border-border/50", collapsed && !isMobile && "px-2")}>
          <div className={cn("flex items-center gap-3", collapsed && !isMobile && "justify-center")}>
-           <img alt="Logo" className="w-10 h-10 object-contain" src="/lovable-uploads/fd29a9e9-6326-4193-ad94-f0181c0d4662.png" />
+           <img alt="Logo" className="w-10 h-10 object-contain" src={schoolLogo} />
            {(!collapsed || isMobile) &&
         <div className="flex-1 min-w-0">
                <h1 className="font-display text-sm font-bold text-foreground truncate">Student Portal</h1>
@@ -217,7 +217,7 @@ const StudentSidebar = ({
        <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-lg border-b border-border/50">
          <div className="flex items-center justify-between px-4 h-14">
            <div className="flex items-center gap-3">
-             <img alt="Logo" className="w-8 h-8 object-contain" src="/lovable-uploads/14246461-1613-4400-8560-113d57fe1df9.png" />
+             <img alt="Logo" className="w-8 h-8 object-contain" src={schoolLogo} />
              <span className="font-display text-sm font-bold">Student Portal</span>
            </div>
            <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
