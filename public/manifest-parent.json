@@ -1,0 +1,16 @@
+{
+  "name": "Milestone Parent Portal",
+  "short_name": "MIC Parent",
+  "description": "Parent dashboard for Milestone International College",
+  "id": "/parent?app=parent",
+  "start_url": "/parent?app=parent",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#7c2d12",
+  "theme_color": "#7c2d12",
+  "orientation": "portrait-primary",
+  "icons": [
+    { "src": "/logo.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/logo.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

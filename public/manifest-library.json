@@ -1,0 +1,16 @@
+{
+  "name": "Milestone Library Portal",
+  "short_name": "MIC Library",
+  "description": "Library dashboard for Milestone International College",
+  "id": "/library?app=library",
+  "start_url": "/library?app=library",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#581c87",
+  "theme_color": "#581c87",
+  "orientation": "portrait-primary",
+  "icons": [
+    { "src": "/logo.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/logo.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

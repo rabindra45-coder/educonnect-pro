@@ -1,0 +1,16 @@
+{
+  "name": "Milestone Accounts Portal",
+  "short_name": "MIC Accounts",
+  "description": "Accountant dashboard for Milestone International College",
+  "id": "/accountant?app=accountant",
+  "start_url": "/accountant?app=accountant",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#854d0e",
+  "theme_color": "#854d0e",
+  "orientation": "portrait-primary",
+  "icons": [
+    { "src": "/logo.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/logo.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
