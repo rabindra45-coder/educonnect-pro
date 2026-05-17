@@ -232,7 +232,23 @@ const StudentSidebar = ({
            </Sheet>
          </div>
        </div>
- 
+
+       {/* Floating bottom Menu FAB — thumb-reachable on tall phones */}
+       <button
+         type="button"
+         onClick={() => setMobileOpen(true)}
+         className="lg:hidden fixed left-4 z-50 w-12 h-12 rounded-full bg-primary text-primary-foreground shadow-2xl flex items-center justify-center active:scale-95 transition"
+         style={{ bottom: "calc(env(safe-area-inset-bottom) + 76px)" }}
+         aria-label="Open menu"
+       >
+         <Menu className="w-5 h-5" />
+       </button>
+       <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+         <SheetContent side="left" className="p-0 w-[280px] lg:hidden">
+           <SidebarContent isMobile />
+         </SheetContent>
+       </Sheet>
+
        {/* Desktop Sidebar */}
        <aside className={cn(
         "hidden lg:flex flex-col border-r border-border/50 transition-all duration-300 h-screen sticky top-0",
