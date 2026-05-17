@@ -57,6 +57,8 @@ import TeacherLogin from "./pages/teacher/TeacherLogin";
 import ParentDashboard from "./pages/parent/ParentDashboard";
 import ParentLogin from "./pages/parent/ParentLogin";
 import InstallApp from "./pages/InstallApp";
+import InstallPortals from "./pages/InstallPortals";
+import PortalInstall from "./pages/PortalInstall";
 import FacilityDetail from "./pages/FacilityDetail";
 import Facilities from "./pages/Facilities";
 import AIControlCenter from "./pages/admin/AIControlCenter";
@@ -123,7 +125,9 @@ const App = () => (
               <Route path="/teacher/login" element={<TeacherLogin />} />
               <Route path="/parent" element={<ParentDashboard />} />
               <Route path="/parent/login" element={<ParentLogin />} />
-              <Route path="/install" element={<InstallApp />} />
+              <Route path="/install" element={<InstallPortals />} />
+              <Route path="/install/main" element={<InstallApp />} />
+              <Route path="/install/:portal" element={<PortalInstall />} />
               <Route path="/facilities" element={<Facilities />} />
               <Route path="/facilities/:facilityId" element={<FacilityDetail />} />
               <Route path="*" element={<NotFound />} />

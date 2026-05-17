@@ -1,0 +1,16 @@
+{
+  "name": "Milestone Teacher Portal",
+  "short_name": "MIC Teacher",
+  "description": "Teacher dashboard for Milestone International College",
+  "id": "/teacher?app=teacher",
+  "start_url": "/teacher?app=teacher",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#065f46",
+  "theme_color": "#065f46",
+  "orientation": "portrait-primary",
+  "icons": [
+    { "src": "/logo.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/logo.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

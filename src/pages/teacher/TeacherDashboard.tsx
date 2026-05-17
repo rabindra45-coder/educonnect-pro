@@ -164,7 +164,7 @@ const TeacherDashboard = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-3">
-              <img alt="Logo" className="w-10 h-10 object-contain" src="/lovable-uploads/63410f8f-be45-48b7-99c1-ca63e3b54907.png" />
+              <img alt="Logo" className="w-10 h-10 object-contain" src="/logo.png" />
               <div>
                 <h1 className="font-bold text-lg text-blue-700 dark:text-blue-400">Teacher Portal</h1>
                 <p className="text-xs text-muted-foreground">

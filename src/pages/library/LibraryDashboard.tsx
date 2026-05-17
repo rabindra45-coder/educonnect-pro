@@ -269,7 +269,7 @@ const LibraryDashboard = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-3">
-              <img alt="Logo" className="w-10 h-10 object-contain" src="/lovable-uploads/47afea2d-cb3e-4f0b-958c-cdabb2c9c289.png" />
+              <img alt="Logo" className="w-10 h-10 object-contain" src="/logo.png" />
               <div>
                 <h1 className="font-bold text-lg text-amber-700 dark:text-amber-400">Library Portal</h1>
                 <p className="text-xs text-muted-foreground">Milestone College Digital Library</p>
