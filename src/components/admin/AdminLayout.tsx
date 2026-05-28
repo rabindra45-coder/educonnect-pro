@@ -2,17 +2,17 @@ import { ReactNode, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import AdminSidebar from "./AdminSidebar";
-import { Loader2, Menu, X } from "lucide-react";
+import AdminBottomNav from "./AdminBottomNav";
+import { Loader2, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { cn } from "@/lib/utils";
 
 interface AdminLayoutProps {
   children: ReactNode;
 }
 
 const AdminLayout = ({ children }: AdminLayoutProps) => {
-  const { user, isLoading, hasAnyAdminRole } = useAuth();
+  const { user, isLoading } = useAuth();
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -61,9 +61,12 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
         <AdminSidebar />
       </div>
 
-      <main className="flex-1 overflow-auto pt-14 lg:pt-0">
+      <main className="flex-1 overflow-auto pt-14 lg:pt-0 pb-20 lg:pb-0">
         <div className="p-4 sm:p-6">{children}</div>
       </main>
+
+      {/* Mobile bottom nav */}
+      <AdminBottomNav onMenuOpen={() => setMobileOpen(true)} />
     </div>
   );
 };
