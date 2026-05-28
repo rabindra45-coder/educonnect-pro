@@ -40,7 +40,7 @@ const SplashScreen = () => {
     if (isStandalone && !shown) {
       setVisible(true);
       sessionStorage.setItem("mic_splash_shown", "1");
-      const t = setTimeout(() => setVisible(false), lowPower ? 1000 : 1900);
+      const t = setTimeout(() => setVisible(false), lowPower ? 2500 : 5000);
       return () => clearTimeout(t);
     }
   }, [lowPower]);
