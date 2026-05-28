@@ -37,6 +37,7 @@ import LibraryMembers from "@/components/library/LibraryMembers";
 import LibraryReservations from "@/components/library/LibraryReservations";
 import LibraryReports from "@/components/library/LibraryReports";
 import DigitalLibrary from "@/components/library/DigitalLibrary";
+import MobileBottomNav from "@/components/layout/MobileBottomNav";
 
 interface LibraryStats {
   totalBooks: number;
@@ -483,6 +484,19 @@ const LibraryDashboard = () => {
           </TabsContent>
         </Tabs>
       </main>
+
+      <MobileBottomNav
+        activeId={activeTab}
+        onChange={setActiveTab}
+        items={[
+          { id: "overview", label: "Home", icon: Home },
+          { id: "issue", label: "Issue", icon: BookOpen },
+          { id: "return", label: "Return", icon: RotateCcw },
+          { id: "books", label: "Books", icon: Book },
+          { id: "members", label: "Members", icon: Users },
+        ]}
+      />
+      <div className="h-20 lg:hidden" />
     </div>);
 
 };

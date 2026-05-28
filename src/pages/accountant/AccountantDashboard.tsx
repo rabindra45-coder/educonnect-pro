@@ -16,6 +16,8 @@ import FinancialReports from "@/components/accountant/FinancialReports";
 import AccountantSettings from "@/components/accountant/AccountantSettings";
 import PaymentQRManagement from "@/components/admin/PaymentQRManagement";
 import PaymentVerificationManagement from "@/components/admin/PaymentVerificationManagement";
+import MobileBottomNav from "@/components/layout/MobileBottomNav";
+import { Home, FileText, CreditCard, Receipt, BarChart3 } from "lucide-react";
 
 const AccountantDashboard = () => {
   const { user, profile, isLoading: authLoading } = useAuth();
@@ -122,9 +124,20 @@ const AccountantDashboard = () => {
           onLogout={handleLogout}
           userName={profile?.full_name || "Accountant"}
         />
-        <main className="flex-1 overflow-auto">
+        <main className="flex-1 overflow-auto pb-20 lg:pb-0">
           <div className="p-6">{renderContent()}</div>
         </main>
+        <MobileBottomNav
+          activeId={activeTab}
+          onChange={setActiveTab}
+          items={[
+            { id: "overview", label: "Home", icon: Home },
+            { id: "invoices", label: "Invoices", icon: FileText },
+            { id: "payments", label: "Pay", icon: CreditCard },
+            { id: "expenses", label: "Expense", icon: Receipt },
+            { id: "reports", label: "Reports", icon: BarChart3 },
+          ]}
+        />
       </div>
     </>
   );

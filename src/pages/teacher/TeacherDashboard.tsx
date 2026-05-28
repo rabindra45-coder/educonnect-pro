@@ -33,6 +33,8 @@ import TeacherQuestionBank from "@/components/teacher/TeacherQuestionBank";
 import TeacherAnalytics from "@/components/teacher/TeacherAnalytics";
 import TeacherMessages from "@/components/teacher/TeacherMessages";
 import TeacherSettings from "@/components/teacher/TeacherSettings";
+import MobileBottomNav from "@/components/layout/MobileBottomNav";
+
 
 interface TeacherProfile {
   id: string;
@@ -251,6 +253,19 @@ const TeacherDashboard = () => {
           </TabsContent>
         </Tabs>
       </main>
+
+      <MobileBottomNav
+        activeId={activeTab}
+        onChange={setActiveTab}
+        items={[
+          { id: "overview", label: "Home", icon: LayoutDashboard },
+          { id: "students", label: "Students", icon: Users },
+          { id: "attendance", label: "Attend", icon: ClipboardCheck },
+          { id: "homework", label: "Work", icon: BookOpen },
+          { id: "messages", label: "Chat", icon: MessageSquare, badge: unreadNotifications },
+        ]}
+      />
+      <div className="h-20 lg:hidden" />
     </div>);
 
 };
