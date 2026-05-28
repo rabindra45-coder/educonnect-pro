@@ -37,6 +37,7 @@ import LibraryMembers from "@/components/library/LibraryMembers";
 import LibraryReservations from "@/components/library/LibraryReservations";
 import LibraryReports from "@/components/library/LibraryReports";
 import DigitalLibrary from "@/components/library/DigitalLibrary";
+import MobileBottomNav from "@/components/layout/MobileBottomNav";
 
 interface LibraryStats {
   totalBooks: number;
