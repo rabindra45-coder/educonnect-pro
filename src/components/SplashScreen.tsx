@@ -133,12 +133,20 @@ const SplashScreen = () => {
               transition={{ delay: 0.4, duration: 0.5 }}
               className="mt-6 text-center"
             >
-              <h1 className="font-display text-2xl text-primary-foreground tracking-wide">
+              <h1 className="font-display text-3xl text-primary-foreground tracking-wide">
                 Milestone <span className="italic text-secondary">Int'l</span>
               </h1>
-              <p className="text-[11px] uppercase tracking-[0.3em] text-primary-foreground/60 mt-1">
+              <p className="text-[11px] uppercase tracking-[0.32em] text-primary-foreground/70 mt-1.5">
                 College App
               </p>
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 1.2, duration: 0.6 }}
+                className="text-[10px] text-primary-foreground/45 mt-3 tracking-wider"
+              >
+                Excellence · Discipline · Innovation
+              </motion.p>
             </motion.div>
 
             {/* Loading bar */}
@@ -146,15 +154,23 @@ const SplashScreen = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.6 }}
-              className="mt-8 w-40 h-1 bg-primary-foreground/15 rounded-full overflow-hidden"
+              className="mt-8 w-48 h-1 bg-primary-foreground/15 rounded-full overflow-hidden"
             >
               <motion.div
                 className="h-full bg-gradient-to-r from-secondary via-secondary-light to-secondary rounded-full"
                 initial={{ width: "0%" }}
                 animate={{ width: "100%" }}
-                transition={{ duration: 1.4, ease: "easeInOut" }}
+                transition={{ duration: 4.5, ease: "easeInOut" }}
               />
             </motion.div>
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: [0, 0.7, 0.7, 0] }}
+              transition={{ duration: 4.5, times: [0, 0.1, 0.85, 1] }}
+              className="mt-3 text-[10px] uppercase tracking-[0.25em] text-primary-foreground/55"
+            >
+              Loading your portal…
+            </motion.p>
           </div>
         </motion.div>
       )}
