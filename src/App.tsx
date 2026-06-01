@@ -142,8 +142,10 @@ const App = () => (
           <Toaster />
           <Sonner />
           <SplashScreen />
-
-
+          <BrowserRouter>
+            <OfflineBanner />
+            <AnimatedRoutes />
+          </BrowserRouter>
         </TooltipProvider>
         </ThemeProvider>
       </AuthProvider>
