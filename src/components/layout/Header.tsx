@@ -8,6 +8,7 @@ import defaultLogo from "@/assets/logo.png";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import ColorModeToggle from "@/components/ColorModeToggle";
 
 const navItems = [
 { name: "Home", path: "/" },
@@ -156,9 +157,11 @@ const Header = () => {
 
             {/* Right side */}
             <div className="flex items-center gap-2">
+              <ColorModeToggle className="h-9 w-9" />
               <Button size="sm" className="hidden md:flex text-xs font-semibold" asChild>
                 <Link to="/admission">Apply Now</Link>
               </Button>
+
 
               {user ?
               <DropdownMenu>
