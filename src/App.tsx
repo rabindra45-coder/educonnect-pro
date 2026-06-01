@@ -68,6 +68,71 @@ import AIControlCenter from "./pages/admin/AIControlCenter";
 
 const queryClient = new QueryClient();
 
+const AnimatedRoutes = () => {
+  const location = useLocation();
+  return (
+    <AnimatePresence mode="wait">
+      <Routes location={location} key={location.pathname}>
+        <Route path="/" element={<PageTransition><Index /></PageTransition>} />
+        <Route path="/about" element={<PageTransition><About /></PageTransition>} />
+        <Route path="/contact" element={<PageTransition><Contact /></PageTransition>} />
+        <Route path="/notices" element={<PageTransition><Notices /></PageTransition>} />
+        <Route path="/admission" element={<PageTransition><Admission /></PageTransition>} />
+        <Route path="/gallery" element={<PageTransition><Gallery /></PageTransition>} />
+        <Route path="/academics" element={<PageTransition><Academics /></PageTransition>} />
+        <Route path="/academics/science" element={<PageTransition><ScienceFaculty /></PageTransition>} />
+        <Route path="/academics/management" element={<PageTransition><ManagementFaculty /></PageTransition>} />
+        <Route path="/academics/law" element={<PageTransition><LawFaculty /></PageTransition>} />
+        <Route path="/academics/results" element={<PageTransition><ExamResults /></PageTransition>} />
+        <Route path="/academics/calendar" element={<PageTransition><AcademicCalendar /></PageTransition>} />
+        <Route path="/login" element={<StudentAuth />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/admin/login" element={<AdminAuth />} />
+        <Route path="/admin" element={<Dashboard />} />
+        <Route path="/admin/notices" element={<NoticesManagement />} />
+        <Route path="/admin/students" element={<StudentsManagement />} />
+        <Route path="/admin/teachers" element={<TeachersManagement />} />
+        <Route path="/admin/admissions" element={<AdmissionsManagement />} />
+        <Route path="/admin/users" element={<UsersManagement />} />
+        <Route path="/admin/gallery" element={<GalleryManagement />} />
+        <Route path="/admin/content" element={<ContentManagement />} />
+        <Route path="/admin/documents" element={<DocumentsManagement />} />
+        <Route path="/admin/settings" element={<Settings />} />
+        <Route path="/admin/chats" element={<ChatManagement />} />
+        <Route path="/admin/exams" element={<ExamsManagement />} />
+        <Route path="/admin/subjects" element={<SubjectsManagement />} />
+        <Route path="/admin/exams/:examId/marks" element={<MarksEntry />} />
+        <Route path="/admin/exams/:examId/results" element={<AdminExamResults />} />
+        <Route path="/admin/fees" element={<FeeManagement />} />
+        <Route path="/admin/student-fees" element={<StudentFees />} />
+        <Route path="/admin/attendance" element={<AttendanceManagement />} />
+        <Route path="/admin/attendance-reports" element={<AttendanceReports />} />
+        <Route path="/admin/contact-messages" element={<ContactMessages />} />
+        <Route path="/admin/ai-control" element={<AIControlCenter />} />
+        <Route path="/admin/theme" element={<ThemeManagement />} />
+        <Route path="/notices/:noticeId" element={<PageTransition><NoticeDetail /></PageTransition>} />
+        <Route path="/student" element={<StudentDashboard />} />
+        <Route path="/verify/:studentId" element={<VerifyStudent />} />
+        <Route path="/chat" element={<Chat />} />
+        <Route path="/library" element={<LibraryDashboard />} />
+        <Route path="/library/login" element={<LibraryLogin />} />
+        <Route path="/accountant" element={<AccountantDashboard />} />
+        <Route path="/accountant/login" element={<AccountantLogin />} />
+        <Route path="/teacher" element={<TeacherDashboard />} />
+        <Route path="/teacher/login" element={<TeacherLogin />} />
+        <Route path="/parent" element={<ParentDashboard />} />
+        <Route path="/parent/login" element={<ParentLogin />} />
+        <Route path="/install" element={<PageTransition><InstallPortals /></PageTransition>} />
+        <Route path="/install/main" element={<PageTransition><InstallApp /></PageTransition>} />
+        <Route path="/install/:portal" element={<PageTransition><PortalInstall /></PageTransition>} />
+        <Route path="/facilities" element={<PageTransition><Facilities /></PageTransition>} />
+        <Route path="/facilities/:facilityId" element={<PageTransition><FacilityDetail /></PageTransition>} />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </AnimatePresence>
+  );
+};
+
 const App = () => (
   <HelmetProvider>
     <QueryClientProvider client={queryClient}>
@@ -77,10 +142,7 @@ const App = () => (
           <Toaster />
           <Sonner />
           <SplashScreen />
-          <BrowserRouter>
-            <OfflineBanner />
-            <AnimatedRoutes />
-          </BrowserRouter>
+
 
         </TooltipProvider>
         </ThemeProvider>
