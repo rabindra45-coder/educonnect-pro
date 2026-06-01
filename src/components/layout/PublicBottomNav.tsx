@@ -14,13 +14,14 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
-const tabs = [
+type Tab = { id: string; path: string; label: string; icon: typeof Home; fab?: boolean };
+const tabs: Tab[] = [
   { id: "home", path: "/", label: "Home", icon: Home },
   { id: "search", path: "#search", label: "Search", icon: Search },
   { id: "fab", path: "#fab", label: "", icon: Plus, fab: true },
   { id: "notifications", path: "/notices", label: "Alerts", icon: Bell },
   { id: "services", path: "#services", label: "Services", icon: LayoutGrid },
-] as const;
+];
 
 /**
  * Native-app-style bottom navigation bar shown on public pages (mobile only).
