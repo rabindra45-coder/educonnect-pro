@@ -78,64 +78,10 @@ const App = () => (
           <Sonner />
           <SplashScreen />
           <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/about" element={<About />} />
-              <Route path="/contact" element={<Contact />} />
-              <Route path="/notices" element={<Notices />} />
-              <Route path="/admission" element={<Admission />} />
-              <Route path="/gallery" element={<Gallery />} />
-              <Route path="/academics" element={<Academics />} />
-              <Route path="/academics/science" element={<ScienceFaculty />} />
-              <Route path="/academics/management" element={<ManagementFaculty />} />
-              <Route path="/academics/law" element={<LawFaculty />} />
-              <Route path="/academics/results" element={<ExamResults />} />
-              <Route path="/academics/calendar" element={<AcademicCalendar />} />
-              <Route path="/login" element={<StudentAuth />} />
-              <Route path="/reset-password" element={<ResetPassword />} />
-              <Route path="/admin/login" element={<AdminAuth />} />
-              <Route path="/admin" element={<Dashboard />} />
-              <Route path="/admin/notices" element={<NoticesManagement />} />
-              <Route path="/admin/students" element={<StudentsManagement />} />
-              <Route path="/admin/teachers" element={<TeachersManagement />} />
-              <Route path="/admin/admissions" element={<AdmissionsManagement />} />
-              <Route path="/admin/users" element={<UsersManagement />} />
-              <Route path="/admin/gallery" element={<GalleryManagement />} />
-              <Route path="/admin/content" element={<ContentManagement />} />
-              <Route path="/admin/documents" element={<DocumentsManagement />} />
-              <Route path="/admin/settings" element={<Settings />} />
-              <Route path="/admin/chats" element={<ChatManagement />} />
-              <Route path="/admin/exams" element={<ExamsManagement />} />
-              <Route path="/admin/subjects" element={<SubjectsManagement />} />
-              <Route path="/admin/exams/:examId/marks" element={<MarksEntry />} />
-              <Route path="/admin/exams/:examId/results" element={<AdminExamResults />} />
-              <Route path="/admin/fees" element={<FeeManagement />} />
-              <Route path="/admin/student-fees" element={<StudentFees />} />
-              <Route path="/admin/attendance" element={<AttendanceManagement />} />
-              <Route path="/admin/attendance-reports" element={<AttendanceReports />} />
-              <Route path="/admin/contact-messages" element={<ContactMessages />} />
-              <Route path="/admin/ai-control" element={<AIControlCenter />} />
-              <Route path="/admin/theme" element={<ThemeManagement />} />
-              <Route path="/notices/:noticeId" element={<NoticeDetail />} />
-              <Route path="/student" element={<StudentDashboard />} />
-              <Route path="/verify/:studentId" element={<VerifyStudent />} />
-              <Route path="/chat" element={<Chat />} />
-              <Route path="/library" element={<LibraryDashboard />} />
-              <Route path="/library/login" element={<LibraryLogin />} />
-              <Route path="/accountant" element={<AccountantDashboard />} />
-              <Route path="/accountant/login" element={<AccountantLogin />} />
-              <Route path="/teacher" element={<TeacherDashboard />} />
-              <Route path="/teacher/login" element={<TeacherLogin />} />
-              <Route path="/parent" element={<ParentDashboard />} />
-              <Route path="/parent/login" element={<ParentLogin />} />
-              <Route path="/install" element={<InstallPortals />} />
-              <Route path="/install/main" element={<InstallApp />} />
-              <Route path="/install/:portal" element={<PortalInstall />} />
-              <Route path="/facilities" element={<Facilities />} />
-              <Route path="/facilities/:facilityId" element={<FacilityDetail />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
+            <OfflineBanner />
+            <AnimatedRoutes />
           </BrowserRouter>
+
         </TooltipProvider>
         </ThemeProvider>
       </AuthProvider>
