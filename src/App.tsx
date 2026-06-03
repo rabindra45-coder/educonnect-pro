@@ -8,6 +8,9 @@ import { HelmetProvider } from "react-helmet-async";
 import { AuthProvider } from "@/hooks/useAuth";
 import { ThemeProvider } from "@/hooks/useTheme";
 import SplashScreen from "@/components/SplashScreen";
+import ErrorBoundary from "@/components/ErrorBoundary";
+import Privacy from "./pages/Privacy";
+import Terms from "./pages/Terms";
 import OfflineBanner from "@/components/OfflineBanner";
 import PageTransition from "@/components/layout/PageTransition";
 import ThemeManagement from "./pages/admin/ThemeManagement";
@@ -127,6 +130,8 @@ const AnimatedRoutes = () => {
         <Route path="/install/:portal" element={<PageTransition><PortalInstall /></PageTransition>} />
         <Route path="/facilities" element={<PageTransition><Facilities /></PageTransition>} />
         <Route path="/facilities/:facilityId" element={<PageTransition><FacilityDetail /></PageTransition>} />
+        <Route path="/privacy" element={<PageTransition><Privacy /></PageTransition>} />
+        <Route path="/terms" element={<PageTransition><Terms /></PageTransition>} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </AnimatePresence>
