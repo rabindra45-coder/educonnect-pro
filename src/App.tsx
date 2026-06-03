@@ -139,23 +139,25 @@ const AnimatedRoutes = () => {
 };
 
 const App = () => (
-  <HelmetProvider>
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <ThemeProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <SplashScreen />
-          <BrowserRouter>
-            <OfflineBanner />
-            <AnimatedRoutes />
-          </BrowserRouter>
-        </TooltipProvider>
-        </ThemeProvider>
-      </AuthProvider>
-    </QueryClientProvider>
-  </HelmetProvider>
+  <ErrorBoundary>
+    <HelmetProvider>
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          <ThemeProvider>
+            <TooltipProvider>
+              <Toaster />
+              <Sonner />
+              <SplashScreen />
+              <BrowserRouter>
+                <OfflineBanner />
+                <AnimatedRoutes />
+              </BrowserRouter>
+            </TooltipProvider>
+          </ThemeProvider>
+        </AuthProvider>
+      </QueryClientProvider>
+    </HelmetProvider>
+  </ErrorBoundary>
 );
 
 export default App;
