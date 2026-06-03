@@ -35,6 +35,7 @@ export default defineConfig(({ mode }) => ({
         ],
       },
       workbox: {
+        maximumFileSizeToCacheInBytes: 10 * 1024 * 1024,
         // Don't intercept OAuth/auth callbacks.
         navigateFallback: "/offline.html",
         navigateFallbackDenylist: [/^\/~oauth/, /^\/api/, /^\/auth/, /\/functions\//],
