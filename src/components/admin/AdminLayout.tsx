@@ -37,7 +37,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
   return (
     <div className="min-h-screen bg-muted/30 flex">
       {/* Mobile Header */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-lg border-b border-border/50 safe-area-inset">
+      <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-lg border-b border-border/50 pt-[env(safe-area-inset-top)]">
         <div className="flex items-center justify-between px-4 h-14">
           <div className="flex items-center gap-3">
             <img alt="Logo" className="w-8 h-8 object-contain" src="/logo.png" />
@@ -61,7 +61,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
         <AdminSidebar />
       </div>
 
-      <main className="flex-1 overflow-auto pt-14 lg:pt-0 pb-20 lg:pb-0">
+      <main className="flex-1 overflow-auto pt-[calc(env(safe-area-inset-top)+3.5rem)] lg:pt-0 pb-[calc(env(safe-area-inset-bottom)+5rem)] lg:pb-0">
         <div className="p-4 sm:p-6">{children}</div>
       </main>
 
