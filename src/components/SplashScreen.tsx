@@ -34,13 +34,16 @@ const SplashScreen = () => {
   useEffect(() => {
     const isStandalone =
       window.matchMedia("(display-mode: standalone)").matches ||
-      // iOS Safari
       (window.navigator as Navigator & { standalone?: boolean }).standalone === true;
     const shown = sessionStorage.getItem("mic_splash_shown");
-    if (isStandalone && !shown) {
+    // Show on PWA standalone OR once per browser session on root/onboarding entry
+    const path = window.location.pathname;
+    const isEntryRoute = path === "/" || path === "/onboarding";
+    if (!shown && (isStandalone || isEntryRoute)) {
       setVisible(true);
       sessionStorage.setItem("mic_splash_shown", "1");
-      const t = setTimeout(() => setVisible(false), lowPower ? 2500 : 5000);
+      const duration = isStandalone ? (lowPower ? 2500 : 5000) : (lowPower ? 900 : 1400);
+      const t = setTimeout(() => setVisible(false), duration);
       return () => clearTimeout(t);
     }
   }, [lowPower]);
