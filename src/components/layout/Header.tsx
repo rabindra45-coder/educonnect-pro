@@ -85,10 +85,10 @@ const Header = () => {
 
       {/* Main nav */}
       <header className={cn(
-        "sticky top-0 z-50 transition-all duration-300 border-b",
+        "sticky top-0 z-50 transition-all duration-300 border-b pt-[env(safe-area-inset-top)]",
         isScrolled ?
-        "bg-card/98 backdrop-blur-xl shadow-sm border-border" :
-        "bg-card border-transparent"
+        "bg-card/90 backdrop-blur-xl shadow-sm border-border/60" :
+        "bg-card/95 backdrop-blur-md border-transparent"
       )}>
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16 md:h-[72px]">

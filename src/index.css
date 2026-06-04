@@ -113,10 +113,15 @@
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-display);
   }
-  /* Safe area for mobile */
-  .safe-area-inset {
-    padding-top: env(safe-area-inset-top);
-  }
+  /* Safe area utilities for iPhone notch / Dynamic Island / home indicator */
+  .safe-area-inset,
+  .pt-safe { padding-top: env(safe-area-inset-top); }
+  .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+  .pl-safe { padding-left: env(safe-area-inset-left); }
+  .pr-safe { padding-right: env(safe-area-inset-right); }
+  .px-safe { padding-left: env(safe-area-inset-left); padding-right: env(safe-area-inset-right); }
+  .mt-safe { margin-top: env(safe-area-inset-top); }
+  .top-safe { top: env(safe-area-inset-top); }
   /* Touch optimization */
   button, a, [role="button"] {
     touch-action: manipulation;
