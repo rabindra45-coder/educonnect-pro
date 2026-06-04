@@ -11,6 +11,8 @@ import SplashScreen from "@/components/SplashScreen";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
+import Onboarding from "./pages/Onboarding";
+import OnboardingGate from "@/components/OnboardingGate";
 import OfflineBanner from "@/components/OfflineBanner";
 import PageTransition from "@/components/layout/PageTransition";
 import ThemeManagement from "./pages/admin/ThemeManagement";
@@ -132,6 +134,7 @@ const AnimatedRoutes = () => {
         <Route path="/facilities/:facilityId" element={<PageTransition><FacilityDetail /></PageTransition>} />
         <Route path="/privacy" element={<PageTransition><Privacy /></PageTransition>} />
         <Route path="/terms" element={<PageTransition><Terms /></PageTransition>} />
+        <Route path="/onboarding" element={<Onboarding />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </AnimatePresence>
@@ -149,6 +152,7 @@ const App = () => (
               <Sonner />
               <SplashScreen />
               <BrowserRouter>
+                <OnboardingGate />
                 <OfflineBanner />
                 <AnimatedRoutes />
               </BrowserRouter>
