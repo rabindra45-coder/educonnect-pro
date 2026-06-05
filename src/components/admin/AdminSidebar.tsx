@@ -23,6 +23,7 @@ import {
   Mail,
   Sparkles,
   Palette,
+  FileBox,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
@@ -49,6 +50,7 @@ const AdminSidebar = ({ onNavigate }: AdminSidebarProps) => {
     { name: "Attendance", path: "/admin/attendance", icon: UserCheck },
     { name: "Reports", path: "/admin/attendance-reports", icon: BarChart3 },
     { name: "Documents", path: "/admin/documents", icon: FolderOpen },
+    { name: "Resources", path: "/admin/resources", icon: FileBox },
     { name: "Exams", path: "/admin/exams", icon: ClipboardList },
     { name: "Subjects", path: "/admin/subjects", icon: BookOpen },
     { name: "Fees", path: "/admin/fees", icon: Wallet },

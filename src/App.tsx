@@ -70,6 +70,8 @@ import PortalInstall from "./pages/PortalInstall";
 import FacilityDetail from "./pages/FacilityDetail";
 import Facilities from "./pages/Facilities";
 import AIControlCenter from "./pages/admin/AIControlCenter";
+import Resources from "./pages/Resources";
+import ResourcesManagement from "./pages/admin/ResourcesManagement";
 
 const queryClient = new QueryClient();
 
@@ -134,6 +136,8 @@ const AnimatedRoutes = () => {
         <Route path="/facilities/:facilityId" element={<PageTransition><FacilityDetail /></PageTransition>} />
         <Route path="/privacy" element={<PageTransition><Privacy /></PageTransition>} />
         <Route path="/terms" element={<PageTransition><Terms /></PageTransition>} />
+        <Route path="/resources" element={<PageTransition><Resources /></PageTransition>} />
+        <Route path="/admin/resources" element={<ResourcesManagement />} />
         <Route path="/onboarding" element={<Onboarding />} />
         <Route path="*" element={<NotFound />} />
       </Routes>

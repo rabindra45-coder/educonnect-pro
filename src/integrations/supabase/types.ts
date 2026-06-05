@@ -794,19 +794,34 @@ export type Database = {
       digital_resources: {
         Row: {
           access_level: string | null
+          ai_generated: boolean | null
+          ai_prompt: string | null
+          allowed_roles: string[] | null
           author: string | null
+          category_id: string | null
           class: string | null
           cover_image_url: string | null
           created_at: string
+          deleted_at: string | null
           description: string | null
           download_count: number | null
+          file_mime: string | null
+          file_name: string | null
+          file_size: number | null
           file_url: string
+          folder_id: string | null
           id: string
           is_active: boolean | null
+          is_archived: boolean | null
           is_downloadable: boolean | null
+          is_featured: boolean | null
           publisher: string | null
+          rating_avg: number | null
+          rating_count: number | null
           resource_type: string
+          storage_path: string | null
           subject: string | null
+          tags: string[] | null
           title: string
           updated_at: string
           uploaded_by: string | null
@@ -814,19 +829,34 @@ export type Database = {
         }
         Insert: {
           access_level?: string | null
+          ai_generated?: boolean | null
+          ai_prompt?: string | null
+          allowed_roles?: string[] | null
           author?: string | null
+          category_id?: string | null
           class?: string | null
           cover_image_url?: string | null
           created_at?: string
+          deleted_at?: string | null
           description?: string | null
           download_count?: number | null
+          file_mime?: string | null
+          file_name?: string | null
+          file_size?: number | null
           file_url: string
+          folder_id?: string | null
           id?: string
           is_active?: boolean | null
+          is_archived?: boolean | null
           is_downloadable?: boolean | null
+          is_featured?: boolean | null
           publisher?: string | null
+          rating_avg?: number | null
+          rating_count?: number | null
           resource_type?: string
+          storage_path?: string | null
           subject?: string | null
+          tags?: string[] | null
           title: string
           updated_at?: string
           uploaded_by?: string | null
@@ -834,25 +864,55 @@ export type Database = {
         }
         Update: {
           access_level?: string | null
+          ai_generated?: boolean | null
+          ai_prompt?: string | null
+          allowed_roles?: string[] | null
           author?: string | null
+          category_id?: string | null
           class?: string | null
           cover_image_url?: string | null
           created_at?: string
+          deleted_at?: string | null
           description?: string | null
           download_count?: number | null
+          file_mime?: string | null
+          file_name?: string | null
+          file_size?: number | null
           file_url?: string
+          folder_id?: string | null
           id?: string
           is_active?: boolean | null
+          is_archived?: boolean | null
           is_downloadable?: boolean | null
+          is_featured?: boolean | null
           publisher?: string | null
+          rating_avg?: number | null
+          rating_count?: number | null
           resource_type?: string
+          storage_path?: string | null
           subject?: string | null
+          tags?: string[] | null
           title?: string
           updated_at?: string
           uploaded_by?: string | null
           view_count?: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "digital_resources_category_fk"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "resource_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "digital_resources_folder_fk"
+            columns: ["folder_id"]
+            isOneToOne: false
+            referencedRelation: "resource_folders"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       exam_marks: {
         Row: {
@@ -2107,6 +2167,192 @@ export type Database = {
             columns: ["teacher_id"]
             isOneToOne: false
             referencedRelation: "teachers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      resource_categories: {
+        Row: {
+          color: string | null
+          created_at: string
+          description: string | null
+          icon: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          slug: string
+          sort_order: number | null
+          updated_at: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          slug: string
+          sort_order?: number | null
+          updated_at?: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          slug?: string
+          sort_order?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      resource_downloads: {
+        Row: {
+          downloaded_at: string
+          id: string
+          ip_address: string | null
+          resource_id: string
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          downloaded_at?: string
+          id?: string
+          ip_address?: string | null
+          resource_id: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          downloaded_at?: string
+          id?: string
+          ip_address?: string | null
+          resource_id?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "resource_downloads_resource_id_fkey"
+            columns: ["resource_id"]
+            isOneToOne: false
+            referencedRelation: "digital_resources"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      resource_favorites: {
+        Row: {
+          created_at: string
+          id: string
+          resource_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          resource_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          resource_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "resource_favorites_resource_id_fkey"
+            columns: ["resource_id"]
+            isOneToOne: false
+            referencedRelation: "digital_resources"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      resource_folders: {
+        Row: {
+          category_id: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          name: string
+          parent_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          category_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name: string
+          parent_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          category_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name?: string
+          parent_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "resource_folders_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "resource_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "resource_folders_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "resource_folders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      resource_ratings: {
+        Row: {
+          comment: string | null
+          created_at: string
+          id: string
+          rating: number
+          resource_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          comment?: string | null
+          created_at?: string
+          id?: string
+          rating: number
+          resource_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          comment?: string | null
+          created_at?: string
+          id?: string
+          rating?: number
+          resource_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "resource_ratings_resource_id_fkey"
+            columns: ["resource_id"]
+            isOneToOne: false
+            referencedRelation: "digital_resources"
             referencedColumns: ["id"]
           },
         ]
