@@ -27,6 +27,7 @@ const navItems = [
 },
 { name: "Admission", path: "/admission" },
 { name: "Notice Board", path: "/notices" },
+{ name: "Resources", path: "/resources" },
 { name: "Gallery", path: "/gallery" },
 { name: "Contact", path: "/contact" }];
 
