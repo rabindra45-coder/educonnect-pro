@@ -42,7 +42,7 @@ const ResourceUploadDialog = ({ open, onOpenChange, onSaved }: Props) => {
     setBusy(true);
     try {
       const up = await uploadResourceFile(file, "uploads");
-      const { error } = await supabase.from("digital_resources").insert({
+      const { data: inserted, error } = await supabase.from("digital_resources").insert({
         title: title.trim(),
         description: description.trim() || null,
         resource_type: up.mime?.split("/")[0] || "document",
@@ -58,8 +58,11 @@ const ResourceUploadDialog = ({ open, onOpenChange, onSaved }: Props) => {
         is_downloadable: true,
         is_active: true,
         uploaded_by: user?.id ?? null,
-      });
+      }).select("id").single();
       if (error) throw error;
+      if (inserted?.id) {
+        supabase.functions.invoke("notify-resource-upload", { body: { resource_id: inserted.id } });
+      }
       toast.success("Resource uploaded");
       reset();
       onOpenChange(false);
