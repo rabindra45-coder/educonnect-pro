@@ -9,6 +9,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import ColorModeToggle from "@/components/ColorModeToggle";
+import NotificationBell from "@/components/NotificationBell";
 
 const navItems = [
 { name: "Home", path: "/" },
