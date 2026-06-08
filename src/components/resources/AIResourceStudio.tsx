@@ -78,7 +78,7 @@ const AIResourceStudio = ({ onCreated }: Props) => {
       const blob = doc.output("blob");
       const filename = `${pdfTitle.replace(/[^a-z0-9-]+/gi, "_").slice(0, 60)}.pdf`;
       const up = await uploadBytes(blob, filename, "application/pdf", "ai-pdf");
-      const { error } = await supabase.from("digital_resources").insert({
+      const { data: ins, error } = await supabase.from("digital_resources").insert({
         title: pdfTitle,
         description: pdfPrompt,
         resource_type: "document",
@@ -93,8 +93,9 @@ const AIResourceStudio = ({ onCreated }: Props) => {
         is_downloadable: true,
         is_active: true,
         uploaded_by: user?.id ?? null,
-      });
+      }).select("id").single();
       if (error) throw error;
+      if (ins?.id) supabase.functions.invoke("notify-resource-upload", { body: { resource_id: ins.id } });
       toast.success("PDF published to Resource Center");
       setPdfPrompt(""); setPdfText(""); setPdfTitle("");
       onCreated?.();
