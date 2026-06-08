@@ -159,6 +159,7 @@ const Header = () => {
             {/* Right side */}
             <div className="flex items-center gap-2">
               <ColorModeToggle className="h-9 w-9" />
+              {user && <NotificationBell />}
               <Button size="sm" className="hidden md:flex text-xs font-semibold" asChild>
                 <Link to="/admission">Apply Now</Link>
               </Button>
