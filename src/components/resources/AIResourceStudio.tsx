@@ -133,7 +133,7 @@ const AIResourceStudio = ({ onCreated }: Props) => {
       const filename = `${imgTitle.replace(/[^a-z0-9-]+/gi, "_").slice(0, 60)}.png`;
       const up = await uploadBytes(blob, filename, "image/png", "ai-image");
       const publicUrl = supabase.storage.from("digital-resources").getPublicUrl(up.path).data.publicUrl;
-      const { error } = await supabase.from("digital_resources").insert({
+      const { data: ins, error } = await supabase.from("digital_resources").insert({
         title: imgTitle,
         description: imgPrompt,
         resource_type: "image",
@@ -149,8 +149,9 @@ const AIResourceStudio = ({ onCreated }: Props) => {
         is_downloadable: true,
         is_active: true,
         uploaded_by: user?.id ?? null,
-      });
+      }).select("id").single();
       if (error) throw error;
+      if (ins?.id) supabase.functions.invoke("notify-resource-upload", { body: { resource_id: ins.id } });
       toast.success("Image published");
       setImgPrompt(""); setImgUrl(null); setImgTitle("");
       onCreated?.();
