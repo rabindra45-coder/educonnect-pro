@@ -1042,6 +1042,7 @@ export type Database = {
           is_published: boolean | null
           section: string | null
           start_date: string | null
+          stream: string | null
           title: string
           updated_at: string
         }
@@ -1056,6 +1057,7 @@ export type Database = {
           is_published?: boolean | null
           section?: string | null
           start_date?: string | null
+          stream?: string | null
           title: string
           updated_at?: string
         }
@@ -1070,6 +1072,7 @@ export type Database = {
           is_published?: boolean | null
           section?: string | null
           start_date?: string | null
+          stream?: string | null
           title?: string
           updated_at?: string
         }
@@ -2841,6 +2844,7 @@ export type Database = {
       }
       subjects: {
         Row: {
+          class: string | null
           code: string
           created_at: string
           credit_hours: number | null
@@ -2849,11 +2853,16 @@ export type Database = {
           id: string
           is_active: boolean | null
           is_optional: boolean | null
+          is_practical: boolean | null
           name: string
           pass_marks: number
+          practical_full_marks: number | null
+          stream: string | null
+          theory_full_marks: number | null
           updated_at: string
         }
         Insert: {
+          class?: string | null
           code: string
           created_at?: string
           credit_hours?: number | null
@@ -2862,11 +2871,16 @@ export type Database = {
           id?: string
           is_active?: boolean | null
           is_optional?: boolean | null
+          is_practical?: boolean | null
           name: string
           pass_marks?: number
+          practical_full_marks?: number | null
+          stream?: string | null
+          theory_full_marks?: number | null
           updated_at?: string
         }
         Update: {
+          class?: string | null
           code?: string
           created_at?: string
           credit_hours?: number | null
@@ -2875,8 +2889,12 @@ export type Database = {
           id?: string
           is_active?: boolean | null
           is_optional?: boolean | null
+          is_practical?: boolean | null
           name?: string
           pass_marks?: number
+          practical_full_marks?: number | null
+          stream?: string | null
+          theory_full_marks?: number | null
           updated_at?: string
         }
         Relationships: []
