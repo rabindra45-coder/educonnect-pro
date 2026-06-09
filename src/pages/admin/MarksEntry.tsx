@@ -1,65 +1,37 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Label } from "@/components/ui/label";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, Save, Calculator } from "lucide-react";
+import { ArrowLeft, Save, Calculator, Search, ChevronLeft, CheckCircle2 } from "lucide-react";
 
-interface Student {
-  id: string;
-  full_name: string;
-  roll_number: number | null;
-  registration_number: string;
-}
+interface Exam { id: string; title: string; exam_type: string; class: string; section: string | null; stream: string | null; academic_year: string; is_published: boolean; }
+interface Student { id: string; full_name: string; roll_number: number | null; registration_number: string; photo_url: string | null; class: string; stream: string | null; section: string | null; }
+interface Subject { id: string; name: string; code: string; credit_hours: number; theory_full_marks: number; practical_full_marks: number; is_practical: boolean; full_marks: number; pass_marks: number; }
+interface MarkRow { subject_id: string; theory_marks: number | null; practical_marks: number | null; total_marks: number | null; grade: string | null; grade_point: number | null; remarks: string | null; existing_id?: string; }
 
-interface Subject {
-  id: string;
-  name: string;
-  code: string;
-  full_marks: number;
-  pass_marks: number;
-  credit_hours: number;
-}
-
-interface ExamMark {
-  id?: string;
-  student_id: string;
-  subject_id: string;
-  theory_marks: number | null;
-  practical_marks: number | null;
-  total_marks: number | null;
-  grade: string | null;
-  grade_point: number | null;
-}
-
-interface Exam {
-  id: string;
-  title: string;
-  exam_type: string;
-  class: string;
-  section: string | null;
-  academic_year: string;
-}
+const NEB_GRADE = (pct: number) => {
+  if (pct >= 90) return { grade: "A+", gp: 4.0 };
+  if (pct >= 80) return { grade: "A", gp: 3.6 };
+  if (pct >= 70) return { grade: "B+", gp: 3.2 };
+  if (pct >= 60) return { grade: "B", gp: 2.8 };
+  if (pct >= 50) return { grade: "C+", gp: 2.4 };
+  if (pct >= 40) return { grade: "C", gp: 2.0 };
+  if (pct >= 30) return { grade: "D+", gp: 1.6 };
+  if (pct >= 20) return { grade: "D", gp: 1.2 };
+  return { grade: "NG", gp: 0 };
+};
 
 const MarksEntry = () => {
   const { examId } = useParams<{ examId: string }>();
@@ -68,330 +40,221 @@ const MarksEntry = () => {
 
   const [exam, setExam] = useState<Exam | null>(null);
   const [students, setStudents] = useState<Student[]>([]);
+  const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
   const [subjects, setSubjects] = useState<Subject[]>([]);
-  const [selectedSubject, setSelectedSubject] = useState<string>("");
-  const [marks, setMarks] = useState<Record<string, ExamMark>>({});
+  const [marks, setMarks] = useState<Record<string, MarkRow>>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [search, setSearch] = useState("");
 
-  useEffect(() => {
-    if (examId) {
-      fetchExamData();
-    }
-  }, [examId]);
+  useEffect(() => { if (examId) fetchExam(); }, [examId]);
+  useEffect(() => { if (selectedStudent && exam) fetchSubjectsAndMarks(); }, [selectedStudent?.id, exam?.id]);
 
-  useEffect(() => {
-    if (exam && selectedSubject) {
-      fetchMarks();
-    }
-  }, [exam, selectedSubject]);
-
-  const fetchExamData = async () => {
+  const fetchExam = async () => {
     setLoading(true);
+    const { data: examData, error } = await supabase.from("exams").select("*").eq("id", examId).single();
+    if (error || !examData) { toast({ title: "Exam not found", variant: "destructive" }); navigate("/admin/exams"); return; }
+    setExam(examData as Exam);
 
-    // Fetch exam details
-    const { data: examData, error: examError } = await supabase
-      .from("exams")
-      .select("*")
-      .eq("id", examId)
-      .single();
-
-    if (examError || !examData) {
-      toast({ title: "Exam not found", variant: "destructive" });
-      navigate("/admin/exams");
-      return;
-    }
-
-    setExam(examData);
-
-    // Fetch students for this class
-    const { data: studentData } = await supabase
-      .from("students")
-      .select("id, full_name, roll_number, registration_number")
-      .eq("class", examData.class)
-      .eq("status", "active")
-      .order("roll_number", { ascending: true });
-
-    setStudents(studentData || []);
-
-    // Fetch subjects
-    const { data: subjectData } = await supabase
-      .from("subjects")
-      .select("*")
-      .eq("is_active", true)
-      .order("display_order", { ascending: true });
-
-    setSubjects(subjectData || []);
-    if (subjectData && subjectData.length > 0) {
-      setSelectedSubject(subjectData[0].id);
-    }
-
+    let q = supabase.from("students").select("id, full_name, roll_number, registration_number, photo_url, class, stream, section")
+      .eq("class", examData.class).eq("status", "active");
+    if (examData.stream && examData.stream !== "common") q = q.eq("stream", examData.stream);
+    if (examData.section) q = q.eq("section", examData.section);
+    const { data: studs } = await q.order("roll_number", { ascending: true });
+    setStudents(studs || []);
     setLoading(false);
   };
 
-  const fetchMarks = async () => {
-    const { data } = await supabase
-      .from("exam_marks")
-      .select("*")
-      .eq("exam_id", examId)
-      .eq("subject_id", selectedSubject);
+  const fetchSubjectsAndMarks = async () => {
+    if (!selectedStudent || !exam) return;
+    const streamFilter = selectedStudent.stream || "common";
+    const { data: subs } = await supabase.from("subjects")
+      .select("id, name, code, credit_hours, theory_full_marks, practical_full_marks, is_practical, full_marks, pass_marks, class, stream, display_order")
+      .eq("is_active", true)
+      .or(`class.eq.${selectedStudent.class},class.eq.both`)
+      .order("display_order", { ascending: true });
+    const filtered = (subs || []).filter((s: any) => s.stream === streamFilter || s.stream === "common");
+    setSubjects(filtered);
 
-    const marksMap: Record<string, ExamMark> = {};
-    students.forEach((student) => {
-      const existingMark = data?.find((m) => m.student_id === student.id);
-      marksMap[student.id] = existingMark || {
-        student_id: student.id,
-        subject_id: selectedSubject,
-        theory_marks: null,
-        practical_marks: null,
-        total_marks: null,
-        grade: null,
-        grade_point: null,
-      };
+    const { data: existing } = await supabase.from("exam_marks").select("*")
+      .eq("exam_id", exam.id).eq("student_id", selectedStudent.id);
+
+    const next: Record<string, MarkRow> = {};
+    filtered.forEach((s) => {
+      const ex = existing?.find((m) => m.subject_id === s.id);
+      next[s.id] = ex ? {
+        subject_id: s.id, theory_marks: ex.theory_marks as any, practical_marks: ex.practical_marks as any,
+        total_marks: ex.total_marks as any, grade: ex.grade, grade_point: ex.grade_point as any,
+        remarks: ex.remarks, existing_id: ex.id,
+      } : { subject_id: s.id, theory_marks: null, practical_marks: null, total_marks: null, grade: null, grade_point: null, remarks: null };
     });
-    setMarks(marksMap);
+    setMarks(next);
   };
 
-  const calculateGrade = (marks: number, fullMarks: number): { grade: string; gradePoint: number } => {
-    const percentage = (marks / fullMarks) * 100;
-
-    if (percentage >= 90) return { grade: "A+", gradePoint: 4.0 };
-    if (percentage >= 80) return { grade: "A", gradePoint: 3.6 };
-    if (percentage >= 70) return { grade: "B+", gradePoint: 3.2 };
-    if (percentage >= 60) return { grade: "B", gradePoint: 2.8 };
-    if (percentage >= 50) return { grade: "C+", gradePoint: 2.4 };
-    if (percentage >= 40) return { grade: "C", gradePoint: 2.0 };
-    if (percentage >= 30) return { grade: "D+", gradePoint: 1.6 };
-    if (percentage >= 20) return { grade: "D", gradePoint: 1.2 };
-    return { grade: "NG", gradePoint: 0.0 };
-  };
-
-  const handleMarksChange = (studentId: string, field: "theory_marks" | "practical_marks", value: string) => {
-    const numValue = value === "" ? null : Number(value);
-    const subject = subjects.find((s) => s.id === selectedSubject);
-
+  const updateMark = (subjectId: string, patch: Partial<MarkRow>) => {
+    const sub = subjects.find(s => s.id === subjectId)!;
     setMarks((prev) => {
-      const current = prev[studentId];
-      const newTheory = field === "theory_marks" ? numValue : current.theory_marks;
-      const newPractical = field === "practical_marks" ? numValue : current.practical_marks;
-      const total = (newTheory || 0) + (newPractical || 0);
-
-      const { grade, gradePoint } = subject ? calculateGrade(total, subject.full_marks) : { grade: null, gradePoint: null };
-
-      return {
-        ...prev,
-        [studentId]: {
-          ...current,
-          [field]: numValue,
-          total_marks: total,
-          grade,
-          grade_point: gradePoint,
-        },
-      };
+      const cur = prev[subjectId];
+      const merged = { ...cur, ...patch };
+      const t = merged.theory_marks ?? 0; const p = (sub.is_practical ? (merged.practical_marks ?? 0) : 0);
+      const total = (merged.theory_marks ?? 0) + (sub.is_practical ? (merged.practical_marks ?? 0) : 0);
+      const fullSum = sub.theory_full_marks + (sub.is_practical ? sub.practical_full_marks : 0);
+      const pct = fullSum > 0 ? (total / fullSum) * 100 : 0;
+      const { grade, gp } = NEB_GRADE(pct);
+      return { ...prev, [subjectId]: { ...merged, total_marks: total, grade, grade_point: gp } };
     });
   };
 
-  const saveMarks = async () => {
+  const enteredCount = useMemo(() => Object.values(marks).filter(m => m.theory_marks != null).length, [marks]);
+
+  const saveAll = async () => {
+    if (!selectedStudent || !exam) return;
     setSaving(true);
-
-    const marksToSave = Object.values(marks).map((mark) => ({
-      exam_id: examId,
-      student_id: mark.student_id,
-      subject_id: selectedSubject,
-      theory_marks: mark.theory_marks,
-      practical_marks: mark.practical_marks,
-      total_marks: mark.total_marks,
-      grade: mark.grade,
-      grade_point: mark.grade_point,
-    }));
-
-    const { error } = await supabase
-      .from("exam_marks")
-      .upsert(marksToSave, {
-        onConflict: "exam_id,student_id,subject_id",
-      });
-
-    if (error) {
-      toast({ title: "Error saving marks", description: error.message, variant: "destructive" });
-    } else {
-      toast({ title: "Marks saved successfully" });
-    }
-
+    const rows = Object.values(marks)
+      .filter(m => m.theory_marks != null || m.practical_marks != null)
+      .map(m => ({
+        exam_id: exam.id, student_id: selectedStudent.id, subject_id: m.subject_id,
+        theory_marks: m.theory_marks, practical_marks: m.practical_marks,
+        total_marks: m.total_marks, grade: m.grade, grade_point: m.grade_point, remarks: m.remarks,
+      }));
+    const { error } = await supabase.from("exam_marks").upsert(rows, { onConflict: "exam_id,student_id,subject_id" });
     setSaving(false);
+    if (error) { toast({ title: "Save failed", description: error.message, variant: "destructive" }); return; }
+    toast({ title: `Saved ${rows.length} subjects for ${selectedStudent.full_name}` });
+    fetchSubjectsAndMarks();
   };
 
-  const currentSubject = subjects.find((s) => s.id === selectedSubject);
+  const filteredStudents = students.filter(s =>
+    s.full_name.toLowerCase().includes(search.toLowerCase()) ||
+    s.registration_number.toLowerCase().includes(search.toLowerCase()) ||
+    String(s.roll_number || "").includes(search)
+  );
 
-  if (loading) {
-    return (
-      <AdminLayout>
-        <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-        </div>
-      </AdminLayout>
-    );
-  }
+  if (loading) return <AdminLayout><div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" /></div></AdminLayout>;
 
   return (
     <>
-      <Helmet>
-        <title>Enter Marks | Admin</title>
-      </Helmet>
-
+      <Helmet><title>Enter Marks | Admin</title></Helmet>
       <AdminLayout>
-        <div className="space-y-6">
-          {/* Header */}
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" onClick={() => navigate("/admin/exams")}>
-              <ArrowLeft className="w-5 h-5" />
-            </Button>
-            <div className="flex-1">
-              <h1 className="text-2xl font-bold text-foreground">{exam?.title}</h1>
-              <p className="text-muted-foreground">
-                Class {exam?.class} {exam?.section && `- Section ${exam.section}`} | {exam?.academic_year}
+        <div className="space-y-4 pb-32">
+          <div className="flex items-center gap-3">
+            <Button variant="ghost" size="icon" onClick={() => navigate("/admin/exams")}><ArrowLeft className="w-5 h-5" /></Button>
+            <div className="flex-1 min-w-0">
+              <h1 className="text-xl sm:text-2xl font-bold truncate">{exam?.title}</h1>
+              <p className="text-xs sm:text-sm text-muted-foreground">
+                Class {exam?.class}{exam?.stream && exam.stream !== "common" ? ` · ${exam.stream}` : ""}{exam?.section ? ` · Sec ${exam.section}` : ""} · {exam?.academic_year}
               </p>
             </div>
-            <Button onClick={saveMarks} disabled={saving}>
-              <Save className="w-4 h-4 mr-2" />
-              {saving ? "Saving..." : "Save Marks"}
-            </Button>
           </div>
 
-          {/* Subject Selection */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Select Subject</CardTitle>
-              <CardDescription>Choose a subject to enter marks for students</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center gap-4">
-                <Select value={selectedSubject} onValueChange={setSelectedSubject}>
-                  <SelectTrigger className="w-[300px]">
-                    <SelectValue placeholder="Select subject" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {subjects.map((subject) => (
-                      <SelectItem key={subject.id} value={subject.id}>
-                        {subject.name} ({subject.code})
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {currentSubject && (
-                  <div className="flex gap-2">
-                    <Badge variant="outline">Full Marks: {currentSubject.full_marks}</Badge>
-                    <Badge variant="outline">Pass Marks: {currentSubject.pass_marks}</Badge>
-                    <Badge variant="outline">Credit: {currentSubject.credit_hours}</Badge>
+          {!selectedStudent ? (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Select a student</CardTitle>
+                <CardDescription>{students.length} eligible · search by name, roll, or reg. no.</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input className="pl-10 h-12" placeholder="Search student..." value={search} onChange={(e) => setSearch(e.target.value)} />
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-[60vh] overflow-auto">
+                  {filteredStudents.map((s) => (
+                    <button key={s.id} onClick={() => setSelectedStudent(s)} className="flex items-center gap-3 p-3 rounded-lg border hover:border-primary hover:bg-muted/40 transition text-left">
+                      <Avatar><AvatarImage src={s.photo_url || undefined} /><AvatarFallback>{s.full_name[0]}</AvatarFallback></Avatar>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium truncate">{s.full_name}</p>
+                        <p className="text-xs text-muted-foreground">Roll {s.roll_number || "—"} · {s.registration_number}</p>
+                      </div>
+                      {s.stream && <Badge variant="outline" className="text-[10px]">{s.stream}</Badge>}
+                    </button>
+                  ))}
+                  {filteredStudents.length === 0 && <p className="col-span-full text-center text-muted-foreground py-6">No students match.</p>}
+                </div>
+              </CardContent>
+            </Card>
+          ) : (
+            <>
+              <Card>
+                <CardContent className="p-3 flex items-center gap-3">
+                  <Button variant="ghost" size="icon" onClick={() => setSelectedStudent(null)}><ChevronLeft className="w-5 h-5" /></Button>
+                  <Avatar><AvatarImage src={selectedStudent.photo_url || undefined} /><AvatarFallback>{selectedStudent.full_name[0]}</AvatarFallback></Avatar>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold truncate">{selectedStudent.full_name}</p>
+                    <p className="text-xs text-muted-foreground">Roll {selectedStudent.roll_number || "—"} · {selectedStudent.stream || "—"}</p>
                   </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
+                  <Badge className="gap-1"><CheckCircle2 className="w-3 h-3" />{enteredCount}/{subjects.length}</Badge>
+                </CardContent>
+              </Card>
 
-          {/* Marks Entry Table */}
-          <Card>
-            <CardContent className="p-0">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-12">Roll</TableHead>
-                    <TableHead>Student Name</TableHead>
-                    <TableHead className="w-28">Theory</TableHead>
-                    <TableHead className="w-28">Practical</TableHead>
-                    <TableHead className="w-20">Total</TableHead>
-                    <TableHead className="w-16">Grade</TableHead>
-                    <TableHead className="w-16">GP</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {students.length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
-                        No students found for this class
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    students.map((student) => {
-                      const mark = marks[student.id];
-                      return (
-                        <TableRow key={student.id}>
-                          <TableCell className="font-medium">{student.roll_number || "-"}</TableCell>
-                          <TableCell>{student.full_name}</TableCell>
-                          <TableCell>
-                            <Input
-                              type="number"
-                              min="0"
-                              max={currentSubject?.full_marks || 100}
-                              value={mark?.theory_marks ?? ""}
-                              onChange={(e) => handleMarksChange(student.id, "theory_marks", e.target.value)}
-                              className="h-8"
-                            />
-                          </TableCell>
-                          <TableCell>
-                            <Input
-                              type="number"
-                              min="0"
-                              max={currentSubject?.full_marks || 100}
-                              value={mark?.practical_marks ?? ""}
-                              onChange={(e) => handleMarksChange(student.id, "practical_marks", e.target.value)}
-                              className="h-8"
-                            />
-                          </TableCell>
-                          <TableCell className="font-medium">{mark?.total_marks ?? "-"}</TableCell>
-                          <TableCell>
-                            <Badge
-                              variant={
-                                mark?.grade === "NG"
-                                  ? "destructive"
-                                  : mark?.grade?.startsWith("A")
-                                  ? "default"
-                                  : "secondary"
-                              }
-                            >
-                              {mark?.grade || "-"}
-                            </Badge>
-                          </TableCell>
-                          <TableCell>{mark?.grade_point?.toFixed(1) || "-"}</TableCell>
-                        </TableRow>
-                      );
-                    })
-                  )}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
+              {subjects.length === 0 ? (
+                <Card><CardContent className="py-10 text-center text-muted-foreground">No subjects mapped to {selectedStudent.stream || "this stream"} / Class {selectedStudent.class}. Add them in Subjects Management.</CardContent></Card>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {subjects.map((sub) => {
+                    const m = marks[sub.id];
+                    return (
+                      <Card key={sub.id}>
+                        <CardHeader className="pb-2">
+                          <div className="flex items-start justify-between gap-2">
+                            <div>
+                              <CardTitle className="text-base">{sub.name}</CardTitle>
+                              <p className="text-xs text-muted-foreground">{sub.code} · {sub.credit_hours} cr</p>
+                            </div>
+                            <Badge variant="outline" className="text-[11px] font-bold" style={{ color: m?.grade && m.grade !== "NG" ? "#C9A227" : undefined }}>{m?.grade || "—"} {m?.grade_point != null ? `(${m.grade_point.toFixed(1)})` : ""}</Badge>
+                          </div>
+                        </CardHeader>
+                        <CardContent className="space-y-3">
+                          <div className={`grid ${sub.is_practical ? "grid-cols-2" : "grid-cols-1"} gap-2`}>
+                            <div>
+                              <Label className="text-xs">Theory / {sub.theory_full_marks}</Label>
+                              <Input type="number" inputMode="decimal" min={0} max={sub.theory_full_marks} className="h-12 text-base"
+                                value={m?.theory_marks ?? ""} onChange={(e) => updateMark(sub.id, { theory_marks: e.target.value === "" ? null : Number(e.target.value) })} />
+                            </div>
+                            {sub.is_practical && (
+                              <div>
+                                <Label className="text-xs">Practical / {sub.practical_full_marks}</Label>
+                                <Input type="number" inputMode="decimal" min={0} max={sub.practical_full_marks} className="h-12 text-base"
+                                  value={m?.practical_marks ?? ""} onChange={(e) => updateMark(sub.id, { practical_marks: e.target.value === "" ? null : Number(e.target.value) })} />
+                              </div>
+                            )}
+                          </div>
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="text-muted-foreground">Total</span>
+                            <span className="font-bold">{m?.total_marks ?? "—"} / {sub.theory_full_marks + (sub.is_practical ? sub.practical_full_marks : 0)}</span>
+                          </div>
+                          <Textarea rows={1} placeholder="Remarks (optional)" value={m?.remarks ?? ""} onChange={(e) => updateMark(sub.id, { remarks: e.target.value })} />
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
+                </div>
+              )}
+            </>
+          )}
 
-          {/* NEB Grade Reference */}
           <Card>
-            <CardHeader>
-              <CardTitle className="text-sm flex items-center gap-2">
-                <Calculator className="w-4 h-4" />
-                NEB Grading System Reference
-              </CardTitle>
-            </CardHeader>
+            <CardHeader className="pb-2"><CardTitle className="text-sm flex items-center gap-2"><Calculator className="w-4 h-4" />NEB Grading</CardTitle></CardHeader>
             <CardContent>
-              <div className="grid grid-cols-5 md:grid-cols-9 gap-2 text-xs">
-                {[
-                  { grade: "A+", range: "90-100", gp: "4.0" },
-                  { grade: "A", range: "80-89", gp: "3.6" },
-                  { grade: "B+", range: "70-79", gp: "3.2" },
-                  { grade: "B", range: "60-69", gp: "2.8" },
-                  { grade: "C+", range: "50-59", gp: "2.4" },
-                  { grade: "C", range: "40-49", gp: "2.0" },
-                  { grade: "D+", range: "30-39", gp: "1.6" },
-                  { grade: "D", range: "20-29", gp: "1.2" },
-                  { grade: "NG", range: "0-19", gp: "0.0" },
-                ].map((item) => (
-                  <div key={item.grade} className="text-center p-2 bg-muted rounded">
-                    <div className="font-bold">{item.grade}</div>
-                    <div className="text-muted-foreground">{item.range}%</div>
-                    <div>GP: {item.gp}</div>
-                  </div>
+              <div className="grid grid-cols-3 sm:grid-cols-9 gap-2 text-[11px]">
+                {[{g:"A+",r:"90+",p:"4.0"},{g:"A",r:"80–89",p:"3.6"},{g:"B+",r:"70–79",p:"3.2"},{g:"B",r:"60–69",p:"2.8"},{g:"C+",r:"50–59",p:"2.4"},{g:"C",r:"40–49",p:"2.0"},{g:"D+",r:"30–39",p:"1.6"},{g:"D",r:"20–29",p:"1.2"},{g:"NG",r:"<20",p:"0.0"}].map(x => (
+                  <div key={x.g} className="text-center p-2 bg-muted rounded"><div className="font-bold">{x.g}</div><div className="text-muted-foreground">{x.r}%</div><div>GP {x.p}</div></div>
                 ))}
               </div>
             </CardContent>
           </Card>
         </div>
+
+        {selectedStudent && subjects.length > 0 && (
+          <div className="fixed bottom-0 left-0 right-0 md:left-64 z-40 border-t bg-background/95 backdrop-blur p-3 pb-[calc(env(safe-area-inset-bottom)+0.75rem)]">
+            <div className="max-w-4xl mx-auto flex gap-2">
+              <Button variant="outline" onClick={() => setSelectedStudent(null)} className="hidden sm:flex">Back to list</Button>
+              <Button onClick={saveAll} disabled={saving} className="flex-1 h-12 text-base">
+                <Save className="w-4 h-4 mr-2" />{saving ? "Saving..." : `Save ${enteredCount} subjects`}
+              </Button>
+            </div>
+          </div>
+        )}
       </AdminLayout>
     </>
   );
