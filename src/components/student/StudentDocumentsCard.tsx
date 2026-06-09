@@ -31,24 +31,33 @@ interface StudentDocumentsCardProps {
 
 const DOCUMENT_TYPE_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
   character_certificate: Award,
-  grade_sheet: FileText,
-  see_certificate: GraduationCap,
+  class12_marksheet: FileText,
+  class11_marksheet: FileText,
+  passing_certificate: GraduationCap,
+  migration_certificate: GraduationCap,
+  transfer_certificate: FileText,
   default: FileText,
 };
 
 const DOCUMENT_TYPE_COLORS: Record<string, string> = {
   character_certificate: "bg-green-100 text-green-800 border-green-200",
-  grade_sheet: "bg-blue-100 text-blue-800 border-blue-200",
-  see_certificate: "bg-purple-100 text-purple-800 border-purple-200",
+  class12_marksheet: "bg-blue-100 text-blue-800 border-blue-200",
+  class11_marksheet: "bg-sky-100 text-sky-800 border-sky-200",
+  passing_certificate: "bg-purple-100 text-purple-800 border-purple-200",
+  migration_certificate: "bg-amber-100 text-amber-800 border-amber-200",
+  transfer_certificate: "bg-rose-100 text-rose-800 border-rose-200",
   admission_letter: "bg-orange-100 text-orange-800 border-orange-200",
   bonafide_certificate: "bg-teal-100 text-teal-800 border-teal-200",
   other: "bg-gray-100 text-gray-800 border-gray-200",
 };
 
 const DOCUMENT_TYPE_LABELS: Record<string, string> = {
-  character_certificate: "Character & Transfer Certificate",
-  grade_sheet: "Grade Sheet",
-  see_certificate: "SEE Certificate",
+  character_certificate: "Character Certificate",
+  class12_marksheet: "Class 12 Mark Sheet",
+  class11_marksheet: "Class 11 Mark Sheet",
+  passing_certificate: "Passing Certificate",
+  migration_certificate: "Migration Certificate",
+  transfer_certificate: "Transfer Certificate / SLC",
   admission_letter: "Admission Letter",
   bonafide_certificate: "Bonafide Certificate",
   other: "Document",
