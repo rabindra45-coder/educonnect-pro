@@ -40,6 +40,7 @@ interface Exam {
   academic_year: string;
   class: string;
   section: string | null;
+  stream: string | null;
   start_date: string | null;
   end_date: string | null;
   is_published: boolean;
@@ -54,7 +55,13 @@ const examTypes = [
   { value: "pre_board", label: "Pre-Board" },
 ];
 
-const classes = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"];
+const classes = ["11", "12"];
+const streams = [
+  { value: "common", label: "All Streams" },
+  { value: "science", label: "Science" },
+  { value: "management", label: "Management" },
+  { value: "law", label: "Law" },
+];
 
 const ExamsManagement = () => {
   const [exams, setExams] = useState<Exam[]>([]);
@@ -68,7 +75,8 @@ const ExamsManagement = () => {
     title: "",
     exam_type: "terminal" as string,
     academic_year: "2081/82",
-    class: "10",
+    class: "12",
+    stream: "common",
     section: "",
     start_date: "",
     end_date: "",
@@ -104,6 +112,7 @@ const ExamsManagement = () => {
       exam_type: formData.exam_type as "terminal" | "unit" | "monthly" | "final" | "pre_board",
       academic_year: formData.academic_year,
       class: formData.class,
+      stream: formData.stream || "common",
       section: formData.section || null,
       start_date: formData.start_date || null,
       end_date: formData.end_date || null,
@@ -141,7 +150,8 @@ const ExamsManagement = () => {
       title: "",
       exam_type: "terminal",
       academic_year: "2081/82",
-      class: "10",
+      class: "12",
+      stream: "common",
       section: "",
       start_date: "",
       end_date: "",
@@ -156,6 +166,7 @@ const ExamsManagement = () => {
       exam_type: exam.exam_type,
       academic_year: exam.academic_year,
       class: exam.class,
+      stream: exam.stream || "common",
       section: exam.section || "",
       start_date: exam.start_date || "",
       end_date: exam.end_date || "",
@@ -285,6 +296,17 @@ const ExamsManagement = () => {
                       </Select>
                     </div>
                     <div>
+                      <Label>Stream</Label>
+                      <Select value={formData.stream} onValueChange={(v) => setFormData({ ...formData, stream: v })}>
+                        <SelectTrigger><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          {streams.map((s) => <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
                       <Label>Section</Label>
                       <Input
                         value={formData.section}
@@ -292,8 +314,6 @@ const ExamsManagement = () => {
                         placeholder="A, B, C..."
                       />
                     </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
                     <div>
                       <Label>Start Date</Label>
                       <Input
@@ -302,6 +322,8 @@ const ExamsManagement = () => {
                         onChange={(e) => setFormData({ ...formData, start_date: e.target.value })}
                       />
                     </div>
+                  </div>
+                  <div className="grid grid-cols-1 gap-4">
                     <div>
                       <Label>End Date</Label>
                       <Input
@@ -408,7 +430,8 @@ const ExamsManagement = () => {
                         </TableCell>
                         <TableCell>
                           Class {exam.class}
-                          {exam.section && ` - ${exam.section}`}
+                          {exam.stream && exam.stream !== "common" && <Badge variant="outline" className="ml-1 text-[10px]">{exam.stream}</Badge>}
+                          {exam.section && ` · ${exam.section}`}
                         </TableCell>
                         <TableCell>{exam.academic_year}</TableCell>
                         <TableCell>
