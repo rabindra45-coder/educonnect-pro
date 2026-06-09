@@ -71,9 +71,12 @@ interface StudentDocument {
 }
 
 const DOCUMENT_TYPES = [
-  { value: "character_certificate", label: "Character & Transfer Certificate" },
-  { value: "grade_sheet", label: "Grade Sheet" },
-  { value: "see_certificate", label: "SEE Certificate" },
+  { value: "class12_marksheet", label: "Class 12 Mark Sheet" },
+  { value: "class11_marksheet", label: "Class 11 Mark Sheet" },
+  { value: "passing_certificate", label: "Passing Certificate" },
+  { value: "migration_certificate", label: "Migration Certificate" },
+  { value: "transfer_certificate", label: "Transfer Certificate / SLC" },
+  { value: "character_certificate", label: "Character Certificate" },
   { value: "admission_letter", label: "Admission Letter" },
   { value: "bonafide_certificate", label: "Bonafide Certificate" },
   { value: "other", label: "Other Document" },
@@ -439,8 +442,11 @@ const DocumentsManagement = () => {
                     />
                   </div>
 
-                  {(formData.document_type === "grade_sheet" ||
-                    formData.document_type === "see_certificate") && (
+                  {(formData.document_type === "class12_marksheet" ||
+                    formData.document_type === "class11_marksheet" ||
+                    formData.document_type === "passing_certificate" ||
+                    formData.document_type === "migration_certificate" ||
+                    formData.document_type === "character_certificate") && (
                     <>
                       <div className="space-y-2">
                         <Label htmlFor="exam_year">Exam Year (B.S.)</Label>
