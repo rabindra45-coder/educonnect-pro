@@ -44,6 +44,9 @@ const MigrationCertificateTemplate = forwardRef<HTMLDivElement, Props>(({ studen
       <div className="absolute inset-3 border-4 pointer-events-none" style={{ borderColor: "#0B1F3A" }} />
       <div className="absolute inset-6 border-2 border-double pointer-events-none" style={{ borderColor: "#C9A227" }} />
 
+      <img src={COLLEGE_SEAL_URL} alt="" aria-hidden className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[420px] opacity-[0.06] pointer-events-none select-none" />
+      <img src={COLLEGE_SEAL_URL} alt="Official Seal" className="absolute bottom-24 left-16 w-24 h-24 opacity-90 pointer-events-none" />
+
       <CollegeLetterhead schoolSettings={schoolSettings} />
 
       <div className="text-center my-6">
