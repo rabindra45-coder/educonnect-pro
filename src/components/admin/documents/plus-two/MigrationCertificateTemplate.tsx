@@ -1,6 +1,7 @@
 import { forwardRef } from "react";
 import CollegeLetterhead from "./CollegeLetterhead";
 import principalSignature from "@/assets/principal-signature.png";
+import { COLLEGE_SEAL_URL } from "@/assets/college-seal";
 
 interface Student {
   id: string;
