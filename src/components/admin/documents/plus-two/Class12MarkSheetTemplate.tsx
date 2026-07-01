@@ -64,6 +64,8 @@ const Class12MarkSheetTemplate = forwardRef<HTMLDivElement, Props>(({ student, s
     <div ref={ref} className="bg-white w-[820px] min-h-[1080px] mx-auto p-10 relative" style={{ fontFamily: "'Times New Roman', serif", color: "#0B1F3A" }}>
       <div className="absolute inset-3 border-2 pointer-events-none" style={{ borderColor: "#C9A227" }} />
       <div className="absolute inset-5 border pointer-events-none" style={{ borderColor: "#0B1F3A" }} />
+      <img src={COLLEGE_SEAL_URL} alt="" aria-hidden className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[460px] opacity-[0.05] pointer-events-none select-none" />
+      <img src={COLLEGE_SEAL_URL} alt="Official Seal" className="absolute bottom-16 left-14 w-24 h-24 opacity-90 pointer-events-none" />
 
       <CollegeLetterhead schoolSettings={schoolSettings} subtitle="Office of the Controller of Examinations" />
 
