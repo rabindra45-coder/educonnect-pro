@@ -26,9 +26,6 @@ interface Props {
   onPreview?: (r: DigitalResource) => void;
 }
 
-const ResourceCard = ({ resource, isFavorite, onPreview }: Props) => {
-  const fav = useToggleFavorite();
-  const Icon = ICONS[iconForType(resource.file_mime, resource.resource_type)] ?? File;
 
 const ResourceCard = ({ resource, isFavorite, onPreview }: Props) => {
   const fav = useToggleFavorite();
