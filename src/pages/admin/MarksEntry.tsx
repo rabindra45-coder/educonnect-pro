@@ -95,6 +95,19 @@ const MarksEntry = () => {
       } : { subject_id: s.id, theory_marks: null, practical_marks: null, total_marks: null, grade: null, grade_point: null, remarks: null };
     });
     setMarks(next);
+    // Preselect subjects that already have marks; otherwise start with none — admin picks the 6 required.
+    const preselected = new Set<string>(
+      filtered.filter((s) => existing?.some((m) => m.subject_id === s.id)).map((s) => s.id)
+    );
+    setSelectedSubjectIds(preselected);
+  };
+
+  const toggleSubject = (id: string) => {
+    setSelectedSubjectIds((prev) => {
+      const n = new Set(prev);
+      if (n.has(id)) n.delete(id); else n.add(id);
+      return n;
+    });
   };
 
   const updateMark = (subjectId: string, patch: Partial<MarkRow>) => {
