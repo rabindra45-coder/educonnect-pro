@@ -215,8 +215,10 @@ const AIResourceStudio = ({ onCreated }: Props) => {
       if (coverUrl) {
         setStage("Uploading cover image…");
         const coverBlob = await (await fetch(coverUrl)).blob();
-        const coverUp = await uploadBytes(coverBlob, `${safe}_cover.png`, "image/png", "covers");
-        coverPublicUrl = supabase.storage.from(BUCKET).getPublicUrl(coverUp.path).data.publicUrl;
+        const coverPath = `resource-covers/${Date.now()}-${safe}_cover.png`;
+        const { error: cErr } = await supabase.storage.from("content-images").upload(coverPath, coverBlob, { contentType: "image/png", upsert: false });
+        if (cErr) throw cErr;
+        coverPublicUrl = supabase.storage.from("content-images").getPublicUrl(coverPath).data.publicUrl;
       }
 
       setStage("Publishing to Resource Center…");
@@ -279,7 +281,10 @@ const AIResourceStudio = ({ onCreated }: Props) => {
       const blob = await res.blob();
       const filename = `${imgTitle.replace(/[^a-z0-9-]+/gi, "_").slice(0, 60)}.png`;
       const up = await uploadBytes(blob, filename, "image/png", "ai-image");
-      const publicUrl = supabase.storage.from(BUCKET).getPublicUrl(up.path).data.publicUrl;
+      // Duplicate the image to the public content-images bucket so it renders as a card cover.
+      const coverPath = `resource-covers/${Date.now()}-${filename}`;
+      await supabase.storage.from("content-images").upload(coverPath, blob, { contentType: "image/png", upsert: false });
+      const publicUrl = supabase.storage.from("content-images").getPublicUrl(coverPath).data.publicUrl;
       const { data: ins, error } = await supabase.from("digital_resources").insert({
         title: imgTitle,
         description: imgPrompt,

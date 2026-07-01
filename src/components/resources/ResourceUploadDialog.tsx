@@ -52,10 +52,14 @@ const ResourceUploadDialog = ({ open, onOpenChange, onSaved }: Props) => {
     try {
       const up = await uploadResourceFile(file, "uploads");
 
+      // Covers go to the PUBLIC content-images bucket so <img> can load them directly.
       let coverUrl: string | null = null;
       if (cover) {
-        const cup = await uploadResourceFile(cover, "covers");
-        coverUrl = supabase.storage.from(BUCKET).getPublicUrl(cup.path).data.publicUrl;
+        const ext = (cover.name.split(".").pop() || "png").toLowerCase();
+        const path = `resource-covers/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+        const { error: cErr } = await supabase.storage.from("content-images").upload(path, cover, { contentType: cover.type || "image/png", upsert: false });
+        if (cErr) throw cErr;
+        coverUrl = supabase.storage.from("content-images").getPublicUrl(path).data.publicUrl;
       }
 
       const { data: inserted, error } = await supabase.from("digital_resources").insert({

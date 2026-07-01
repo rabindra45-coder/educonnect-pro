@@ -1,10 +1,18 @@
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Star, Download, Heart, Eye, Sparkles, FileText, Image as ImageIcon, Video, Music, FileSpreadsheet, Presentation, Archive, File } from "lucide-react";
+import { Star, Download, Heart, Eye, Sparkles, FileText, Image as ImageIcon, Video, Music, FileSpreadsheet, Presentation, Archive, File, Trash2 } from "lucide-react";
 import type { DigitalResource } from "@/lib/resourceCenter";
 import { downloadResource, formatBytes, iconForType } from "@/lib/resourceCenter";
 import { useToggleFavorite } from "@/hooks/useResources";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
+import { useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -18,9 +26,17 @@ interface Props {
   onPreview?: (r: DigitalResource) => void;
 }
 
+
 const ResourceCard = ({ resource, isFavorite, onPreview }: Props) => {
   const fav = useToggleFavorite();
+  const { user, roles } = useAuth();
+  const qc = useQueryClient();
+  const [deleting, setDeleting] = useState(false);
   const Icon = ICONS[iconForType(resource.file_mime, resource.resource_type)] ?? File;
+
+  const canDelete =
+    !!user &&
+    (roles?.some((r) => ["super_admin", "admin"].includes(r)) || resource.uploaded_by === user.id);
 
   const handleDownload = async (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -39,6 +55,24 @@ const ResourceCard = ({ resource, isFavorite, onPreview }: Props) => {
     });
   };
 
+  const handleDelete = async () => {
+    setDeleting(true);
+    try {
+      const { error } = await supabase
+        .from("digital_resources")
+        .update({ deleted_at: new Date().toISOString(), is_active: false })
+        .eq("id", resource.id);
+      if (error) throw error;
+      toast.success("Resource deleted");
+      qc.invalidateQueries({ queryKey: ["resources"] });
+      qc.invalidateQueries({ queryKey: ["resource-analytics"] });
+    } catch (e: any) {
+      toast.error(e?.message || "Delete failed");
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   return (
     <Card
       onClick={() => onPreview?.(resource)}
@@ -46,7 +80,13 @@ const ResourceCard = ({ resource, isFavorite, onPreview }: Props) => {
     >
       <div className="relative aspect-[4/3] bg-gradient-to-br from-primary/5 via-accent/5 to-secondary/10 overflow-hidden">
         {resource.cover_image_url ? (
-          <img src={resource.cover_image_url} alt={resource.title} loading="lazy" className="h-full w-full object-cover" />
+          <img
+            src={resource.cover_image_url}
+            alt={resource.title}
+            loading="lazy"
+            className="h-full w-full object-cover"
+            onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
+          />
         ) : (
           <div className="flex h-full w-full items-center justify-center">
             <Icon className="h-12 w-12 text-primary/40" />
@@ -69,6 +109,33 @@ const ResourceCard = ({ resource, isFavorite, onPreview }: Props) => {
         >
           <Heart className={cn("h-4 w-4", isFavorite ? "fill-rose-500 text-rose-500" : "text-muted-foreground")} />
         </button>
+        {canDelete && (
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <button
+                onClick={(e) => e.stopPropagation()}
+                aria-label="Delete resource"
+                className="absolute bottom-2 left-2 rounded-full bg-background/90 p-2 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-red-500 hover:text-white"
+              >
+                <Trash2 className="h-4 w-4" />
+              </button>
+            </AlertDialogTrigger>
+            <AlertDialogContent onClick={(e) => e.stopPropagation()}>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Delete this resource?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  "{resource.title}" will be removed from the Resource Center. This cannot be undone from the UI.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={handleDelete} disabled={deleting} className="bg-red-600 hover:bg-red-700">
+                  {deleting ? "Deleting…" : "Delete"}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        )}
       </div>
       <div className="p-3 space-y-2">
         <h3 className="font-semibold text-sm line-clamp-2 leading-snug">{resource.title}</h3>
