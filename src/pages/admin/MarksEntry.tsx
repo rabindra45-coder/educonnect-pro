@@ -216,15 +216,41 @@ const MarksEntry = () => {
                     <p className="font-semibold truncate">{selectedStudent.full_name}</p>
                     <p className="text-xs text-muted-foreground">Roll {selectedStudent.roll_number || "—"} · {selectedStudent.stream || "—"}</p>
                   </div>
-                  <Badge className="gap-1"><CheckCircle2 className="w-3 h-3" />{enteredCount}/{subjects.length}</Badge>
+                  <Badge className="gap-1"><CheckCircle2 className="w-3 h-3" />{enteredCount}/{selectedSubjectIds.size || REQUIRED_SUBJECTS}</Badge>
                 </CardContent>
               </Card>
 
               {subjects.length === 0 ? (
                 <Card><CardContent className="py-10 text-center text-muted-foreground">No subjects mapped to {selectedStudent.stream || "this stream"} / Class {selectedStudent.class}. Add them in Subjects Management.</CardContent></Card>
               ) : (
+                <>
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm">Select subjects for this student</CardTitle>
+                      <CardDescription className={selectionMet ? "text-emerald-600" : "text-destructive"}>
+                        Selected {selectedSubjectIds.size} · minimum {REQUIRED_SUBJECTS} required. Only selected subjects will be graded.
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                        {subjects.map((s) => {
+                          const checked = selectedSubjectIds.has(s.id);
+                          return (
+                            <label key={s.id} className={`flex items-center gap-2 p-2 rounded-md border cursor-pointer transition ${checked ? "border-primary bg-primary/5" : "hover:bg-muted/40"}`}>
+                              <Checkbox checked={checked} onCheckedChange={() => toggleSubject(s.id)} />
+                              <div className="min-w-0">
+                                <p className="text-sm font-medium truncate">{s.name}</p>
+                                <p className="text-[10px] text-muted-foreground">{s.code}{s.is_practical ? " · Th+Pr" : ""}</p>
+                              </div>
+                            </label>
+                          );
+                        })}
+                      </div>
+                    </CardContent>
+                  </Card>
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {subjects.map((sub) => {
+                  {activeSubjects.map((sub) => {
                     const m = marks[sub.id];
                     return (
                       <Card key={sub.id}>
