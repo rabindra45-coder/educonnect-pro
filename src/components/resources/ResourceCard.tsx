@@ -109,6 +109,33 @@ const ResourceCard = ({ resource, isFavorite, onPreview }: Props) => {
         >
           <Heart className={cn("h-4 w-4", isFavorite ? "fill-rose-500 text-rose-500" : "text-muted-foreground")} />
         </button>
+        {canDelete && (
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <button
+                onClick={(e) => e.stopPropagation()}
+                aria-label="Delete resource"
+                className="absolute bottom-2 left-2 rounded-full bg-background/90 p-2 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-red-500 hover:text-white"
+              >
+                <Trash2 className="h-4 w-4" />
+              </button>
+            </AlertDialogTrigger>
+            <AlertDialogContent onClick={(e) => e.stopPropagation()}>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Delete this resource?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  "{resource.title}" will be removed from the Resource Center. This cannot be undone from the UI.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={handleDelete} disabled={deleting} className="bg-red-600 hover:bg-red-700">
+                  {deleting ? "Deleting…" : "Delete"}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        )}
       </div>
       <div className="p-3 space-y-2">
         <h3 className="font-semibold text-sm line-clamp-2 leading-snug">{resource.title}</h3>
