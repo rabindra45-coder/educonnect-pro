@@ -124,14 +124,28 @@ const MarksEntry = () => {
     });
   };
 
-  const enteredCount = useMemo(() => Object.values(marks).filter(m => m.theory_marks != null).length, [marks]);
+  const activeSubjects = useMemo(
+    () => subjects.filter((s) => selectedSubjectIds.has(s.id)),
+    [subjects, selectedSubjectIds]
+  );
+  const enteredCount = useMemo(
+    () => activeSubjects.filter((s) => marks[s.id]?.theory_marks != null).length,
+    [activeSubjects, marks]
+  );
+  const REQUIRED_SUBJECTS = 6;
+  const selectionMet = selectedSubjectIds.size >= REQUIRED_SUBJECTS;
 
   const saveAll = async () => {
     if (!selectedStudent || !exam) return;
+    if (!selectionMet) {
+      toast({ title: `Select at least ${REQUIRED_SUBJECTS} subjects`, description: `Currently selected: ${selectedSubjectIds.size}.`, variant: "destructive" });
+      return;
+    }
     setSaving(true);
-    const rows = Object.values(marks)
-      .filter(m => m.theory_marks != null || m.practical_marks != null)
-      .map(m => ({
+    const rows = activeSubjects
+      .map((s) => marks[s.id])
+      .filter((m) => m && (m.theory_marks != null || m.practical_marks != null))
+      .map((m) => ({
         exam_id: exam.id, student_id: selectedStudent.id, subject_id: m.subject_id,
         theory_marks: m.theory_marks, practical_marks: m.practical_marks,
         total_marks: m.total_marks, grade: m.grade, grade_point: m.grade_point, remarks: m.remarks,
