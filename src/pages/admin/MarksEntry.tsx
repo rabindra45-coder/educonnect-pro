@@ -43,6 +43,7 @@ const MarksEntry = () => {
   const [students, setStudents] = useState<Student[]>([]);
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
   const [subjects, setSubjects] = useState<Subject[]>([]);
+  const [selectedSubjectIds, setSelectedSubjectIds] = useState<Set<string>>(new Set());
   const [marks, setMarks] = useState<Record<string, MarkRow>>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
