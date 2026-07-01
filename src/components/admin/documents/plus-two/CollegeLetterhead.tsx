@@ -1,3 +1,5 @@
+import { COLLEGE_SEAL_URL } from "@/assets/college-seal";
+
 interface SchoolSettings {
   school_name: string;
   school_address: string | null;
