@@ -14,7 +14,8 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, Save, Calculator, Search, ChevronLeft, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, Save, Calculator, Search, ChevronLeft, CheckCircle2, X } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface Exam { id: string; title: string; exam_type: string; class: string; section: string | null; stream: string | null; academic_year: string; is_published: boolean; }
 interface Student { id: string; full_name: string; roll_number: number | null; registration_number: string; photo_url: string | null; class: string; stream: string | null; section: string | null; }
