@@ -56,8 +56,12 @@ const MarksEntry = () => {
     if (error || !examData) { toast({ title: "Exam not found", variant: "destructive" }); navigate("/admin/exams"); return; }
     setExam(examData as Exam);
 
-    let q = supabase.from("students").select("id, full_name, roll_number, registration_number, photo_url, class, stream, section")
-      .eq("class", examData.class).eq("status", "active");
+    // Students store granular class like "12-Science-Physical" plus a normalized `grade` ("11"/"12").
+    // Match on grade first, and also accept class starting with the exam class number.
+    let q = supabase.from("students")
+      .select("id, full_name, roll_number, registration_number, photo_url, class, grade, stream, section")
+      .eq("status", "active")
+      .or(`grade.eq.${examData.class},class.eq.${examData.class},class.ilike.${examData.class}-%`);
     if (examData.stream && examData.stream !== "common") q = q.eq("stream", examData.stream);
     if (examData.section) q = q.eq("section", examData.section);
     const { data: studs } = await q.order("roll_number", { ascending: true });

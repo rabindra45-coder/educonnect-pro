@@ -340,9 +340,16 @@ const DocumentTemplateDialog = ({ open, onOpenChange, students, onDocumentCreate
                 <Select value={selectedStudent?.id || ""} onValueChange={(v) => setSelectedStudent(students.find(s => s.id === v) || null)}>
                   <SelectTrigger><SelectValue placeholder="Choose a +2 student" /></SelectTrigger>
                   <SelectContent>
-                    {students.filter(s => s.class === "11" || s.class === "12").map(s => (
-                      <SelectItem key={s.id} value={s.id}>{s.full_name} ({s.registration_number}) — {formatStudentMeta(s)}</SelectItem>
-                    ))}
+                    {students
+                      .filter(s => {
+                        const g = (s.grade || "").toString();
+                        const c = (s.class || "").toString();
+                        return g === "11" || g === "12" || c === "11" || c === "12" || c.startsWith("11") || c.startsWith("12");
+                      })
+                      .map(s => (
+                        <SelectItem key={s.id} value={s.id}>{s.full_name} ({s.registration_number}) — {formatStudentMeta(s)}</SelectItem>
+                      ))}
+                    {students.length === 0 && <div className="px-2 py-3 text-sm text-muted-foreground">No students loaded.</div>}
                   </SelectContent>
                 </Select>
               </div>
