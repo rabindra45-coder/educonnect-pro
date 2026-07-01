@@ -38,9 +38,8 @@ const CollegeLetterhead = ({ schoolSettings, subtitle }: Props) => (
           <p className="text-xs italic mt-1" style={{ color: "#0B1F3A" }}>{subtitle}</p>
         )}
       </div>
-      <div className="w-20 h-20 rounded-full border-2 border-dashed flex items-center justify-center text-[10px] text-center text-muted-foreground" style={{ borderColor: "#C9A227" }}>
-        College<br/>Seal
-      </div>
+      <img src={COLLEGE_SEAL_URL} alt="College Seal" className="w-20 h-20 object-contain" />
+
     </div>
   </div>
 );
