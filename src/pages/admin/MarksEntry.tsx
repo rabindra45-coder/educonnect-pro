@@ -14,7 +14,8 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, Save, Calculator, Search, ChevronLeft, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, Save, Calculator, Search, ChevronLeft, CheckCircle2, X } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface Exam { id: string; title: string; exam_type: string; class: string; section: string | null; stream: string | null; academic_year: string; is_published: boolean; }
 interface Student { id: string; full_name: string; roll_number: number | null; registration_number: string; photo_url: string | null; class: string; stream: string | null; section: string | null; }
@@ -42,6 +43,7 @@ const MarksEntry = () => {
   const [students, setStudents] = useState<Student[]>([]);
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
   const [subjects, setSubjects] = useState<Subject[]>([]);
+  const [selectedSubjectIds, setSelectedSubjectIds] = useState<Set<string>>(new Set());
   const [marks, setMarks] = useState<Record<string, MarkRow>>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -93,6 +95,19 @@ const MarksEntry = () => {
       } : { subject_id: s.id, theory_marks: null, practical_marks: null, total_marks: null, grade: null, grade_point: null, remarks: null };
     });
     setMarks(next);
+    // Preselect subjects that already have marks; otherwise start with none — admin picks the 6 required.
+    const preselected = new Set<string>(
+      filtered.filter((s) => existing?.some((m) => m.subject_id === s.id)).map((s) => s.id)
+    );
+    setSelectedSubjectIds(preselected);
+  };
+
+  const toggleSubject = (id: string) => {
+    setSelectedSubjectIds((prev) => {
+      const n = new Set(prev);
+      if (n.has(id)) n.delete(id); else n.add(id);
+      return n;
+    });
   };
 
   const updateMark = (subjectId: string, patch: Partial<MarkRow>) => {
@@ -109,14 +124,28 @@ const MarksEntry = () => {
     });
   };
 
-  const enteredCount = useMemo(() => Object.values(marks).filter(m => m.theory_marks != null).length, [marks]);
+  const activeSubjects = useMemo(
+    () => subjects.filter((s) => selectedSubjectIds.has(s.id)),
+    [subjects, selectedSubjectIds]
+  );
+  const enteredCount = useMemo(
+    () => activeSubjects.filter((s) => marks[s.id]?.theory_marks != null).length,
+    [activeSubjects, marks]
+  );
+  const REQUIRED_SUBJECTS = 6;
+  const selectionMet = selectedSubjectIds.size >= REQUIRED_SUBJECTS;
 
   const saveAll = async () => {
     if (!selectedStudent || !exam) return;
+    if (!selectionMet) {
+      toast({ title: `Select at least ${REQUIRED_SUBJECTS} subjects`, description: `Currently selected: ${selectedSubjectIds.size}.`, variant: "destructive" });
+      return;
+    }
     setSaving(true);
-    const rows = Object.values(marks)
-      .filter(m => m.theory_marks != null || m.practical_marks != null)
-      .map(m => ({
+    const rows = activeSubjects
+      .map((s) => marks[s.id])
+      .filter((m) => m && (m.theory_marks != null || m.practical_marks != null))
+      .map((m) => ({
         exam_id: exam.id, student_id: selectedStudent.id, subject_id: m.subject_id,
         theory_marks: m.theory_marks, practical_marks: m.practical_marks,
         total_marks: m.total_marks, grade: m.grade, grade_point: m.grade_point, remarks: m.remarks,
@@ -187,15 +216,41 @@ const MarksEntry = () => {
                     <p className="font-semibold truncate">{selectedStudent.full_name}</p>
                     <p className="text-xs text-muted-foreground">Roll {selectedStudent.roll_number || "—"} · {selectedStudent.stream || "—"}</p>
                   </div>
-                  <Badge className="gap-1"><CheckCircle2 className="w-3 h-3" />{enteredCount}/{subjects.length}</Badge>
+                  <Badge className="gap-1"><CheckCircle2 className="w-3 h-3" />{enteredCount}/{selectedSubjectIds.size || REQUIRED_SUBJECTS}</Badge>
                 </CardContent>
               </Card>
 
               {subjects.length === 0 ? (
                 <Card><CardContent className="py-10 text-center text-muted-foreground">No subjects mapped to {selectedStudent.stream || "this stream"} / Class {selectedStudent.class}. Add them in Subjects Management.</CardContent></Card>
               ) : (
+                <>
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm">Select subjects for this student</CardTitle>
+                      <CardDescription className={selectionMet ? "text-emerald-600" : "text-destructive"}>
+                        Selected {selectedSubjectIds.size} · minimum {REQUIRED_SUBJECTS} required. Only selected subjects will be graded.
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                        {subjects.map((s) => {
+                          const checked = selectedSubjectIds.has(s.id);
+                          return (
+                            <label key={s.id} className={`flex items-center gap-2 p-2 rounded-md border cursor-pointer transition ${checked ? "border-primary bg-primary/5" : "hover:bg-muted/40"}`}>
+                              <Checkbox checked={checked} onCheckedChange={() => toggleSubject(s.id)} />
+                              <div className="min-w-0">
+                                <p className="text-sm font-medium truncate">{s.name}</p>
+                                <p className="text-[10px] text-muted-foreground">{s.code}{s.is_practical ? " · Th+Pr" : ""}</p>
+                              </div>
+                            </label>
+                          );
+                        })}
+                      </div>
+                    </CardContent>
+                  </Card>
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {subjects.map((sub) => {
+                  {activeSubjects.map((sub) => {
                     const m = marks[sub.id];
                     return (
                       <Card key={sub.id}>
@@ -233,6 +288,7 @@ const MarksEntry = () => {
                     );
                   })}
                 </div>
+                </>
               )}
             </>
           )}
