@@ -68,6 +68,7 @@ const StudentResultsCard = ({
   const [selectedExam, setSelectedExam] = useState<string>("");
   const [result, setResult] = useState<ExamResult | null>(null);
   const [loading, setLoading] = useState(true);
+  const [resultLoading, setResultLoading] = useState(false);
   const marksheetRef = useRef<HTMLDivElement>(null);
   const {
     toast
@@ -99,6 +100,7 @@ const StudentResultsCard = ({
     setLoading(false);
   };
   const fetchResult = async () => {
+    setResultLoading(true);
     // Fetch exam details
     const {
       data: examData
@@ -151,6 +153,7 @@ const StudentResultsCard = ({
     } else {
       setResult(null);
     }
+    setResultLoading(false);
   };
   const getOverallGrade = (gpa: number): string => {
     if (gpa >= 3.6) return "A+";
@@ -258,7 +261,7 @@ const StudentResultsCard = ({
         </div>
       </CardHeader>
       <CardContent>
-        {!result ? <div className="text-center text-muted-foreground py-8">
+        {resultLoading ? <div className="text-center text-muted-foreground py-8">Loading marksheet…</div> : !result ? <div className="text-center text-muted-foreground py-8">
             <p>No results found for this exam.</p>
           </div> : <div className="space-y-6">
             {/* Summary Stats */}
