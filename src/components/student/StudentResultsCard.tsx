@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Download, FileText, Trophy, TrendingUp } from "lucide-react";
 import { toPng } from "html-to-image";
+import jsPDF from "jspdf";
 import schoolLogo from "@/assets/logo.png";
 import nebLogo from "@/assets/neb-logo.png";
 import nepalEmblem from "@/assets/nepal-govt-emblem.png";
@@ -28,12 +29,16 @@ interface ExamResult {
   gpa: number;
   grade: string;
   rank: number;
+  total_full_marks: number;
   subjects: {
     name: string;
     code: string;
     theory_marks: number | null;
     practical_marks: number | null;
     total_marks: number;
+    full_marks: number;
+    theory_full_marks: number;
+    practical_full_marks: number;
     grade: string;
     grade_point: number;
   }[];
@@ -63,6 +68,7 @@ const StudentResultsCard = ({
   const [selectedExam, setSelectedExam] = useState<string>("");
   const [result, setResult] = useState<ExamResult | null>(null);
   const [loading, setLoading] = useState(true);
+  const [resultLoading, setResultLoading] = useState(false);
   const marksheetRef = useRef<HTMLDivElement>(null);
   const {
     toast
@@ -81,8 +87,8 @@ const StudentResultsCard = ({
     const gradePrefix = (className || "").split("-")[0];
     const { data, error } = await supabase
       .from("exams")
-      .select("id, title, academic_year")
-      .or(`class.eq.${className},class.eq.${gradePrefix}`)
+      .select("id, title, academic_year, stream, section")
+      .or(`class.eq.${className},class.eq.${gradePrefix},class.ilike.${gradePrefix}-%`)
       .eq("is_published", true)
       .order("created_at", { ascending: false });
     if (error) {
@@ -94,6 +100,7 @@ const StudentResultsCard = ({
     setLoading(false);
   };
   const fetchResult = async () => {
+    setResultLoading(true);
     // Fetch exam details
     const {
       data: examData
@@ -104,7 +111,7 @@ const StudentResultsCard = ({
       data: marksData
     } = await supabase.from("exam_marks").select(`
         *,
-        subjects!inner(name, code, full_marks, credit_hours)
+        subjects!inner(name, code, full_marks, theory_full_marks, practical_full_marks, credit_hours)
       `).eq("exam_id", selectedExam).eq("student_id", studentId);
 
     // Fetch student result
@@ -117,12 +124,15 @@ const StudentResultsCard = ({
         code: mark.subjects.code,
         theory_marks: mark.theory_marks,
         practical_marks: mark.practical_marks,
-        total_marks: mark.total_marks || 0,
+        total_marks: mark.total_marks ?? ((mark.theory_marks || 0) + (mark.practical_marks || 0)),
+        full_marks: mark.subjects.full_marks || ((mark.subjects.theory_full_marks || 0) + (mark.subjects.practical_full_marks || 0)) || 100,
+        theory_full_marks: mark.subjects.theory_full_marks || Math.max((mark.subjects.full_marks || 100) - (mark.subjects.practical_full_marks || 0), 0),
+        practical_full_marks: mark.subjects.practical_full_marks || 0,
         grade: mark.grade || "NG",
         grade_point: mark.grade_point || 0
       }));
       const totalMarks = subjects.reduce((sum, s) => sum + s.total_marks, 0);
-      const totalFullMarks = marksData.reduce((sum: number, m: any) => sum + (m.subjects.full_marks || 100), 0);
+      const totalFullMarks = subjects.reduce((sum, s) => sum + s.full_marks, 0);
       const percentage = totalFullMarks > 0 ? totalMarks / totalFullMarks * 100 : 0;
       const totalCredits = marksData.reduce((sum: number, m: any) => sum + (m.subjects.credit_hours || 4), 0);
       const weightedGP = subjects.reduce((sum, s, i) => sum + s.grade_point * (marksData[i].subjects.credit_hours || 4), 0);
@@ -132,9 +142,10 @@ const StudentResultsCard = ({
         exam_title: examData.title,
         exam_type: examData.exam_type,
         academic_year: examData.academic_year,
-        total_marks: totalMarks,
-        percentage: Math.round(percentage * 100) / 100,
-        gpa: Math.round(gpa * 100) / 100,
+        total_marks: resultData?.total_marks ?? totalMarks,
+        total_full_marks: totalFullMarks,
+        percentage: resultData?.percentage ?? Math.round(percentage * 100) / 100,
+        gpa: resultData?.gpa ?? Math.round(gpa * 100) / 100,
         grade: resultData?.grade || getOverallGrade(gpa),
         rank: resultData?.rank || 0,
         subjects
@@ -142,6 +153,7 @@ const StudentResultsCard = ({
     } else {
       setResult(null);
     }
+    setResultLoading(false);
   };
   const getOverallGrade = (gpa: number): string => {
     if (gpa >= 3.6) return "A+";
@@ -154,18 +166,40 @@ const StudentResultsCard = ({
     if (gpa >= 0.8) return "D";
     return "NG";
   };
-  const downloadMarksheet = async () => {
+  const captureMarksheet = async () => {
+    if (!marksheetRef.current) return null;
+    return toPng(marksheetRef.current, {
+      quality: 1,
+      pixelRatio: 3,
+      backgroundColor: "#ffffff",
+      cacheBust: true,
+    });
+  };
+
+  const downloadMarksheet = async (format: "png" | "pdf") => {
     if (!marksheetRef.current) return;
     try {
-      const dataUrl = await toPng(marksheetRef.current, {
-        quality: 1,
-        pixelRatio: 3,
-        backgroundColor: "#ffffff"
-      });
-      const link = document.createElement("a");
-      link.download = `Marksheet_${registrationNumber}_${result?.academic_year || ""}.png`;
-      link.href = dataUrl;
-      link.click();
+      const dataUrl = await captureMarksheet();
+      if (!dataUrl) return;
+      const fileName = `Marksheet_${registrationNumber}_${result?.academic_year || ""}`;
+      if (format === "pdf") {
+        const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+        const img = new Image();
+        img.src = dataUrl;
+        await new Promise((resolve) => { img.onload = resolve; });
+        const pageWidth = pdf.internal.pageSize.getWidth();
+        const pageHeight = pdf.internal.pageSize.getHeight();
+        const ratio = Math.min(pageWidth / img.width, pageHeight / img.height);
+        const width = img.width * ratio;
+        const height = img.height * ratio;
+        pdf.addImage(dataUrl, "PNG", (pageWidth - width) / 2, 0, width, height);
+        pdf.save(`${fileName}.pdf`);
+      } else {
+        const link = document.createElement("a");
+        link.download = `${fileName}.png`;
+        link.href = dataUrl;
+        link.click();
+      }
       toast({
         title: "Marksheet downloaded!"
       });
@@ -215,15 +249,19 @@ const StudentResultsCard = ({
                   </SelectItem>)}
               </SelectContent>
             </Select>
-            {result && <Button variant="outline" size="sm" onClick={downloadMarksheet}>
-                <Download className="w-4 h-4 mr-2" />
-                Download
-              </Button>}
+            {result && <>
+              <Button variant="outline" size="sm" onClick={() => downloadMarksheet("png")}>
+                <Download className="w-4 h-4 mr-2" />PNG
+              </Button>
+              <Button variant="default" size="sm" onClick={() => downloadMarksheet("pdf")}>
+                <Download className="w-4 h-4 mr-2" />PDF
+              </Button>
+            </>}
           </div>
         </div>
       </CardHeader>
       <CardContent>
-        {!result ? <div className="text-center text-muted-foreground py-8">
+        {resultLoading ? <div className="text-center text-muted-foreground py-8">Loading marksheet…</div> : !result ? <div className="text-center text-muted-foreground py-8">
             <p>No results found for this exam.</p>
           </div> : <div className="space-y-6">
             {/* Summary Stats */}
@@ -337,9 +375,9 @@ const StudentResultsCard = ({
                     <tbody>
                       {result.subjects.map((subject, index) => <tr key={index} className={`border-b border-gray-200 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}>
                           <td className="py-2.5 px-4 font-medium text-gray-800">{subject.name}</td>
-                          <td className="py-2.5 px-3 text-center text-gray-700">{subject.theory_marks ?? "-"}</td>
-                          <td className="py-2.5 px-3 text-center text-gray-700">{subject.practical_marks ?? "-"}</td>
-                          <td className="py-2.5 px-3 text-center font-semibold text-primary">{subject.total_marks}</td>
+                          <td className="py-2.5 px-3 text-center text-gray-700">{subject.theory_marks ?? "-"} / {subject.theory_full_marks}</td>
+                          <td className="py-2.5 px-3 text-center text-gray-700">{subject.practical_full_marks > 0 ? `${subject.practical_marks ?? "-"} / ${subject.practical_full_marks}` : "—"}</td>
+                          <td className="py-2.5 px-3 text-center font-semibold text-primary">{subject.total_marks} / {subject.full_marks}</td>
                           <td className="py-2.5 px-3 text-center">
                             <span className={`inline-block px-2 py-0.5 rounded text-xs font-bold text-white ${GRADE_COLORS[subject.grade] || 'bg-gray-500'}`}>
                               {subject.grade}
@@ -354,7 +392,7 @@ const StudentResultsCard = ({
                 {/* Summary Section */}
                 <div className="grid grid-cols-4 gap-4 mb-6">
                   <div className="text-center p-3 bg-gradient-to-br from-primary/10 to-primary/5 rounded-lg border border-primary/20">
-                    <div className="text-2xl font-bold text-primary">{result.total_marks}</div>
+                    <div className="text-2xl font-bold text-primary">{result.total_marks} / {result.total_full_marks}</div>
                     <div className="text-xs text-gray-500 mt-1">Total Marks</div>
                   </div>
                   <div className="text-center p-3 bg-gradient-to-br from-amber-100 to-amber-50 rounded-lg border border-amber-200">

@@ -74,10 +74,11 @@ const MarksEntry = () => {
   const fetchSubjectsAndMarks = async () => {
     if (!selectedStudent || !exam) return;
     const streamFilter = selectedStudent.stream || "common";
+    const gradePrefix = (selectedStudent.class || exam.class || "").split("-")[0];
     const { data: subs } = await supabase.from("subjects")
       .select("id, name, code, credit_hours, theory_full_marks, practical_full_marks, is_practical, full_marks, pass_marks, class, stream, display_order")
       .eq("is_active", true)
-      .or(`class.eq.${selectedStudent.class},class.eq.both`)
+      .or(`class.eq.${selectedStudent.class},class.eq.${gradePrefix},class.eq.both`)
       .order("display_order", { ascending: true });
     const filtered = (subs || []).filter((s: any) => s.stream === streamFilter || s.stream === "common");
     setSubjects(filtered);
@@ -110,14 +111,17 @@ const MarksEntry = () => {
     });
   };
 
+  const hasPractical = (sub: Subject) => (sub.practical_full_marks || 0) > 0 || sub.is_practical;
+  const theoryFull = (sub: Subject) => sub.theory_full_marks || Math.max((sub.full_marks || 100) - (sub.practical_full_marks || 0), 0) || 100;
+  const practicalFull = (sub: Subject) => sub.practical_full_marks || 0;
+
   const updateMark = (subjectId: string, patch: Partial<MarkRow>) => {
     const sub = subjects.find(s => s.id === subjectId)!;
     setMarks((prev) => {
       const cur = prev[subjectId];
       const merged = { ...cur, ...patch };
-      const t = merged.theory_marks ?? 0; const p = (sub.is_practical ? (merged.practical_marks ?? 0) : 0);
-      const total = (merged.theory_marks ?? 0) + (sub.is_practical ? (merged.practical_marks ?? 0) : 0);
-      const fullSum = sub.theory_full_marks + (sub.is_practical ? sub.practical_full_marks : 0);
+      const total = (merged.theory_marks ?? 0) + (hasPractical(sub) ? (merged.practical_marks ?? 0) : 0);
+      const fullSum = theoryFull(sub) + (hasPractical(sub) ? practicalFull(sub) : 0);
       const pct = fullSum > 0 ? (total / fullSum) * 100 : 0;
       const { grade, gp } = NEB_GRADE(pct);
       return { ...prev, [subjectId]: { ...merged, total_marks: total, grade, grade_point: gp } };
@@ -243,7 +247,7 @@ const MarksEntry = () => {
                               <Checkbox checked={checked} onCheckedChange={() => toggleSubject(s.id)} />
                               <div className="min-w-0">
                                 <p className="text-sm font-medium truncate">{s.name}</p>
-                                <p className="text-[10px] text-muted-foreground">{s.code}{s.is_practical ? " · Th+Pr" : ""}</p>
+                                  <p className="text-[10px] text-muted-foreground">{s.code}{hasPractical(s) ? " · Th+Pr" : ""}</p>
                               </div>
                             </label>
                           );
@@ -267,23 +271,23 @@ const MarksEntry = () => {
                           </div>
                         </CardHeader>
                         <CardContent className="space-y-3">
-                          <div className={`grid ${sub.is_practical ? "grid-cols-2" : "grid-cols-1"} gap-2`}>
+                          <div className={`grid ${hasPractical(sub) ? "grid-cols-2" : "grid-cols-1"} gap-2`}>
                             <div>
-                              <Label className="text-xs">Theory / {sub.theory_full_marks}</Label>
-                              <Input type="number" inputMode="decimal" min={0} max={sub.theory_full_marks} className="h-12 text-base"
+                              <Label className="text-xs">Theory / {theoryFull(sub)}</Label>
+                              <Input type="number" inputMode="decimal" min={0} max={theoryFull(sub)} className="h-12 text-base"
                                 value={m?.theory_marks ?? ""} onChange={(e) => updateMark(sub.id, { theory_marks: e.target.value === "" ? null : Number(e.target.value) })} />
                             </div>
-                            {sub.is_practical && (
+                            {hasPractical(sub) && (
                               <div>
-                                <Label className="text-xs">Practical / {sub.practical_full_marks}</Label>
-                                <Input type="number" inputMode="decimal" min={0} max={sub.practical_full_marks} className="h-12 text-base"
+                                <Label className="text-xs">Practical / {practicalFull(sub)}</Label>
+                                <Input type="number" inputMode="decimal" min={0} max={practicalFull(sub)} className="h-12 text-base"
                                   value={m?.practical_marks ?? ""} onChange={(e) => updateMark(sub.id, { practical_marks: e.target.value === "" ? null : Number(e.target.value) })} />
                               </div>
                             )}
                           </div>
                           <div className="flex items-center justify-between text-sm">
                             <span className="text-muted-foreground">Total</span>
-                            <span className="font-bold">{m?.total_marks ?? "—"} / {sub.theory_full_marks + (sub.is_practical ? sub.practical_full_marks : 0)}</span>
+                            <span className="font-bold">{m?.total_marks ?? "—"} / {theoryFull(sub) + (hasPractical(sub) ? practicalFull(sub) : 0)}</span>
                           </div>
                           <Textarea rows={1} placeholder="Remarks (optional)" value={m?.remarks ?? ""} onChange={(e) => updateMark(sub.id, { remarks: e.target.value })} />
                         </CardContent>
