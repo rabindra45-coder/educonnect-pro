@@ -77,22 +77,19 @@ const StudentResultsCard = ({
   }, [selectedExam]);
   const fetchPublishedExams = async () => {
     setLoading(true);
-    const {
-      data,
-      error
-    } = await supabase.from("exams").select("id, title, academic_year").eq("class", className).eq("is_published", true).order("created_at", {
-      ascending: false
-    });
+    // Student `class` may be granular ("12-Science-Physical") while exam.class is "11"/"12".
+    const gradePrefix = (className || "").split("-")[0];
+    const { data, error } = await supabase
+      .from("exams")
+      .select("id, title, academic_year")
+      .or(`class.eq.${className},class.eq.${gradePrefix}`)
+      .eq("is_published", true)
+      .order("created_at", { ascending: false });
     if (error) {
-      toast({
-        title: "Error fetching exams",
-        variant: "destructive"
-      });
+      toast({ title: "Error fetching exams", variant: "destructive" });
     } else {
       setExams(data || []);
-      if (data && data.length > 0) {
-        setSelectedExam(data[0].id);
-      }
+      if (data && data.length > 0) setSelectedExam(data[0].id);
     }
     setLoading(false);
   };

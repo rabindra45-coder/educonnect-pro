@@ -217,6 +217,9 @@ const MarksEntry = () => {
                     <p className="text-xs text-muted-foreground">Roll {selectedStudent.roll_number || "—"} · {selectedStudent.stream || "—"}</p>
                   </div>
                   <Badge className="gap-1"><CheckCircle2 className="w-3 h-3" />{enteredCount}/{selectedSubjectIds.size || REQUIRED_SUBJECTS}</Badge>
+                  <Button size="sm" onClick={saveAll} disabled={saving}>
+                    <Save className="w-4 h-4 mr-1" />{saving ? "Saving..." : "Save"}
+                  </Button>
                 </CardContent>
               </Card>
 
