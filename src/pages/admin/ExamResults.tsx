@@ -42,6 +42,10 @@ interface StudentResult {
     name: string;
     marks: number;
     full_marks: number;
+    theory_marks: number;
+    practical_marks: number;
+    theory_full_marks: number;
+    practical_full_marks: number;
     grade: string;
   }[];
   rank?: number;

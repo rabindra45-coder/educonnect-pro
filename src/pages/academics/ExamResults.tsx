@@ -20,7 +20,7 @@ interface PublishedExam {
 interface Standing {
   student_id: string;
   full_name: string;
-  roll_number: string | null;
+  roll_number: number | null;
   class_name: string | null;
   total_marks: number;
   total_full_marks?: number;
