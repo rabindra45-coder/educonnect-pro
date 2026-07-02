@@ -54,9 +54,13 @@ const ResourcePreviewDialog = ({ resource, onClose }: Props) => {
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex-1 overflow-auto rounded-lg border bg-muted/30 min-h-[300px] flex items-center justify-center">
+        <div className="flex-1 overflow-auto rounded-lg border bg-muted/30 min-h-[300px] flex items-center justify-center relative">
           {!previewUrl ? (
-            <div className="text-sm text-muted-foreground">Loading preview…</div>
+            resource.cover_image_url ? (
+              <img src={resource.cover_image_url} alt={resource.title} className="max-h-[60vh] object-contain" />
+            ) : (
+              <div className="text-sm text-muted-foreground">Loading preview…</div>
+            )
           ) : isImage ? (
             <img src={previewUrl} alt={resource.title} className="max-h-[60vh] object-contain" />
           ) : isPdf ? (
@@ -65,6 +69,11 @@ const ResourcePreviewDialog = ({ resource, onClose }: Props) => {
             <video src={previewUrl} controls className="max-h-[60vh] w-full" />
           ) : isAudio ? (
             <audio src={previewUrl} controls className="w-full" />
+          ) : resource.cover_image_url ? (
+            <div className="flex flex-col items-center gap-3 p-4">
+              <img src={resource.cover_image_url} alt={resource.title} className="max-h-[50vh] object-contain rounded-md shadow" />
+              <p className="text-xs text-muted-foreground">Preview shown as cover. Download to view the full file.</p>
+            </div>
           ) : (
             <div className="text-center p-8 text-muted-foreground">
               <FileText className="h-12 w-12 mx-auto mb-2 opacity-50" />
