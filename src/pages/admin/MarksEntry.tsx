@@ -74,10 +74,11 @@ const MarksEntry = () => {
   const fetchSubjectsAndMarks = async () => {
     if (!selectedStudent || !exam) return;
     const streamFilter = selectedStudent.stream || "common";
+    const gradePrefix = (selectedStudent.class || exam.class || "").split("-")[0];
     const { data: subs } = await supabase.from("subjects")
       .select("id, name, code, credit_hours, theory_full_marks, practical_full_marks, is_practical, full_marks, pass_marks, class, stream, display_order")
       .eq("is_active", true)
-      .or(`class.eq.${selectedStudent.class},class.eq.both`)
+      .or(`class.eq.${selectedStudent.class},class.eq.${gradePrefix},class.eq.both`)
       .order("display_order", { ascending: true });
     const filtered = (subs || []).filter((s: any) => s.stream === streamFilter || s.stream === "common");
     setSubjects(filtered);
