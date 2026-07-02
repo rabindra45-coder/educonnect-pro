@@ -2141,6 +2141,76 @@ export type Database = {
         }
         Relationships: []
       }
+      public_exam_standings: {
+        Row: {
+          class_name: string | null
+          created_at: string
+          exam_id: string
+          full_name: string
+          gpa: number
+          grade: string
+          id: string
+          percentage: number
+          rank: number
+          roll_number: number | null
+          student_id: string
+          total_marks: number
+          updated_at: string
+        }
+        Insert: {
+          class_name?: string | null
+          created_at?: string
+          exam_id: string
+          full_name: string
+          gpa?: number
+          grade?: string
+          id?: string
+          percentage?: number
+          rank?: number
+          roll_number?: number | null
+          student_id: string
+          total_marks?: number
+          updated_at?: string
+        }
+        Update: {
+          class_name?: string | null
+          created_at?: string
+          exam_id?: string
+          full_name?: string
+          gpa?: number
+          grade?: string
+          id?: string
+          percentage?: number
+          rank?: number
+          roll_number?: number | null
+          student_id?: string
+          total_marks?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "public_exam_standings_exam_id_fkey"
+            columns: ["exam_id"]
+            isOneToOne: false
+            referencedRelation: "exams"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "public_exam_standings_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "attendance_summary"
+            referencedColumns: ["student_id"]
+          },
+          {
+            foreignKeyName: "public_exam_standings_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       question_bank: {
         Row: {
           chapter: string | null
@@ -3241,20 +3311,6 @@ export type Database = {
         Returns: number
       }
       get_parent_id: { Args: { _user_id: string }; Returns: string }
-      get_published_exam_standings: {
-        Args: { _exam_id: string }
-        Returns: {
-          class_name: string
-          full_name: string
-          gpa: number
-          grade: string
-          percentage: number
-          rank: number
-          roll_number: number
-          student_id: string
-          total_marks: number
-        }[]
-      }
       get_student_verification: {
         Args: { _student_id: string }
         Returns: {
