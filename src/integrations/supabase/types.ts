@@ -3241,6 +3241,20 @@ export type Database = {
         Returns: number
       }
       get_parent_id: { Args: { _user_id: string }; Returns: string }
+      get_published_exam_standings: {
+        Args: { _exam_id: string }
+        Returns: {
+          class_name: string
+          full_name: string
+          gpa: number
+          grade: string
+          percentage: number
+          rank: number
+          roll_number: number
+          student_id: string
+          total_marks: number
+        }[]
+      }
       get_student_verification: {
         Args: { _student_id: string }
         Returns: {
