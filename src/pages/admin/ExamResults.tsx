@@ -113,7 +113,7 @@ const AdminExamResults = () => {
       .select(`
         *,
         students!inner(id, full_name, roll_number),
-        subjects!inner(id, name, full_marks, credit_hours)
+        subjects!inner(id, name, full_marks, theory_full_marks, practical_full_marks, credit_hours)
       `)
       .eq("exam_id", examId);
 
@@ -142,8 +142,8 @@ const AdminExamResults = () => {
       let totalCredits = 0;
 
       const subjects = marks.map((mark: any) => {
-        const obtained = mark.total_marks || 0;
-        const fullMarks = mark.subjects.full_marks;
+        const obtained = mark.total_marks ?? ((mark.theory_marks || 0) + (mark.practical_marks || 0));
+        const fullMarks = mark.subjects.full_marks || ((mark.subjects.theory_full_marks || 0) + (mark.subjects.practical_full_marks || 0)) || 100;
         const credits = mark.subjects.credit_hours || 4;
 
         totalMarks += obtained;
@@ -155,6 +155,10 @@ const AdminExamResults = () => {
           name: mark.subjects.name,
           marks: obtained,
           full_marks: fullMarks,
+          theory_marks: mark.theory_marks || 0,
+          practical_marks: mark.practical_marks || 0,
+          theory_full_marks: mark.subjects.theory_full_marks || Math.max(fullMarks - (mark.subjects.practical_full_marks || 0), 0),
+          practical_full_marks: mark.subjects.practical_full_marks || 0,
           grade: mark.grade || "NG",
         };
       });
@@ -192,9 +196,6 @@ const AdminExamResults = () => {
       result.rank = index + 1;
     });
 
-    // Re-sort by roll number for display
-    studentResults.sort((a, b) => (a.roll_number || 0) - (b.roll_number || 0));
-
     setResults(studentResults);
   };
 
@@ -222,6 +223,7 @@ const AdminExamResults = () => {
       toast({ title: "Error saving results", variant: "destructive" });
     } else {
       toast({ title: "Results calculated and saved!" });
+      await calculateResults(exam!);
     }
 
     setCalculating(false);
@@ -229,6 +231,10 @@ const AdminExamResults = () => {
 
   const togglePublish = async () => {
     if (!exam) return;
+
+    if (!exam.is_published && results.length > 0) {
+      await saveResults();
+    }
 
     const { error } = await supabase
       .from("exams")
@@ -426,6 +432,8 @@ const AdminExamResults = () => {
                     <TableHead className="w-12">Rank</TableHead>
                     <TableHead className="w-12">Roll</TableHead>
                     <TableHead>Student Name</TableHead>
+                    <TableHead>Theory</TableHead>
+                    <TableHead>Practical</TableHead>
                     <TableHead>Total Marks</TableHead>
                     <TableHead>Percentage</TableHead>
                     <TableHead>GPA</TableHead>
@@ -435,7 +443,7 @@ const AdminExamResults = () => {
                 <TableBody>
                   {results.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                      <TableCell colSpan={9} className="text-center py-8 text-muted-foreground">
                         No marks entered yet. Enter marks first to see results.
                       </TableCell>
                     </TableRow>
@@ -451,9 +459,9 @@ const AdminExamResults = () => {
                         </TableCell>
                         <TableCell>{result.roll_number || "-"}</TableCell>
                         <TableCell className="font-medium">{result.student_name}</TableCell>
-                        <TableCell>
-                          {result.total_marks} / {result.total_full_marks}
-                        </TableCell>
+                        <TableCell>{result.subjects.reduce((sum, s) => sum + s.theory_marks, 0)}</TableCell>
+                        <TableCell>{result.subjects.reduce((sum, s) => sum + s.practical_marks, 0)}</TableCell>
+                        <TableCell>{result.total_marks} / {result.total_full_marks}</TableCell>
                         <TableCell>{result.percentage.toFixed(1)}%</TableCell>
                         <TableCell className="font-bold">{result.gpa.toFixed(2)}</TableCell>
                         <TableCell>

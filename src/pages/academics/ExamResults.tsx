@@ -23,6 +23,9 @@ interface Standing {
   roll_number: string | null;
   class_name: string | null;
   total_marks: number;
+  total_full_marks?: number;
+  theory_marks?: number;
+  practical_marks?: number;
   percentage: number;
   gpa: number;
   grade: string;
@@ -61,77 +64,25 @@ const ExamResults = () => {
     if (!selectedExam) return;
     (async () => {
       setLoadingStandings(true);
-      // Try student_results first
-      const { data: resultsData } = await supabase
-        .from("student_results")
-        .select("student_id, total_marks, percentage, gpa, grade, rank")
+      const { data: publicRows, error } = await supabase
+        .from("public_exam_standings")
+        .select("student_id, full_name, roll_number, class_name, total_marks, percentage, gpa, grade, rank")
         .eq("exam_id", selectedExam.id)
         .order("rank", { ascending: true });
 
-      let rows: Standing[] = [];
-      if (resultsData && resultsData.length > 0) {
-        const ids = resultsData.map((r: any) => r.student_id);
-        const { data: students } = await supabase
-          .from("students")
-          .select("id, full_name, roll_number, class")
-          .in("id", ids);
-        const map = new Map((students || []).map((s: any) => [s.id, s]));
-        rows = resultsData.map((r: any) => ({
-          student_id: r.student_id,
-          full_name: map.get(r.student_id)?.full_name || "—",
-          roll_number: map.get(r.student_id)?.roll_number || null,
-          class_name: map.get(r.student_id)?.class || null,
-          total_marks: r.total_marks || 0,
-          percentage: r.percentage || 0,
-          gpa: r.gpa || 0,
-          grade: r.grade || "-",
-          rank: r.rank || 0,
-        }));
-      } else {
-        // Fallback: aggregate exam_marks
-        const { data: marks } = await supabase
-          .from("exam_marks")
-          .select("student_id, total_marks, grade_point, subjects!inner(full_marks, credit_hours)")
-          .eq("exam_id", selectedExam.id);
-        if (marks && marks.length > 0) {
-          const byStudent = new Map<string, { total: number; full: number; wgp: number; credits: number }>();
-          for (const m of marks as any[]) {
-            const s = byStudent.get(m.student_id) || { total: 0, full: 0, wgp: 0, credits: 0 };
-            const credit = m.subjects?.credit_hours || 4;
-            s.total += m.total_marks || 0;
-            s.full += m.subjects?.full_marks || 100;
-            s.wgp += (m.grade_point || 0) * credit;
-            s.credits += credit;
-            byStudent.set(m.student_id, s);
-          }
-          const ids = Array.from(byStudent.keys());
-          const { data: students } = await supabase
-            .from("students")
-            .select("id, full_name, roll_number, class")
-            .in("id", ids);
-          const smap = new Map((students || []).map((s: any) => [s.id, s]));
-          rows = ids.map((id) => {
-            const s = byStudent.get(id)!;
-            const pct = s.full > 0 ? (s.total / s.full) * 100 : 0;
-            const gpa = s.credits > 0 ? s.wgp / s.credits : 0;
-            const grade =
-              gpa >= 3.6 ? "A+" : gpa >= 3.2 ? "A" : gpa >= 2.8 ? "B+" : gpa >= 2.4 ? "B" :
-              gpa >= 2.0 ? "C+" : gpa >= 1.6 ? "C" : gpa >= 1.2 ? "D+" : gpa >= 0.8 ? "D" : "NG";
-            return {
-              student_id: id,
-              full_name: smap.get(id)?.full_name || "—",
-              roll_number: smap.get(id)?.roll_number || null,
-              class_name: smap.get(id)?.class || null,
-              total_marks: s.total,
-              percentage: Math.round(pct * 100) / 100,
-              gpa: Math.round(gpa * 100) / 100,
-              grade,
-              rank: 0,
-            };
-          }).sort((a, b) => b.total_marks - a.total_marks)
-            .map((r, i) => ({ ...r, rank: i + 1 }));
-        }
-      }
+      let rows: Standing[] = (publicRows || []).map((r: any) => ({
+        student_id: r.student_id,
+        full_name: r.full_name || "—",
+        roll_number: r.roll_number || null,
+        class_name: r.class_name || null,
+        total_marks: r.total_marks || 0,
+        percentage: r.percentage || 0,
+        gpa: r.gpa || 0,
+        grade: r.grade || "-",
+        rank: r.rank || 0,
+      }));
+
+      if (error) rows = [];
       setStandings(rows);
       setLoadingStandings(false);
     })();
